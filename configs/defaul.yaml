@@ -1,0 +1,89 @@
+# Default configuration for Quantum Federated Learning Simulator
+
+# General settings
+general:
+  seed: 42
+  debug: false
+  log_level: "INFO"
+  results_dir: "experiments/results"
+  visualization_dir: "experiments/visualizations"
+
+# Dataset settings
+dataset:
+  name: "mnist"  # Options: mnist, fashion_mnist, cifar10, custom
+  custom_path: null
+  test_split: 0.2
+  validation_split: 0.1
+  preprocess: true
+  downsample_to: 1000  # Reduce dataset size for faster experimentation, null for full dataset
+
+# Quantum settings
+quantum:
+  backend: "qiskit"  # Options: qiskit, pennylane
+  simulator: "aer_simulator"  # For qiskit backend
+  device: "default.qubit"  # For pennylane backend
+  n_qubits: 8
+  circuit_depth: 3
+  measurement_basis: "Z"
+  shots: 1024
+  optimization_level: 1
+  use_noise_model: false
+  noise_model_config: null
+  circuit_config_file: "configs/quantum/circuit_configs.yaml"
+
+# Federated learning settings
+federated:
+  rounds: 10
+  local_epochs: 2
+  batch_size: 32
+  optimizer: "Adam"
+  learning_rate: 0.01
+  client_fraction: 0.8  # Fraction of clients to select in each round
+  aggregation_method: "FedAvg"  # Options: FedAvg, FedProx, FedNova
+  aggregation_config_file: "configs/federated/federated_configs.yaml"
+  
+# Client settings
+clients:
+  n_clients: 5
+  data_distribution: "iid"  # Options: iid, non_iid_label_skew, non_iid_shard
+  non_iid_alpha: 0.5  # Dirichlet parameter for non-iid distribution
+  shards_per_client: 2  # For non_iid_shard distribution
+  client_resources:
+    min_qubits: 4
+    max_qubits: 8
+    heterogeneous: false
+
+# Security settings
+security:
+  use_encryption: true
+  encryption_method: "homomorphic"  # Options: homomorphic, secure_aggregation
+  differential_privacy:
+    enabled: false
+    epsilon: 1.0
+    delta: 1e-5
+    mechanism: "gaussian"  # Options: gaussian, laplace
+  security_config_file: "configs/security/security_configs.yaml"
+
+# Distributed computing settings
+distributed:
+  engine: "local"  # Options: local, spark, dask
+  n_workers: 2
+  memory_per_worker: "2g"
+  spark_master: "local[*]"
+  distributed_config_file: "configs/distributed/distributed_configs.yaml"
+
+# Metrics settings
+metrics:
+  save_model: true
+  save_frequency: 1  # Save every N rounds
+  metrics_to_track:
+    - "accuracy"
+    - "loss"
+    - "communication_cost"
+    - "training_time"
+    - "quantum_resource_usage"
+  visualizations:
+    - "accuracy_vs_rounds"
+    - "loss_vs_rounds"
+    - "client_performance_comparison"
+    - "communication_overhead"
