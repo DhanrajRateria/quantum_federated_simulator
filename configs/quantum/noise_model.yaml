@@ -1,0 +1,45 @@
+# Quantum Noise Model Configuration
+
+# Noise type and parameters
+noise_model:
+  # Bit flip noise
+  bit_flip:
+    active: true
+    probability: 0.001
+  
+  # Phase flip noise
+  phase_flip:
+    active: true
+    probability: 0.001
+  
+  # Depolarizing noise
+  depolarizing:
+    active: true
+    probability: 0.005
+    target: gates  # options: gates, qubits, all
+  
+  # Amplitude damping
+  amplitude_damping:
+    active: false
+    probability: 0.002
+  
+  # Thermal relaxation
+  thermal_relaxation:
+    active: false
+    t1: 50.0  # microseconds
+    t2: 70.0  # microseconds
+    gate_time: 0.1  # microseconds
+
+# Readout errors
+readout_error:
+  active: true
+  probabilities:
+    '0|0': 0.98  # Probability of reading 0 given state 0
+    '1|0': 0.02  # Probability of reading 1 given state 0
+    '0|1': 0.03  # Probability of reading 0 given state 1
+    '1|1': 0.97  # Probability of reading 1 given state 1
+
+# Specific device noise profile
+device_noise_profile:
+  name: null  # 'ibmq_santiago', null for generic noise model
+  auto_configure: false  # Automatically get noise profile from IBMQ device
