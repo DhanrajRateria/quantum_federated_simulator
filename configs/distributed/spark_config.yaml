@@ -1,0 +1,28 @@
+# Spark Configuration for Federated Learning Simulator
+
+# Application settings
+app_name: "QuantumFederatedLearningSimulator"
+master: "local[*]"  # Use "spark://host:port" for a standalone cluster
+
+# Resource settings
+driver_memory: "4g"
+executor_memory: "4g"
+executor_cores: 4
+max_result_size: "2g"
+
+# Network settings
+network_timeout: 1200  # 20 minutes
+ui_port: 4040
+
+# Performance settings
+serializer: "org.apache.spark.serializer.KryoSerializer"
+shuffle_partitions: 10
+default_parallelism: 10
+
+# Logging
+log_level: "ERROR"  # Options: ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN
+
+# Additional spark properties
+spark.local.dir: "/tmp/spark-temp"
+spark.worker.timeout: 120
+spark.task.maxFailures: 3

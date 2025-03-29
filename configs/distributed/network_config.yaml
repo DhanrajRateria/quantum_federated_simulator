@@ -1,0 +1,46 @@
+# Network Configuration for Distributed FL Simulator
+
+# Network topology
+topology:
+  type: "star"  # Options: star, mesh, ring, hierarchical
+  central_node: "server-1"
+
+# Node communication settings
+communication:
+  protocol: "grpc"  # Options: grpc, http, socket
+  compression: true
+  timeout: 60  # seconds
+  retry:
+    max_attempts: 3
+    backoff_factor: 1.5
+
+# Security settings
+security:
+  encrypt_traffic: true
+  authentication: true
+  cert_path: "configs/security/certs/"
+
+# Bandwidth simulation
+bandwidth:
+  simulate_constraints: false
+  default_bandwidth: "100mbps"  # Only used if simulate_constraints is true
+  latency: 50  # milliseconds
+
+# Node configuration
+nodes:
+  server:
+    host: "0.0.0.0"
+    port: 8000
+    max_connections: 100
+    
+  client:
+    connection_timeout: 30
+    heartbeat_interval: 10
+    reconnect_attempts: 5
+
+# Discovery service
+discovery:
+  enabled: true
+  mechanism: "registry"  # Options: registry, multicast, manual
+  registry_url: "http://localhost:8001/registry"
+  heartbeat_interval: 30
