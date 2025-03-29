@@ -1,211 +1,250 @@
 """
-Aggregation strategies for quantum federated learning.
-This module defines various methods to aggregate quantum model parameters
-from multiple clients.
+Aggregation strategies for federated learning.
+
+This module provides various aggregation methods for combining model updates
+from multiple clients in a federated learning setting.
 """
 
-import numpy as np
 import logging
-from typing import Dict, List, Optional, Union, Tuple
+from abc import ABC, abstractmethod
+from typing import Dict, List, Tuple, Union, Optional, Any
+
+import numpy as np
+import torch
 
 logger = logging.getLogger(__name__)
 
-def federated_average(parameters: Dict[str, np.ndarray], weights: Dict[str, float]) -> np.ndarray:
-    """
-    Implement the Federated Averaging (FedAvg) algorithm.
-    
-    Args:
-        parameters: Dict mapping client IDs to their model parameters
-        weights: Dict mapping client IDs to their aggregation weights
-        
-    Returns:
-        Weighted average of client parameters
-    """
-    if not parameters:
-        raise ValueError("No parameters to aggregate")
-    
-    # Verify all clients have weights
-    for client_id in parameters:
-        if client_id not in weights:
-            raise ValueError(f"Client {client_id} has no assigned weight")
-    
-    # Normalize weights to sum to 1
-    total_weight = sum(weights.values())
-    if total_weight == 0:
-        raise ValueError("Sum of weights is zero")
-    
-    normalized_weights = {k: v / total_weight for k, v in weights.items()}
-    
-    # Get the shape from the first client to initialize the result
-    first_client_id = list(parameters.keys())[0]
-    aggregated = np.zeros_like(parameters[first_client_id])
-    
-    # Compute weighted average
-    for client_id, params in parameters.items():
-        if params.shape != aggregated.shape:
-            raise ValueError(f"Parameter shape mismatch for client {client_id}")
-        
-        weight = normalized_weights[client_id]
-        aggregated += weight * params
-    
-    logger.debug(f"Aggregated parameters from {len(parameters)} clients using FedAvg")
-    return aggregated
 
-def federated_median(parameters: Dict[str, np.ndarray], weights: Optional[Dict[str, float]] = None) -> np.ndarray:
-    """
-    Implement a coordinate-wise median aggregation, which is more robust to outliers.
-    
-    Args:
-        parameters: Dict mapping client IDs to their model parameters
-        weights: Optional dict mapping client IDs to weights (not used for median)
-        
-    Returns:
-        Element-wise median of client parameters
-    """
-    if not parameters:
-        raise ValueError("No parameters to aggregate")
-    
-    # Get the shape from the first client to validate consistency
-    first_client_id = list(parameters.keys())[0]
-    first_params = parameters[first_client_id]
-    param_shape = first_params.shape
-    
-    # Stack parameters from all clients
-    param_stack = []
-    for client_id, params in parameters.items():
-        if params.shape != param_shape:
-            raise ValueError(f"Parameter shape mismatch for client {client_id}")
-        param_stack.append(params)
-    
-    # Convert to numpy array
-    stacked_params = np.stack(param_stack, axis=0)
-    
-    # Compute median along client dimension
-    aggregated = np.median(stacked_params, axis=0)
-    
-    logger.debug(f"Aggregated parameters from {len(parameters)} clients using coordinate-wise median")
-    return aggregated
+class AggregationStrategy(ABC):
+    """Base abstract class for aggregation strategies."""
 
-def trimmed_mean(parameters: Dict[str, np.ndarray], beta: float = 0.1) -> np.ndarray:
-    """
-    Implement trimmed mean aggregation, which removes the highest and lowest beta fraction
-    of values before averaging.
-    
-    Args:
-        parameters: Dict mapping client IDs to their model parameters
-        beta: Fraction of highest and lowest values to exclude
-        
-    Returns:
-        Trimmed mean of client parameters
-    """
-    if not parameters:
-        raise ValueError("No parameters to aggregate")
-    
-    if beta < 0 or beta >= 0.5:
-        raise ValueError("Beta must be in [0, 0.5)")
-    
-    # Get the shape from the first client
-    first_client_id = list(parameters.keys())[0]
-    first_params = parameters[first_client_id]
-    param_shape = first_params.shape
-    
-    # Stack parameters from all clients
-    param_stack = []
-    for client_id, params in parameters.items():
-        if params.shape != param_shape:
-            raise ValueError(f"Parameter shape mismatch for client {client_id}")
-        param_stack.append(params)
-    
-    # Convert to numpy array
-    stacked_params = np.stack(param_stack, axis=0)
-    
-    # Sort along client dimension
-    n_clients = len(parameters)
-    n_remove = int(beta * n_clients)
-    
-    # Compute trimmed mean
-    sorted_params = np.sort(stacked_params, axis=0)
-    trimmed_params = sorted_params[n_remove:n_clients - n_remove]
-    aggregated = np.mean(trimmed_params, axis=0)
-    
-    logger.debug(f"Aggregated parameters from {len(parameters)} clients using trimmed mean (beta={beta})")
-    return aggregated
+    @abstractmethod
+    def aggregate(self, client_updates: List[Tuple[Dict[str, torch.Tensor], float]]) -> Dict[str, torch.Tensor]:
+        """
+        Aggregate client model updates into a single global update.
 
-def krum(parameters: Dict[str, np.ndarray], f: int = 1) -> np.ndarray:
-    """
-    Implement Krum aggregation, which is robust to Byzantine attacks.
-    Selects the parameter vector with minimal sum of squared distances to its closest
-    n-f-2 neighbors.
-    
-    Args:
-        parameters: Dict mapping client IDs to their model parameters
-        f: Upper bound on number of Byzantine clients
-        
-    Returns:
-        Selected client's parameters
-    """
-    if not parameters:
-        raise ValueError("No parameters to aggregate")
-    
-    n_clients = len(parameters)
-    if f >= n_clients:
-        raise ValueError(f"f must be less than the number of clients ({n_clients})")
-    
-    # Flatten parameters to compute distances
-    flattened_params = {}
-    for client_id, params in parameters.items():
-        flattened_params[client_id] = params.flatten()
-    
-    # Compute pairwise squared distances
-    distances = {}
-    for client_id_1 in flattened_params:
-        distances[client_id_1] = {}
-        for client_id_2 in flattened_params:
-            if client_id_1 != client_id_2:
-                dist = np.sum((flattened_params[client_id_1] - flattened_params[client_id_2]) ** 2)
-                distances[client_id_1][client_id_2] = dist
-    
-    # For each client, compute sum of squared distances to closest n-f-2 neighbors
-    scores = {}
-    for client_id in distances:
-        sorted_dists = sorted(distances[client_id].values())
-        # Sum of distances to n-f-2 closest vectors
-        scores[client_id] = sum(sorted_dists[:n_clients - f - 2])
-    
-    # Select client with minimal score
-    selected_client = min(scores, key=scores.get)
-    
-    logger.debug(f"Selected parameters from client {selected_client} using Krum (f={f})")
-    return parameters[selected_client]
+        Args:
+            client_updates: List of tuples, where each tuple contains:
+                - A dictionary of model parameters (name -> tensor)
+                - The weight to assign to this client (e.g., sample count)
 
-def coordinate_wise_op(parameters: Dict[str, np.ndarray], op_func) -> np.ndarray:
-    """
-    Apply a coordinate-wise operation to aggregate parameters.
-    
-    Args:
-        parameters: Dict mapping client IDs to their model parameters
-        op_func: Element-wise operation function
+        Returns:
+            Dictionary of aggregated model parameters
+        """
+        pass
+
+    @classmethod
+    def from_config(cls, config: Dict[str, Any]) -> 'AggregationStrategy':
+        """
+        Create an instance of the aggregation strategy from configuration.
         
-    Returns:
-        Aggregated parameters
+        Args:
+            config: Dictionary containing configuration parameters
+            
+        Returns:
+            Instance of the aggregation strategy
+        """
+        strategy_type = config.get('type', 'fedavg').lower()
+        
+        if strategy_type == 'fedavg':
+            return FedAvg()
+        elif strategy_type == 'fedprox':
+            mu = config.get('mu', 0.01)
+            return FedProx(mu=mu)
+        elif strategy_type == 'median':
+            return Median()
+        elif strategy_type == 'trimmed_mean':
+            trim_ratio = config.get('trim_ratio', 0.1)
+            return TrimmedMean(trim_ratio=trim_ratio)
+        else:
+            raise ValueError(f"Unsupported aggregation strategy: {strategy_type}")
+
+
+class FedAvg(AggregationStrategy):
     """
-    if not parameters:
-        raise ValueError("No parameters to aggregate")
+    Federated Averaging (FedAvg) aggregation strategy.
     
-    # Get the shape from the first client
-    first_client_id = list(parameters.keys())[0]
-    first_params = parameters[first_client_id]
-    param_shape = first_params.shape
+    As described in "Communication-Efficient Learning of Deep Networks from Decentralized Data"
+    by McMahan et al.
+    """
     
-    # Stack parameters from all clients
-    param_stack = []
-    for client_id, params in parameters.items():
-        if params.shape != param_shape:
-            raise ValueError(f"Parameter shape mismatch for client {client_id}")
-        param_stack.append(params)
+    def aggregate(self, client_updates: List[Tuple[Dict[str, torch.Tensor], float]]) -> Dict[str, torch.Tensor]:
+        """
+        Aggregate client updates using weighted averaging.
+        
+        Args:
+            client_updates: List of (model_parameters, weight) tuples
+            
+        Returns:
+            Aggregated model parameters
+        """
+        if not client_updates:
+            logger.warning("No client updates provided for aggregation")
+            return {}
+            
+        # Extract parameters and weights
+        parameters_list = [params for params, _ in client_updates]
+        weights = np.array([weight for _, weight in client_updates])
+        
+        # Normalize weights
+        total_weight = weights.sum()
+        if total_weight == 0:
+            logger.warning("Total weight is zero, using simple averaging")
+            weights = np.ones_like(weights) / len(weights)
+        else:
+            weights = weights / total_weight
+            
+        # Initialize result with zeros like the first client's parameters
+        result = {}
+        for name, tensor in parameters_list[0].items():
+            result[name] = torch.zeros_like(tensor)
+        
+        # Perform weighted averaging
+        for client_idx, parameters in enumerate(parameters_list):
+            client_weight = weights[client_idx]
+            for name, tensor in parameters.items():
+                if name in result:
+                    result[name] += client_weight * tensor
+        
+        logger.debug(f"Aggregated updates from {len(client_updates)} clients using FedAvg")
+        return result
+
+
+class FedProx(FedAvg):
+    """
+    FedProx aggregation strategy.
     
-    # Convert to numpy array and apply operation
-    stacked_params = np.stack(param_stack, axis=0)
-    aggregated = op_func(stacked_params, axis=0)
+    As described in "Federated Optimization in Heterogeneous Networks"
+    by Li et al. This implementation only handles the aggregation part.
+    The proximal term needs to be applied during client training.
+    """
     
-    return aggregated
+    def __init__(self, mu: float = 0.01):
+        """
+        Initialize FedProx aggregator.
+        
+        Args:
+            mu: Proximal term parameter that controls how much to penalize
+                deviation from the global model
+        """
+        super().__init__()
+        self.mu = mu
+        
+    def aggregate(self, client_updates: List[Tuple[Dict[str, torch.Tensor], float]]) -> Dict[str, torch.Tensor]:
+        """
+        Aggregate client updates using FedProx.
+        
+        Note: The actual proximal term is applied during client training.
+        The aggregation is the same as FedAvg.
+        
+        Args:
+            client_updates: List of (model_parameters, weight) tuples
+            
+        Returns:
+            Aggregated model parameters
+        """
+        logger.debug(f"Aggregating with FedProx (mu={self.mu})")
+        return super().aggregate(client_updates)
+
+
+class Median(AggregationStrategy):
+    """
+    Coordinate-wise median aggregation strategy.
+    
+    More robust to outliers and poisoning attacks than simple averaging.
+    """
+    
+    def aggregate(self, client_updates: List[Tuple[Dict[str, torch.Tensor], float]]) -> Dict[str, torch.Tensor]:
+        """
+        Aggregate client updates using coordinate-wise median.
+        
+        Args:
+            client_updates: List of (model_parameters, weight) tuples
+            
+        Returns:
+            Aggregated model parameters
+        """
+        if not client_updates:
+            logger.warning("No client updates provided for aggregation")
+            return {}
+            
+        # Extract parameters (weights are ignored for median)
+        parameters_list = [params for params, _ in client_updates]
+        
+        # Initialize result
+        result = {}
+        
+        # For each parameter tensor
+        for name, tensor in parameters_list[0].items():
+            # Stack corresponding tensors from all clients
+            stacked_tensors = torch.stack([params[name] for params in parameters_list if name in params])
+            # Compute median along the first dimension (client dimension)
+            result[name] = torch.median(stacked_tensors, dim=0).values
+        
+        logger.debug(f"Aggregated updates from {len(client_updates)} clients using Median")
+        return result
+
+
+class TrimmedMean(AggregationStrategy):
+    """
+    Trimmed mean aggregation strategy.
+    
+    Removes a percentage of the smallest and largest values before averaging.
+    More robust to outliers and poisoning attacks than simple averaging.
+    """
+    
+    def __init__(self, trim_ratio: float = 0.1):
+        """
+        Initialize Trimmed Mean aggregator.
+        
+        Args:
+            trim_ratio: Percentage of values to trim from each end
+        """
+        super().__init__()
+        if not 0 <= trim_ratio < 0.5:
+            raise ValueError("trim_ratio must be between 0 and 0.5")
+        self.trim_ratio = trim_ratio
+        
+    def aggregate(self, client_updates: List[Tuple[Dict[str, torch.Tensor], float]]) -> Dict[str, torch.Tensor]:
+        """
+        Aggregate client updates using trimmed mean.
+        
+        Args:
+            client_updates: List of (model_parameters, weight) tuples
+            
+        Returns:
+            Aggregated model parameters
+        """
+        if not client_updates:
+            logger.warning("No client updates provided for aggregation")
+            return {}
+            
+        # Extract parameters (weights are ignored for trimmed mean)
+        parameters_list = [params for params, _ in client_updates]
+        num_clients = len(parameters_list)
+        
+        # Calculate how many clients to trim from each end
+        k = int(self.trim_ratio * num_clients)
+        
+        # Initialize result
+        result = {}
+        
+        # For each parameter tensor
+        for name, tensor in parameters_list[0].items():
+            # Stack corresponding tensors from all clients
+            stacked_tensors = torch.stack([params[name] for params in parameters_list if name in params])
+            
+            # Sort along the first dimension (client dimension)
+            sorted_tensors, _ = torch.sort(stacked_tensors, dim=0)
+            
+            # Remove k smallest and k largest values
+            if 2*k < num_clients:
+                trimmed_tensors = sorted_tensors[k:num_clients-k]
+                # Average the remaining tensors
+                result[name] = torch.mean(trimmed_tensors, dim=0)
+            else:
+                # If we're trying to trim too much, fall back to median
+                result[name] = torch.median(stacked_tensors, dim=0).values
+        
+        logger.debug(f"Aggregated updates from {len(client_updates)} clients using TrimmedMean (ratio={self.trim_ratio})")
+        return result

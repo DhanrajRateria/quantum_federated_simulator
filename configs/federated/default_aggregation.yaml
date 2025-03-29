@@ -1,0 +1,75 @@
+# Default aggregation settings for federated learning
+
+# Default aggregation strategy
+strategy: "FedAvg"
+
+# Available aggregation strategies
+strategies:
+  # Federated Averaging (McMahan et al., 2017)
+  FedAvg:
+    # Whether to weight by number of samples (true) or equally (false)
+    weighted_aggregation: true
+    
+    # Minimum contribution weight to include a client
+    min_contribution_weight: 0.0
+    
+  # Federated Proximal (Li et al., 2020)
+  FedProx:
+    # Server-side proximal term (mu)
+    mu: 0.01
+    
+    # Whether to weight by number of samples
+    weighted_aggregation: true
+    
+  # Trimmed Mean (aggregation robust to Byzantine attacks)
+  TrimmedMean:
+    # Fraction of updates to trim from each end
+    beta: 0.1
+    
+    # Whether to weight by number of samples after trimming
+    weighted_aggregation: true
+    
+  # Median (aggregation robust to Byzantine attacks)
+  Median:
+    # No specific parameters
+    
+  # Krum (Blanchard et al., 2017)
+  Krum:
+    # Number of Byzantine clients assumed
+    num_byzantine: 1
+    
+    # Whether to use multi-Krum
+    multi_krum: false
+    
+    # If multi-krum, how many clients to select
+    m: 5
+    
+  # FedBulyan (Guerraoui et al., 2018)
+  FedBulyan:
+    # Number of Byzantine clients assumed
+    num_byzantine: 1
+    
+    # Parameter controlling robustness
+    krum_samples: 5
+
+  # FedNova (Wang et al., 2020)
+  FedNova:
+    # Whether to weight by effective number of steps
+    weight_by_steps: true
+    
+    # Whether to normalize client updates
+    normalize_updates: true
+    
+# General aggregation settings
+settings:
+  # Minimum number of clients required for aggregation
+  min_clients: 1
+  
+  # Maximum staleness allowed for updates (0 = no staleness)
+  max_staleness: 0
+  
+  # Whether to validate client updates before aggregation
+  validate_updates: true
+  
+  # Whether to log details about the aggregation process
+  verbose_logging: false
