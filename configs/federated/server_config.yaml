@@ -1,0 +1,121 @@
+# Server configuration for federated learning
+
+# Basic server settings
+server:
+  # Number of rounds to run
+  num_rounds: 100
+  
+  # Server address and port
+  host: "127.0.0.1"
+  port: 8080
+  
+  # Maximum time to wait for client updates (seconds)
+  timeout: 600
+
+# Client management
+client_management:
+  # Fraction of clients to select in each round
+  client_fraction: 0.1
+  
+  # Minimum number of clients per round
+  min_clients_per_round: 3
+  
+  # Maximum number of clients per round
+  max_clients_per_round: 10
+  
+  # Selection strategy (random, availability, diversity)
+  selection_strategy: "random"
+  
+  # Whether to drop slow clients
+  drop_slow_clients: false
+  
+  # Timeout for client response (seconds)
+  client_timeout: 300
+
+# Model configuration
+model:
+  # Where to save the global model
+  save_path: "./models/global_model.pt"
+  
+  # How often to save checkpoints (in rounds)
+  checkpoint_interval: 10
+  
+  # Whether to keep all checkpoints or just the latest
+  keep_all_checkpoints: false
+  
+  # Initial model weights file (if any)
+  initial_weights: null
+
+# Evaluation settings
+evaluation:
+  # Whether to evaluate global model after each round
+  evaluate_every_round: true
+  
+  # Whether to use a separate test set
+  use_test_set: true
+  
+  # Path to test dataset
+  test_dataset_path: "./data/test"
+  
+  # Metrics to compute
+  metrics: 
+    - "accuracy"
+    - "loss"
+    - "f1_score"
+  
+  # Whether to log detailed evaluation results
+  detailed_evaluation: true
+  
+  # Whether to evaluate on client validation sets
+  evaluate_on_clients: false
+  
+  # Frequency of client-side evaluation (in rounds)
+  client_evaluation_frequency: 5
+
+# Termination criteria
+termination:
+  # Target accuracy to stop at
+  target_accuracy: 0.99
+  
+  # Maximum number of rounds
+  max_rounds: 200
+  
+  # Stop if no improvement for N rounds
+  early_stopping_rounds: 10
+  
+  # Minimum improvement to reset early stopping counter
+  min_improvement: 0.001
+
+# Security settings
+security:
+  # Whether to use secure aggregation
+  use_secure_aggregation: false
+  
+  # Whether to validate client updates (check for Byzantine attacks)
+  validate_client_updates: true
+  
+  # Whether to use differential privacy for global model
+  use_differential_privacy: false
+  
+  # DP parameters if enabled
+  dp_epsilon: 1.0
+  dp_delta: 1e-5
+
+# Logging and metrics
+logging:
+  level: "INFO"
+  
+  # Where to save logs
+  log_dir: "./logs"
+  
+  # Whether to log to console
+  log_to_console: true
+  
+  # How often to report training progress (in rounds)
+  report_interval: 1
+  
+  # Whether to track and report detailed metrics
+  detailed_metrics: true
+  
+  # Whether to use tensorboard for visualization
+  use_tensorboard: true
