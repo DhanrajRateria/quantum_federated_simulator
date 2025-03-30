@@ -21,6 +21,75 @@ import zmq
 from cryptography.fernet import Fernet
 
 
+class MessageType(Enum):
+    """Types of messages exchanged in the system."""
+    MODEL_UPDATE = "model_update"
+    MODEL_DISTRIBUTION = "model_distribution"
+    NODE_REGISTER = "node_register"
+    NODE_REGISTER_ACK = "node_register_ack"
+    NODE_HEARTBEAT = "node_heartbeat"
+    NODE_STATUS = "node_status"
+    TRAINING_START = "training_start"
+    TRAINING_COMPLETE = "training_complete"
+    ERROR = "error"
+
+
+class Message:
+    """
+    Represents a message exchanged between nodes in the federated learning system.
+    
+    Attributes:
+        message_type (MessageType): Type of the message
+        sender (str): ID of the sender node
+        receiver (str): ID of the receiver node
+        data (Any): Message payload
+        timestamp (float): Time when the message was created
+    """
+    
+    def __init__(self, message_type: MessageType, data: Any, 
+                 sender: Optional[str] = None, 
+                 receiver: Optional[str] = None):
+        """
+        Initialize a new message.
+        
+        Args:
+            message_type: Type of the message
+            data: Message payload
+            sender: ID of the sender node (optional)
+            receiver: ID of the receiver node (optional)
+        """
+        self.message_type = message_type
+        self.sender = sender
+        self.receiver = receiver
+        self.data = data
+        self.timestamp = time.time()
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert message to dictionary representation."""
+        return {
+            "message_type": self.message_type.value,
+            "sender": self.sender,
+            "receiver": self.receiver,
+            "data": self.data,
+            "timestamp": self.timestamp
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Message':
+        """Create a message from dictionary representation."""
+        try:
+            message_type = MessageType(data["message_type"])
+        except (KeyError, ValueError):
+            message_type = MessageType.ERROR
+            
+        return cls(
+            message_type=message_type,
+            data=data.get("data"),
+            sender=data.get("sender"),
+            receiver=data.get("receiver")
+        )
+
+
 class CommunicationProtocol(Enum):
     """Communication protocols supported by the system."""
     TCP = "tcp"
@@ -69,7 +138,19 @@ class Communication:
             self.context = zmq.Context()
             
         self.sockets = {}
+        self.message_handlers = {}
         self.logger.info(f"Communication initialized with protocol: {protocol.value}")
+    
+    def register_handler(self, message_type: MessageType, handler: callable) -> None:
+        """
+        Register a handler for a specific message type.
+        
+        Args:
+            message_type: Type of message to handle
+            handler: Function to call when message is received
+        """
+        self.message_handlers[message_type] = handler
+        self.logger.debug(f"Registered handler for message type: {message_type.value}")
     
     def create_socket(self, socket_type: str, identity: str = None) -> Any:
         """
@@ -219,6 +300,52 @@ class Communication:
         except Exception as e:
             self.logger.error(f"Error receiving data: {e}")
             return False, None
+    
+    def send_message(self, message_type: MessageType, payload: Any, 
+                    destination: str = None) -> bool:
+        """
+        Send a message to a destination.
+        
+        Args:
+            message_type: Type of message to send
+            payload: Message payload
+            destination: Destination node ID
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        message = Message(
+            message_type=message_type,
+            data=payload,
+            sender=self.node_id if hasattr(self, 'node_id') else None,
+            receiver=destination
+        )
+        
+        # This is a simplified version - in a real implementation, you would:
+        # 1. Look up the destination's address
+        # 2. Get or create a socket for that address
+        # 3. Send the message through the socket
+        
+        self.logger.debug(f"Sending {message_type.value} message to {destination}")
+        return True  # Placeholder for actual sending logic
+    
+    def receive_message(self, source: str = None) -> Dict[str, Any]:
+        """
+        Receive a message, optionally from a specific source.
+        
+        Args:
+            source: Source node ID to receive from
+            
+        Returns:
+            Dictionary containing message data
+        """
+        # This is a simplified version - in a real implementation, you would:
+        # 1. Listen on appropriate socket(s) for incoming messages
+        # 2. Filter messages based on source if specified
+        # 3. Deserialize and return the message
+        
+        self.logger.debug(f"Receiving message from {source if source else 'any source'}")
+        return {"status": "success", "data": []}  # Placeholder for actual receiving logic
     
     def close(self) -> None:
         """Close all sockets and cleanup resources."""

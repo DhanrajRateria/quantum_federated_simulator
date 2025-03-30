@@ -1,311 +1,137 @@
 """
-Node management for distributed federated learning.
+Node Manager for Quantum Federated Learning Simulator.
 
-This module provides functionality for managing compute nodes
-in a distributed federated learning environment. It handles node
-registration, status tracking, and coordination.
+This module provides functionality for managing distributed nodes,
+including registration, status monitoring, selection for training,
+and lifecycle management.
 """
 
 import logging
-import uuid
 import threading
 import time
-from typing import Dict, List, Optional, Callable, Any, Union
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+import json
+from typing import Dict, List, Optional, Set, Callable, Any
+import uuid
 from enum import Enum
 
-from src.distributed.communication import Communication, Message, MessageType
+from .communication import MessageType, CommunicationProtocol
 
+# Configure logging
 logger = logging.getLogger(__name__)
 
-
 class NodeStatus(Enum):
-    """Status of a federated learning node."""
-    IDLE = "idle"
+    """Possible states of a federated learning node."""
+    OFFLINE = "offline"
+    ONLINE = "online"
     TRAINING = "training"
-    AGGREGATING = "aggregating"
-    EVALUATING = "evaluating"
-    DISCONNECTED = "disconnected"
     ERROR = "error"
+    STANDBY = "standby"
+    MAINTENANCE = "maintenance"
 
 
 @dataclass
-class NodeResources:
-    """Resource information for a federated learning node."""
-    cpu_cores: int
-    memory_mb: int
-    gpu_count: Optional[int] = None
-    quantum_processor: Optional[str] = None  # For future quantum node integration
-    
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert resources to dictionary."""
-        return {
-            "cpu_cores": self.cpu_cores,
-            "memory_mb": self.memory_mb,
-            "gpu_count": self.gpu_count,
-            "quantum_processor": self.quantum_processor
-        }
-    
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'NodeResources':
-        """Create resources from dictionary."""
-        return cls(
-            cpu_cores=data.get("cpu_cores", 1),
-            memory_mb=data.get("memory_mb", 1024),
-            gpu_count=data.get("gpu_count"),
-            quantum_processor=data.get("quantum_processor")
-        )
-
-
 class Node:
-    """
-    Represents a compute node in the federated learning framework.
+    """Representation of a node in the federated learning network."""
+    node_id: str
+    ip_address: str
+    port: int
+    status: NodeStatus = NodeStatus.OFFLINE
+    compute_power: float = 1.0  # Relative computational capability
+    memory: float = 1.0  # Available memory in GB
+    last_heartbeat: float = 0.0  # Timestamp of last heartbeat
+    capabilities: Dict[str, Any] = field(default_factory=dict)
     
-    This class encapsulates all information and functionality related to 
-    a single node in the distributed environment.
-    """
-    
-    def __init__(
-        self,
-        node_id: Optional[str] = None,
-        name: Optional[str] = None,
-        address: Optional[str] = None,
-        resources: Optional[NodeResources] = None,
-        capabilities: Optional[Dict[str, Any]] = None
-    ):
-        """
-        Initialize a node.
-        
-        Args:
-            node_id: Unique identifier for the node
-            name: Human-readable name for the node
-            address: Network address for communication
-            resources: Computational resources available on the node
-            capabilities: Additional node capabilities
-        """
-        self.node_id = node_id if node_id else str(uuid.uuid4())
-        self.name = name if name else f"node-{self.node_id[:8]}"
-        self.address = address
-        self.resources = resources or NodeResources(cpu_cores=1, memory_mb=1024)
-        self.capabilities = capabilities or {}
-        self.status = NodeStatus.IDLE
-        self.last_heartbeat = time.time()
-        self._metrics = {
-            "training_rounds": 0,
-            "total_training_time": 0.0,
-            "avg_training_time": 0.0,
-            "total_data_processed": 0,
-            "communication_overhead": 0.0
-        }
-        
-    @property
-    def is_active(self) -> bool:
-        """Check if node is active based on recent heartbeat."""
-        return (time.time() - self.last_heartbeat) < 60.0  # 60 seconds timeout
-        
-    def update_status(self, new_status: NodeStatus) -> None:
-        """Update the node's status."""
-        if self.status != new_status:
-            logger.info(f"Node {self.name} status changed: {self.status.value} -> {new_status.value}")
-            self.status = new_status
-            
-    def heartbeat(self) -> None:
-        """Record a heartbeat from this node."""
-        self.last_heartbeat = time.time()
-        
-    def update_metrics(self, metrics: Dict[str, Any]) -> None:
-        """Update node performance metrics."""
-        self._metrics.update(metrics)
-        
-        # Recalculate average training time
-        if self._metrics["training_rounds"] > 0:
-            self._metrics["avg_training_time"] = (
-                self._metrics["total_training_time"] / self._metrics["training_rounds"]
-            )
-        
-    @property
-    def metrics(self) -> Dict[str, Any]:
-        """Get node metrics."""
-        return self._metrics
-        
     def to_dict(self) -> Dict[str, Any]:
         """Convert node to dictionary representation."""
         return {
             "node_id": self.node_id,
-            "name": self.name,
-            "address": self.address,
-            "resources": self.resources.to_dict(),
-            "capabilities": self.capabilities,
+            "ip_address": self.ip_address,
+            "port": self.port,
             "status": self.status.value,
+            "compute_power": self.compute_power,
+            "memory": self.memory,
             "last_heartbeat": self.last_heartbeat,
-            "metrics": self._metrics
+            "capabilities": self.capabilities
         }
-        
+    
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'Node':
-        """Create a node from dictionary representation."""
-        node = cls(
-            node_id=data.get("node_id"),
-            name=data.get("name"),
-            address=data.get("address"),
-            resources=NodeResources.from_dict(data.get("resources", {})),
-            capabilities=data.get("capabilities", {})
-        )
-        
-        # Set status
-        status_value = data.get("status")
-        if status_value:
-            try:
-                node.status = NodeStatus(status_value)
-            except ValueError:
-                node.status = NodeStatus.IDLE
-                
-        # Set other attributes
-        node.last_heartbeat = data.get("last_heartbeat", time.time())
-        node._metrics = data.get("metrics", node._metrics)
-        
-        return node
+        """Create a Node instance from a dictionary."""
+        # Convert string status back to enum
+        data["status"] = NodeStatus(data["status"])
+        return cls(**data)
+    
+    def serialize(self) -> str:
+        """Serialize node to JSON string."""
+        return json.dumps(self.to_dict())
+    
+    @classmethod
+    def deserialize(cls, serialized: str) -> 'Node':
+        """Deserialize JSON string to Node instance."""
+        return cls.from_dict(json.loads(serialized))
 
 
 class NodeManager:
-    """
-    Manages federated learning nodes in a distributed environment.
-    
-    Provides functionality for node registration, status tracking,
-    and coordination for federated learning tasks.
-    """
+    """Manager for federated learning nodes."""
     
     def __init__(
-        self, 
-        communication: Optional[Communication] = None,
-        heartbeat_interval: int = 30
+        self,
+        heartbeat_interval: int = 30,
+        heartbeat_timeout: int = 60,
+        start_heartbeat_monitor: bool = True
     ):
         """
-        Initialize the node manager.
+        Initialize the NodeManager.
         
         Args:
-            communication: Communication instance for node messaging
-            heartbeat_interval: Interval in seconds for node heartbeat checks
+            heartbeat_interval: Seconds between heartbeat checks
+            heartbeat_timeout: Seconds after which a node is considered offline
+            start_heartbeat_monitor: Whether to start monitoring thread automatically
         """
-        self._nodes: Dict[str, Node] = {}
-        self._node_lock = threading.RLock()
-        self.communication = communication
-        self._heartbeat_interval = heartbeat_interval
-        self._status_callbacks: Dict[str, List[Callable[[str, NodeStatus], None]]] = {}
-        self._heartbeat_thread: Optional[threading.Thread] = None
-        self._running = False
+        self.nodes: Dict[str, Node] = {}
+        self.heartbeat_interval = heartbeat_interval
+        self.heartbeat_timeout = heartbeat_timeout
+        self._stop_monitoring = threading.Event()
+        self._monitor_thread = None
+        self._lock = threading.RLock()  # Reentrant lock for thread safety
         
-        # Set up event handlers if communication is provided
-        if self.communication:
-            self._setup_communication_handlers()
+        if start_heartbeat_monitor:
+            self.start_heartbeat_monitor()
     
-    def _setup_communication_handlers(self) -> None:
-        """Set up message handlers for node communication."""
-        self.communication.register_handler(
-            MessageType.NODE_REGISTER, 
-            self._handle_node_register
-        )
-        self.communication.register_handler(
-            MessageType.NODE_HEARTBEAT, 
-            self._handle_node_heartbeat
-        )
-        self.communication.register_handler(
-            MessageType.NODE_STATUS, 
-            self._handle_node_status_update
-        )
-    
-    def start(self) -> None:
-        """Start the node manager's background processes."""
-        if self._running:
-            return
-            
-        self._running = True
-        
-        # Start heartbeat monitoring thread
-        self._heartbeat_thread = threading.Thread(
-            target=self._heartbeat_monitor,
-            daemon=True
-        )
-        self._heartbeat_thread.start()
-        
-        logger.info("NodeManager started")
-    
-    def stop(self) -> None:
-        """Stop the node manager's background processes."""
-        self._running = False
-        
-        if self._heartbeat_thread:
-            self._heartbeat_thread.join(timeout=2.0)
-            self._heartbeat_thread = None
-            
-        logger.info("NodeManager stopped")
-    
-    def _heartbeat_monitor(self) -> None:
-        """Monitor node heartbeats and update status for inactive nodes."""
-        while self._running:
-            try:
-                self._check_node_heartbeats()
-                time.sleep(self._heartbeat_interval)
-            except Exception as e:
-                logger.error(f"Error in heartbeat monitor: {e}")
-    
-    def _check_node_heartbeats(self) -> None:
-        """Check all nodes for recent heartbeats and update status for inactive nodes."""
-        current_time = time.time()
-        
-        with self._node_lock:
-            inactive_nodes = []
-            
-            for node_id, node in self._nodes.items():
-                if (current_time - node.last_heartbeat) > self._heartbeat_interval * 2:
-                    if node.status != NodeStatus.DISCONNECTED:
-                        inactive_nodes.append(node_id)
-            
-            # Update status for inactive nodes
-            for node_id in inactive_nodes:
-                self._nodes[node_id].update_status(NodeStatus.DISCONNECTED)
-                self._trigger_status_callbacks(node_id, NodeStatus.DISCONNECTED)
-    
-    def register_node(self, node: Union[Node, Dict[str, Any]]) -> str:
+    def register_node(self, node: Node) -> bool:
         """
-        Register a node with the manager.
+        Register a new node or update an existing one.
         
         Args:
-            node: Node instance or dictionary with node data
+            node: The node to register
             
         Returns:
-            node_id: The ID of the registered node
+            bool: True if registration successful, False otherwise
         """
-        if isinstance(node, dict):
-            node = Node.from_dict(node)
-        
-        with self._node_lock:
-            self._nodes[node.node_id] = node
-            logger.info(f"Registered node {node.name} with ID {node.node_id}")
-        
-        # Notify about the new node
-        self._trigger_status_callbacks(node.node_id, node.status)
-        
-        return node.node_id
+        with self._lock:
+            node.last_heartbeat = time.time()
+            self.nodes[node.node_id] = node
+            logger.info(f"Node {node.node_id} registered successfully")
+            return True
     
     def unregister_node(self, node_id: str) -> bool:
         """
-        Unregister a node from the manager.
+        Unregister a node from the system.
         
         Args:
             node_id: ID of the node to unregister
             
         Returns:
-            bool: True if the node was unregistered, False if not found
+            bool: True if successfully unregistered, False if not found
         """
-        with self._node_lock:
-            if node_id in self._nodes:
-                del self._nodes[node_id]
-                logger.info(f"Unregistered node with ID {node_id}")
+        with self._lock:
+            if node_id in self.nodes:
+                del self.nodes[node_id]
+                logger.info(f"Node {node_id} unregistered successfully")
                 return True
-        
-        logger.warning(f"Attempted to unregister non-existent node: {node_id}")
-        return False
+            logger.warning(f"Attempted to unregister non-existent node {node_id}")
+            return False
     
     def get_node(self, node_id: str) -> Optional[Node]:
         """
@@ -315,131 +141,168 @@ class NodeManager:
             node_id: ID of the node to retrieve
             
         Returns:
-            Node: The node if found, None otherwise
+            Node if found, None otherwise
         """
-        with self._node_lock:
-            return self._nodes.get(node_id)
+        with self._lock:
+            return self.nodes.get(node_id)
     
-    def list_nodes(self, status_filter: Optional[NodeStatus] = None) -> List[Node]:
+    def get_all_nodes(self) -> List[Node]:
         """
-        List all registered nodes, optionally filtered by status.
+        Get all registered nodes.
         
-        Args:
-            status_filter: Optional filter for node status
-            
         Returns:
-            List[Node]: List of nodes matching the filter
+            List of all nodes
         """
-        with self._node_lock:
-            if status_filter is None:
-                return list(self._nodes.values())
-            else:
-                return [node for node in self._nodes.values() if node.status == status_filter]
+        with self._lock:
+            return list(self.nodes.values())
+    
+    def get_active_nodes(self) -> List[Node]:
+        """
+        Get all active (online) nodes.
+        
+        Returns:
+            List of nodes with active status
+        """
+        with self._lock:
+            return [
+                node for node in self.nodes.values()
+                if node.status == NodeStatus.ONLINE
+            ]
     
     def update_node_status(self, node_id: str, status: NodeStatus) -> bool:
         """
-        Update a node's status.
+        Update the status of a node.
         
         Args:
             node_id: ID of the node to update
-            status: New status for the node
+            status: New status to set
             
         Returns:
-            bool: True if successful, False if node not found
+            bool: True if update successful, False if node not found
         """
-        with self._node_lock:
-            if node_id in self._nodes:
-                self._nodes[node_id].update_status(status)
-                # Trigger status callbacks
-                self._trigger_status_callbacks(node_id, status)
+        with self._lock:
+            if node_id in self.nodes:
+                self.nodes[node_id].status = status
+                logger.info(f"Node {node_id} status updated to {status.value}")
                 return True
-        
-        logger.warning(f"Attempted to update status of non-existent node: {node_id}")
-        return False
+            logger.warning(f"Attempted to update status of non-existent node {node_id}")
+            return False
     
-    def register_status_callback(self, node_id: str, callback: Callable[[str, NodeStatus], None]) -> None:
+    def update_node_heartbeat(self, node_id: str) -> bool:
         """
-        Register a callback for node status changes.
+        Update the last heartbeat time for a node.
         
         Args:
-            node_id: ID of the node to monitor
-            callback: Function to call when status changes, receives (node_id, new_status)
+            node_id: ID of the node
+            
+        Returns:
+            bool: True if update successful, False if node not found
         """
-        if node_id not in self._status_callbacks:
-            self._status_callbacks[node_id] = []
-        
-        self._status_callbacks[node_id].append(callback)
+        with self._lock:
+            if node_id in self.nodes:
+                self.nodes[node_id].last_heartbeat = time.time()
+                return True
+            return False
     
-    def _trigger_status_callbacks(self, node_id: str, status: NodeStatus) -> None:
-        """Trigger all callbacks registered for a node's status."""
-        callbacks = self._status_callbacks.get(node_id, [])
-        for callback in callbacks:
-            try:
-                callback(node_id, status)
-            except Exception as e:
-                logger.error(f"Error in status callback for node {node_id}: {e}")
-    
-    def _handle_node_register(self, message: Message) -> None:
-        """Handle node registration messages."""
-        if not message.data:
-            logger.warning("Received empty node registration message")
+    def start_heartbeat_monitor(self) -> None:
+        """Start the heartbeat monitoring thread."""
+        if self._monitor_thread is not None and self._monitor_thread.is_alive():
+            logger.warning("Heartbeat monitor is already running")
             return
             
-        try:
-            node_data = message.data
-            node_id = self.register_node(node_data)
-            
-            # Send acknowledgment if communication is available
-            if self.communication and message.sender:
-                self.communication.send_message(
-                    MessageType.NODE_REGISTER_ACK,
-                    {"node_id": node_id, "success": True},
-                    message.sender
-                )
-        except Exception as e:
-            logger.error(f"Error handling node registration: {e}")
-            
-            # Send error response
-            if self.communication and message.sender:
-                self.communication.send_message(
-                    MessageType.NODE_REGISTER_ACK,
-                    {"success": False, "error": str(e)},
-                    message.sender
-                )
+        self._stop_monitoring.clear()
+        self._monitor_thread = threading.Thread(
+            target=self._heartbeat_monitor_loop,
+            daemon=True,
+            name="HeartbeatMonitor"
+        )
+        self._monitor_thread.start()
+        logger.info("Heartbeat monitor started")
     
-    def _handle_node_heartbeat(self, message: Message) -> None:
-        """Handle node heartbeat messages."""
-        if not message.data or "node_id" not in message.data:
-            logger.warning("Received invalid heartbeat message")
+    def stop_heartbeat_monitor(self) -> None:
+        """Stop the heartbeat monitoring thread."""
+        if self._monitor_thread is None or not self._monitor_thread.is_alive():
+            logger.warning("Heartbeat monitor is not running")
             return
             
-        node_id = message.data["node_id"]
+        self._stop_monitoring.set()
+        self._monitor_thread.join(timeout=2.0)
+        if self._monitor_thread.is_alive():
+            logger.warning("Heartbeat monitor did not stop gracefully")
+        else:
+            logger.info("Heartbeat monitor stopped successfully")
+        self._monitor_thread = None
+    
+    def _heartbeat_monitor_loop(self) -> None:
+        """Monitor node heartbeats and update status accordingly."""
+        logger.info("Heartbeat monitor loop started")
         
-        with self._node_lock:
-            if node_id in self._nodes:
-                self._nodes[node_id].heartbeat()
+        while not self._stop_monitoring.is_set():
+            current_time = time.time()
+            offline_nodes = []
+            
+            with self._lock:
+                for node_id, node in self.nodes.items():
+                    if (node.status != NodeStatus.OFFLINE and 
+                        current_time - node.last_heartbeat > self.heartbeat_timeout):
+                        node.status = NodeStatus.OFFLINE
+                        offline_nodes.append(node_id)
+            
+            if offline_nodes:
+                logger.warning(f"Nodes marked as offline due to timeout: {offline_nodes}")
                 
-                # Update metrics if provided
-                if "metrics" in message.data:
-                    self._nodes[node_id].update_metrics(message.data["metrics"])
-            else:
-                logger.warning(f"Received heartbeat from unknown node: {node_id}")
+            # Sleep for the monitoring interval
+            self._stop_monitoring.wait(self.heartbeat_interval)
     
-    def _handle_node_status_update(self, message: Message) -> None:
-        """Handle node status update messages."""
-        if not message.data or "node_id" not in message.data or "status" not in message.data:
-            logger.warning("Received invalid status update message")
-            return
+    def select_nodes_for_training(self, 
+                                 count: Optional[int] = None, 
+                                 min_compute_power: Optional[float] = None,
+                                 max_compute_power: Optional[float] = None,
+                                 required_status: NodeStatus = NodeStatus.ONLINE) -> List[Node]:
+        """
+        Select nodes for training based on criteria.
+        
+        Args:
+            count: Maximum number of nodes to select (optional)
+            min_compute_power: Minimum compute power required (optional)
+            max_compute_power: Maximum compute power allowed (optional)
+            required_status: Required node status (default: ONLINE)
             
-        try:
-            node_id = message.data["node_id"]
-            status = NodeStatus(message.data["status"])
+        Returns:
+            List of selected nodes meeting the criteria
+        """
+        with self._lock:
+            # Start with nodes that have the required status
+            candidates = [
+                node for node in self.nodes.values()
+                if node.status == required_status
+            ]
             
-            self.update_node_status(node_id, status)
-        except (KeyError, ValueError) as e:
-            logger.error(f"Error handling status update: {e}")
-
-    def get_active_nodes_count(self) -> int:
-        """Get the count of currently active nodes."""
-        with self._node_lock:
-            return sum(1 for node in self._nodes.values() if node.is_active)
+            # Apply compute power filters if specified
+            if min_compute_power is not None:
+                candidates = [
+                    node for node in candidates
+                    if node.compute_power >= min_compute_power
+                ]
+            
+            if max_compute_power is not None:
+                candidates = [
+                    node for node in candidates
+                    if node.compute_power <= max_compute_power
+                ]
+            
+            # Sort by compute power in descending order
+            candidates.sort(key=lambda node: node.compute_power, reverse=True)
+            
+            # Limit to specified count if needed
+            if count is not None:
+                candidates = candidates[:count]
+            
+            return candidates
+    
+    def shutdown(self) -> None:
+        """Shutdown the node manager and release resources."""
+        self.stop_heartbeat_monitor()
+        with self._lock:
+            self.nodes.clear()
+        logger.info("NodeManager shut down successfully")
