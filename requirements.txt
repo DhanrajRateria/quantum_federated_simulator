@@ -23,8 +23,17 @@ tensorflow-federated>=0.20.0
 syft>=0.8.0
 
 # Distributed Computing
-pyspark>=3.2.0
+pyspark==3.2.2
+pyzmq
+pyyaml
 findspark>=2.0.1
+grpcio
+grpcio-tools
+protobuf
+black
+isort
+mypy
+coverage
 # hadoop-py>=0.1.0
 
 # Security & Privacy
