@@ -1,0 +1,31 @@
+# Basic Quantum Circuit Configuration
+
+# Circuit parameters
+n_qubits: 4
+n_layers: 2
+n_params: 24  # 4 qubits * 3 params * 2 layers
+
+# Gate set
+gate_set:
+  - rx
+  - ry
+  - rz
+  - cz
+
+# Entanglement configuration
+entanglement: linear
+
+# Data encoding
+encoding: angle
+
+# Measurement configuration
+measurement: z
+
+# Device configuration
+device: default.qubit
+shots: 1024  # None for analytic simulation
+
+# Training parameters
+learning_rate: 0.01
+batch_size: 10
+epochs: 100

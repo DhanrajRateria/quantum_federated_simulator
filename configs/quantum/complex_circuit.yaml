@@ -1,0 +1,38 @@
+# Complex Quantum Circuit Configuration
+
+# Circuit parameters
+n_qubits: 6
+n_layers: 3
+n_params: 108  # Computed based on the circuit architecture
+
+# Gate set
+gate_set:
+  - rx
+  - ry
+  - rz
+  - crx
+  - cry
+  - hadamard
+
+# Entanglement configuration
+entanglement: all_to_all
+
+# Data encoding
+encoding: iqp
+encoding_repetitions: 2
+
+# Measurement configuration
+measurement: mixed
+observables:
+  - single_pauli
+  - two_qubit
+
+# Device configuration
+device: lightning.qubit
+shots: 8192
+
+# Training parameters
+learning_rate: 0.005
+batch_size: 16
+epochs: 200
+optimizer: adam

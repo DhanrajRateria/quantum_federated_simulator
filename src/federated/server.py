@@ -1,287 +1,304 @@
 """
-Server implementation for quantum federated learning.
-This module defines the server-side logic for coordinating the federated
-learning process across quantum clients.
+Federated learning server implementation.
+
+This module provides the server-side functionality for federated learning,
+coordinating client updates and maintaining the global model.
 """
 
-import numpy as np
-import json
 import logging
-import os
+import copy
 import time
-from typing import List, Dict, Optional, Tuple, Union, Callable, Any
-from collections import defaultdict
+from typing import Dict, List, Optional, Tuple, Callable, Any, Union
+
+import torch
+import torch.nn as nn
+from torch.utils.data import Dataset, DataLoader
+
+from federated.aggregation import AggregationStrategy, FedAvg
+from federated.client import FederatedClient
 
 logger = logging.getLogger(__name__)
 
-class QuantumFederatedServer:
-    """Server for quantum federated learning."""
+
+class FederatedServer:
+    """
+    Server in a federated learning system.
     
-    def __init__(self, config: Dict):
+    Responsible for:
+    - Coordinating the federated learning process
+    - Aggregating model updates from clients
+    - Maintaining the global model
+    - Evaluating the global model
+    """
+    
+    def __init__(
+        self,
+        model: nn.Module,
+        aggregation_strategy: Optional[AggregationStrategy] = None,
+        evaluation_dataset: Optional[Dataset] = None,
+        evaluation_metric: Optional[Callable] = None,
+    ):
         """
         Initialize a federated learning server.
         
         Args:
-            config: Dictionary containing server configuration
+            model: PyTorch model to be trained (global model)
+            aggregation_strategy: Strategy for aggregating client updates
+            evaluation_dataset: Optional dataset for server-side evaluation
+            evaluation_metric: Optional metric function for evaluation
         """
-        self.config = config
+        self.model = model
+        self.aggregation_strategy = aggregation_strategy or FedAvg()
+        self.clients: Dict[str, FederatedClient] = {}
+        self.evaluation_dataset = evaluation_dataset
+        self.evaluation_metric = evaluation_metric
+        self.round_history: List[Dict[str, Any]] = []
         
-        # Federated learning configuration
-        self.rounds = config.get('rounds', 10)
-        self.min_clients = config.get('min_clients', 2)
-        self.client_fraction = config.get('client_fraction', 1.0)
-        
-        # Aggregation settings
-        self.aggregation_method = config.get('aggregation_method', 'fedavg')
-        
-        # Model configuration
-        self.model_config = config.get('model', {})
-        self.global_parameters = None
-        self.parameter_shape = None
-        
-        # Tracking and metrics
-        self.metrics = {
-            'global_rounds': [],
-            'participating_clients': [],
-            'aggregation_time': [],
-            'global_loss': [],
-            'global_accuracy': []
-        }
-        
-        # Client state tracking
-        self.clients = {}
-        
-        logger.info(f"Initialized server with {self.aggregation_method} aggregation")
+        logger.info("Federated server initialized")
     
-    def register_client(self, client_id: str, client_info: Dict) -> None:
+    def register_client(self, client: FederatedClient) -> None:
         """
-        Register a new client with the server.
+        Register a client with the server.
         
         Args:
-            client_id: Unique identifier for the client
-            client_info: Information about the client
+            client: Federated client to register
         """
-        self.clients[client_id] = {
-            'info': client_info,
-            'samples': client_info.get('n_samples', 0),
-            'last_update': None,
-            'metrics': defaultdict(list)
-        }
-        logger.info(f"Registered client {client_id} with {client_info.get('n_samples', 0)} samples")
+        if client.client_id in self.clients:
+            logger.warning(f"Client {client.client_id} already registered, overwriting")
+        self.clients[client.client_id] = client
+        logger.debug(f"Registered client {client.client_id}, total clients: {len(self.clients)}")
     
-    def select_clients(self, round_num: int) -> List[str]:
+    def select_clients(self, fraction: float = 1.0, min_clients: int = 1) -> List[str]:
         """
-        Select clients to participate in the current round.
+        Select a subset of clients to participate in the current round.
         
         Args:
-            round_num: Current round number
+            fraction: Fraction of clients to select
+            min_clients: Minimum number of clients to select
             
         Returns:
             List of selected client IDs
         """
-        available_clients = list(self.clients.keys())
-        n_clients = max(self.min_clients, int(len(available_clients) * self.client_fraction))
-        n_clients = min(n_clients, len(available_clients))
+        import random
         
-        # Deterministic selection based on round number for reproducibility
-        np.random.seed(round_num)
-        selected_clients = np.random.choice(available_clients, n_clients, replace=False).tolist()
+        client_ids = list(self.clients.keys())
+        num_clients = max(min_clients, int(fraction * len(client_ids)))
+        num_clients = min(num_clients, len(client_ids))
         
-        logger.info(f"Selected {len(selected_clients)} clients for round {round_num}")
+        selected_clients = random.sample(client_ids, num_clients)
+        logger.debug(f"Selected {len(selected_clients)}/{len(client_ids)} clients for training")
         return selected_clients
     
-    def initialize_global_parameters(self, parameters: np.ndarray) -> None:
+    def get_parameters(self) -> Dict[str, torch.Tensor]:
         """
-        Initialize global model parameters.
+        Get the current global model parameters.
         
-        Args:
-            parameters: Initial model parameters
+        Returns:
+            Dictionary of parameter name -> tensor
         """
-        self.global_parameters = parameters
-        self.parameter_shape = parameters.shape
-        logger.info(f"Initialized global parameters with shape {self.parameter_shape}")
+        return {name: param.data.clone() for name, param in self.model.named_parameters()}
     
-    def aggregate_parameters(self, client_parameters: Dict[str, np.ndarray], client_metrics: Dict[str, Dict]) -> np.ndarray:
+    def set_parameters(self, parameters: Dict[str, torch.Tensor]) -> None:
         """
-        Aggregate parameters from multiple clients.
+        Update global model with provided parameters.
         
         Args:
-            client_parameters: Dictionary mapping client IDs to their parameters
-            client_metrics: Dictionary mapping client IDs to their training metrics
+            parameters: Dictionary of parameter name -> tensor
+        """
+        for name, param in self.model.named_parameters():
+            if name in parameters:
+                param.data = parameters[name].clone()
+    
+    def train_round(
+        self,
+        client_ids: Optional[List[str]] = None,
+        local_epochs: int = 1,
+        client_fraction: float = 1.0,
+        proximal_term: float = 0.0
+    ) -> Dict[str, Any]:
+        """
+        Execute a single round of federated training.
+        
+        Args:
+            client_ids: List of client IDs to include (if None, use selection strategy)
+            local_epochs: Number of local epochs for client training
+            client_fraction: Fraction of clients to select if client_ids is None
+            proximal_term: Coefficient for proximal term (for FedProx)
             
         Returns:
-            Aggregated global parameters
+            Dictionary with round metrics
         """
-        start_time = time.time()
+        round_start_time = time.time()
         
-        if self.aggregation_method == 'fedavg':
-            # FedAvg: Weighted average based on number of samples
-            total_samples = sum(self.clients[client_id]['samples'] for client_id in client_parameters)
+        # Select clients for this round
+        if client_ids is None:
+            client_ids = self.select_clients(fraction=client_fraction)
             
-            # Initialize with zeros in the correct shape
-            if self.parameter_shape is None and len(client_parameters) > 0:
-                # Get shape from first client
-                first_client_id = list(client_parameters.keys())[0]
-                self.parameter_shape = client_parameters[first_client_id].shape
+        if not client_ids:
+            logger.warning("No clients selected for training")
+            return {"error": "No clients selected"}
             
-            aggregated_params = np.zeros(self.parameter_shape)
-            
-            # Weighted aggregation
-            for client_id, params in client_parameters.items():
-                weight = self.clients[client_id]['samples'] / total_samples
-                aggregated_params += weight * params
+        # Get global model parameters
+        global_params = self.get_parameters()
+        
+        # Train on each selected client
+        client_updates = []
+        participating_clients = []
+        
+        for client_id in client_ids:
+            if client_id not in self.clients:
+                logger.warning(f"Client {client_id} not found, skipping")
+                continue
                 
-                # Record client metrics
-                for metric_name, metric_value in client_metrics.get(client_id, {}).items():
-                    self.clients[client_id]['metrics'][metric_name].append(metric_value)
+            client = self.clients[client_id]
             
-        elif self.aggregation_method == 'fedprox':
-            # FedProx: Similar to FedAvg but with proximal term regularization
-            # In actual aggregation, this is the same as FedAvg, but clients use different
-            # optimization objective during training
-            total_samples = sum(self.clients[client_id]['samples'] for client_id in client_parameters)
+            # Update client with global model
+            client.set_parameters(global_params)
             
-            aggregated_params = np.zeros(self.parameter_shape)
+            # Train client model
+            updated_params, num_samples = client.train(
+                epochs=local_epochs,
+                proximal_term=proximal_term,
+                global_model=self.model if proximal_term > 0 else None
+            )
             
-            for client_id, params in client_parameters.items():
-                weight = self.clients[client_id]['samples'] / total_samples
-                aggregated_params += weight * params
+            # Store update
+            client_updates.append((updated_params, num_samples))
+            participating_clients.append(client_id)
+            
+            logger.debug(f"Client {client_id} completed training with {num_samples} samples")
+        
+        if not client_updates:
+            logger.warning("No client updates received")
+            return {"error": "No client updates received"}
+        
+        # Aggregate updates
+        logger.info(f"Aggregating updates from {len(client_updates)} clients")
+        aggregated_params = self.aggregation_strategy.aggregate(client_updates)
+        
+        # Update global model
+        self.set_parameters(aggregated_params)
+        
+        # Evaluate if dataset available
+        metrics = {}
+        if self.evaluation_dataset is not None:
+            metrics = self.evaluate()
+            
+        # Record round information
+        round_info = {
+            "participating_clients": participating_clients,
+            "client_samples": [samples for _, samples in client_updates],
+            "duration_seconds": time.time() - round_start_time,
+            **metrics
+        }
+        
+        self.round_history.append(round_info)
+        logger.info(f"Round completed in {round_info['duration_seconds']:.2f}s, metrics: {metrics}")
+        
+        return round_info
+    
+    def evaluate(self, dataset: Optional[Dataset] = None) -> Dict[str, float]:
+        """
+        Evaluate the global model on a dataset.
+        
+        Args:
+            dataset: Dataset to use for evaluation (if None, uses server's evaluation dataset)
+            
+        Returns:
+            Dictionary with metrics (loss, accuracy)
+        """
+        if dataset is None:
+            dataset = self.evaluation_dataset
+            
+        if dataset is None:
+            logger.warning("No evaluation dataset available")
+            return {}
+            
+        data_loader = DataLoader(dataset, batch_size=64, shuffle=False)
+        
+        self.model.eval()
+        loss_fn = nn.CrossEntropyLoss()
+        total_loss = 0.0
+        correct = 0
+        total = 0
+        
+        with torch.no_grad():
+            for data, target in data_loader:
+                output = self.model(data)
+                total_loss += loss_fn(output, target).item() * data.shape[0]
                 
-                # Record client metrics
-                for metric_name, metric_value in client_metrics.get(client_id, {}).items():
-                    self.clients[client_id]['metrics'][metric_name].append(metric_value)
+                _, predicted = torch.max(output, 1)
+                correct += (predicted == target).sum().item()
+                total += target.size(0)
         
-        else:
-            raise ValueError(f"Unknown aggregation method: {self.aggregation_method}")
+        metrics = {
+            'loss': total_loss / total,
+            'accuracy': correct / total
+        }
         
-        aggregation_time = time.time() - start_time
-        self.metrics['aggregation_time'].append(aggregation_time)
+        # Add custom metrics if available
+        if self.evaluation_metric is not None:
+            self.model.eval()
+            custom_metric = self.evaluation_metric(self.model, dataset)
+            if isinstance(custom_metric, dict):
+                metrics.update(custom_metric)
+            else:
+                metrics['custom_metric'] = custom_metric
         
-        logger.info(f"Aggregated parameters from {len(client_parameters)} clients in {aggregation_time:.2f} seconds")
-        return aggregated_params
+        logger.info(f"Global model evaluation: {metrics}")
+        return metrics
     
-    def update_global_model(self, client_parameters: Dict[str, np.ndarray], client_metrics: Dict[str, Dict]) -> None:
+    def train(
+        self,
+        num_rounds: int,
+        local_epochs: int = 1,
+        client_fraction: float = 1.0,
+        proximal_term: float = 0.0
+    ) -> List[Dict[str, Any]]:
         """
-        Update the global model with aggregated client parameters.
+        Execute multiple rounds of federated training.
         
         Args:
-            client_parameters: Dictionary mapping client IDs to their parameters
-            client_metrics: Dictionary mapping client IDs to their training metrics
-        """
-        self.global_parameters = self.aggregate_parameters(client_parameters, client_metrics)
-    
-    def get_global_parameters(self) -> np.ndarray:
-        """
-        Get current global model parameters.
-        
-        Returns:
-            Global model parameters
-        """
-        return self.global_parameters
-    
-    def run_federated_learning(self, evaluate_fn: Optional[Callable] = None) -> Dict:
-        """
-        Execute the complete federated learning process.
-        
-        Args:
-            evaluate_fn: Optional function to evaluate global model
+            num_rounds: Number of federated training rounds
+            local_epochs: Number of local epochs for client training
+            client_fraction: Fraction of clients to select in each round
+            proximal_term: Coefficient for proximal term (for FedProx)
             
         Returns:
-            Training metrics
+            List of round metrics
         """
-        for round_num in range(1, self.rounds + 1):
-            logger.info(f"Starting federated round {round_num}/{self.rounds}")
+        logger.info(f"Starting federated training for {num_rounds} rounds")
+        
+        for round_idx in range(num_rounds):
+            logger.info(f"Starting round {round_idx + 1}/{num_rounds}")
             
-            # Select clients
-            selected_clients = self.select_clients(round_num)
-            self.metrics['participating_clients'].append(len(selected_clients))
+            round_metrics = self.train_round(
+                local_epochs=local_epochs,
+                client_fraction=client_fraction,
+                proximal_term=proximal_term
+            )
             
-            # Distribute global model
-            # This would be handled by communication module in a real system
-            
-            # Collect client updates (placeholder for actual client training)
-            client_parameters = {}
-            client_metrics = {}
-            
-            # In a real system, clients would train in parallel
-            # Here we represent this sequentially
-            
-            # Update global model
-            self.update_global_model(client_parameters, client_metrics)
-            self.metrics['global_rounds'].append(round_num)
-            
-            # Evaluate global model if evaluation function provided
-            if evaluate_fn is not None:
-                eval_results = evaluate_fn(self.global_parameters)
-                self.metrics['global_loss'].append(eval_results.get('loss'))
-                self.metrics['global_accuracy'].append(eval_results.get('accuracy'))
+            if "error" in round_metrics:
+                logger.error(f"Round {round_idx + 1} failed: {round_metrics['error']}")
                 
-                logger.info(f"Round {round_num} evaluation - Loss: {eval_results.get('loss'):.4f}, "
-                           f"Accuracy: {eval_results.get('accuracy'):.4f}")
+        return self.round_history
         
-        return self.metrics
-    
-    def save_metrics(self, output_dir: str) -> None:
+    def save_model(self, path: str) -> None:
         """
-        Save server metrics to file.
+        Save the global model to a file.
         
         Args:
-            output_dir: Directory to save metrics
+            path: Path to save the model
         """
-        os.makedirs(output_dir, exist_ok=True)
+        torch.save(self.model.state_dict(), path)
+        logger.info(f"Saved global model to {path}")
         
-        # Save global metrics
-        global_metrics_file = os.path.join(output_dir, "server_global_metrics.json")
-        with open(global_metrics_file, 'w') as f:
-            json.dump(self.metrics, f, indent=2)
-        
-        # Save client metrics
-        client_metrics_file = os.path.join(output_dir, "server_client_metrics.json")
-        client_metrics = {client_id: data['metrics'] for client_id, data in self.clients.items()}
-        with open(client_metrics_file, 'w') as f:
-            json.dump(client_metrics, f, indent=2)
-        
-        logger.info(f"Saved server metrics to {output_dir}")
-    
-    def serialize_parameters(self) -> Dict:
+    def load_model(self, path: str) -> None:
         """
-        Serialize global parameters for transmission.
-        
-        Returns:
-            Dictionary with serialized parameters
-        """
-        params = self.get_global_parameters()
-        
-        # Convert to serializable format
-        if isinstance(params, np.ndarray):
-            return {
-                'format': 'numpy',
-                'shape': params.shape,
-                'dtype': str(params.dtype),
-                'data': params.tolist()
-            }
-        else:
-            # Handle other parameter types
-            return {
-                'format': 'list',
-                'data': params
-            }
-    
-    def deserialize_parameters(self, serialized_params: Dict) -> np.ndarray:
-        """
-        Deserialize parameters received from clients.
+        Load the global model from a file.
         
         Args:
-            serialized_params: Dictionary with serialized parameters
-            
-        Returns:
-            Deserialized parameters
+            path: Path to load the model from
         """
-        if serialized_params['format'] == 'numpy':
-            # Reconstruct numpy array
-            shape = tuple(serialized_params['shape'])
-            dtype = np.dtype(serialized_params['dtype'])
-            return np.array(serialized_params['data'], dtype=dtype).reshape(shape)
-        else:
-            # Handle other parameter types
-            return serialized_params['data']
+        self.model.load_state_dict(torch.load(path))
+        logger.info(f"Loaded global model from {path}")

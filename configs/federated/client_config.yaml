@@ -1,0 +1,75 @@
+# Client configuration for federated learning
+
+# Basic client settings
+client:
+  # Default client batch size for training
+  batch_size: 32
+  
+  # Default number of local training epochs
+  local_epochs: 1
+  
+  # Whether to cache dataset between rounds
+  cache_dataset: true
+
+# Optimization settings
+optimization:
+  # Learning rate settings
+  learning_rate: 0.01
+  lr_scheduler: 
+    use: false
+    type: "StepLR"
+    step_size: 5
+    gamma: 0.5
+  
+  # Optimizer settings
+  optimizer: 
+    name: "SGD"
+    momentum: 0.9
+    weight_decay: 0.0001
+    
+  # Loss function
+  loss_function: "CrossEntropyLoss"
+
+# Regularization settings for federated algorithms
+regularization:
+  # FedProx mu parameter (0 = standard FedAvg)
+  proximal_mu: 0.0
+  
+  # Whether to clip gradients
+  clip_gradients: false
+  clip_value: 1.0
+
+# Evaluation settings
+evaluation:
+  # Whether to evaluate model locally after training
+  evaluate_locally: true
+  
+  # Metrics to compute
+  metrics: 
+    - "accuracy"
+    - "loss"
+
+# Privacy settings
+privacy:
+  # Whether to use differential privacy
+  use_dp: false
+  
+  # Differential privacy parameters
+  dp_epsilon: 1.0
+  dp_delta: 1e-5
+  dp_max_grad_norm: 1.0
+
+# Resource management
+resources:
+  # Use GPU if available
+  use_gpu: true
+  
+  # Limits on memory usage (in MB, 0 = no limit)
+  max_memory: 0
+
+# Logging
+logging:
+  level: "INFO"
+  
+  # How often to log during training (in batches)
+  log_interval: 10
