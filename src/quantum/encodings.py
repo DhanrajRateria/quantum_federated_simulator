@@ -1,189 +1,231 @@
 """
-Data encoding schemes for quantum machine learning.
-This module provides methods to encode classical data into quantum states.
+Quantum data encoding strategies for embedding classical data into quantum states.
 """
 
+import pennylane as qml
 import numpy as np
-from typing import List, Dict, Optional, Tuple, Union, Callable
+from typing import List, Callable, Dict, Any, Optional, Union, Tuple
 
-# Import quantum libraries based on configuration
-try:
-    import qiskit
-    from qiskit import QuantumCircuit
-    QISKIT_AVAILABLE = True
-except ImportError:
-    QISKIT_AVAILABLE = False
 
-try:
-    import pennylane as qml
-    PENNYLANE_AVAILABLE = True
-except ImportError:
-    PENNYLANE_AVAILABLE = False
+def angle_encoding(features: np.ndarray, wires: List[int]) -> Callable:
+    """
+    Angle encoding: encode features as rotation angles in quantum states.
+    
+    Args:
+        features: Input data to encode
+        wires: Qubits to use for encoding
+        
+    Returns:
+        Encoding function that can be used in a circuit
+    """
+    def encoding():
+        for i, wire in enumerate(wires):
+            if i < len(features):
+                qml.RX(features[i], wires=wire)
+    
+    return encoding
 
-class DataEncoder:
-    """Class for encoding classical data into quantum states."""
+
+def amplitude_encoding(features: np.ndarray, wires: List[int], normalize: bool = True) -> Callable:
+    """
+    Amplitude encoding: encode features in the amplitudes of a quantum state.
     
-    def __init__(self, n_qubits: int, encoding_type: str = 'angle'):
-        """
-        Initialize the data encoder.
+    Args:
+        features: Input data to encode
+        wires: Qubits to use for encoding
+        normalize: Whether to normalize the input data
         
-        Args:
-            n_qubits: Number of qubits to use for encoding
-            encoding_type: Type of encoding strategy to use
-        """
-        self.n_qubits = n_qubits
-        self.encoding_type = encoding_type
+    Returns:
+        Encoding function that can be used in a circuit
+    """
+    def encoding():
+        # Pad features if needed
+        n_qubits = len(wires)
+        required_dim = 2**n_qubits
         
-        if encoding_type not in ['angle', 'amplitude', 'basis', 'hybrid']:
-            raise ValueError(f"Unsupported encoding type: {encoding_type}")
+        padded_features = np.zeros(required_dim)
+        padded_features[:min(len(features), required_dim)] = features[:min(len(features), required_dim)]
+        
+        # Normalize if requested
+        if normalize:
+            norm = np.linalg.norm(padded_features)
+            if norm > 0:
+                padded_features = padded_features / norm
+        
+        qml.AmplitudeEmbedding(padded_features, wires=wires, normalize=False)
     
-    def normalize_data(self, data: np.ndarray) -> np.ndarray:
-        """
-        Normalize input data to appropriate range for quantum encoding.
-        
-        Args:
-            data: Input data to normalize
-            
-        Returns:
-            Normalized data
-        """
-        if self.encoding_type == 'angle':
-            # Scale to [0, 2π] for rotation gates
-            return 2 * np.pi * (data - np.min(data)) / (np.max(data) - np.min(data))
-        elif self.encoding_type == 'amplitude':
-            # Normalize to unit vector for amplitude encoding
-            return data / np.linalg.norm(data)
-        else:
-            # Default normalization to [0, 1]
-            return (data - np.min(data)) / (np.max(data) - np.min(data))
+    return encoding
+
+
+def basis_encoding(features: np.ndarray, wires: List[int]) -> Callable:
+    """
+    Basis encoding: encode binary features directly in the computational basis.
     
-    def preprocess_data(self, data: np.ndarray) -> np.ndarray:
-        """
-        Preprocess data to fit encoding requirements.
+    Args:
+        features: Binary input data to encode
+        wires: Qubits to use for encoding
         
-        Args:
-            data: Input data
-            
-        Returns:
-            Preprocessed data
-        """
-        # Flatten if multi-dimensional
-        flat_data = data.flatten()
-        
-        # Handle dimensionality for different encoding types
-        if self.encoding_type == 'angle':
-            # Pad or truncate to match qubit count
-            if len(flat_data) < self.n_qubits:
-                return np.pad(flat_data, (0, self.n_qubits - len(flat_data)))
-            else:
-                return flat_data[:self.n_qubits]
-                
-        elif self.encoding_type == 'amplitude':
-            # For amplitude encoding, we need 2^n_qubits amplitudes
-            required_dim = 2**self.n_qubits
-            if len(flat_data) < required_dim:
-                return np.pad(flat_data, (0, required_dim - len(flat_data)))
-            else:
-                return flat_data[:required_dim]
-        
-        # Default for other encoding types
-        return flat_data
+    Returns:
+        Encoding function that can be used in a circuit
+    """
+    def encoding():
+        for i, wire in enumerate(wires):
+            if i < len(features) and features[i] == 1:
+                qml.PauliX(wire)
     
-    def encode_qiskit(self, data: np.ndarray) -> QuantumCircuit:
-        """
-        Encode classical data into a Qiskit quantum circuit.
+    return encoding
+
+
+def iqp_feature_map(features: np.ndarray, wires: List[int], reps: int = 1) -> Callable:
+    """
+    IQP (Instantaneous Quantum Polynomial) feature map, similar to the one used in qiskit.
+    
+    Args:
+        features: Input data to encode
+        wires: Qubits to use for encoding
+        reps: Number of repetitions of the encoding
         
-        Args:
-            data: Input data to encode
+    Returns:
+        Encoding function that can be used in a circuit
+    """
+    def encoding():
+        n_qubits = len(wires)
+        
+        # Make sure we don't try to access more features than available
+        features_to_use = features[:min(len(features), n_qubits)]
+        
+        # Apply Hadamard gates to all qubits
+        for wire in wires:
+            qml.Hadamard(wire)
+        
+        # Repeat the encoding block
+        for _ in range(reps):
+            # Phase rotations
+            for i, wire in enumerate(wires):
+                if i < len(features_to_use):
+                    qml.RZ(features_to_use[i], wire)
             
-        Returns:
-            Quantum circuit with encoded data
-        """
-        if not QISKIT_AVAILABLE:
-            raise ImportError("Qiskit is required but not installed.")
+            # Two-qubit ZZ rotations for all pairs
+            for i in range(n_qubits):
+                for j in range(i+1, n_qubits):
+                    if i < len(features_to_use) and j < len(features_to_use):
+                        qml.CNOT(wires=[wires[i], wires[j]])
+                        qml.RZ(features_to_use[i] * features_to_use[j], wires[j])
+                        qml.CNOT(wires=[wires[i], wires[j]])
             
-        # Preprocess and normalize
-        processed_data = self.preprocess_data(data)
-        normalized_data = self.normalize_data(processed_data)
+            # Another Hadamard layer in between repetitions
+            if _ < reps - 1:
+                for wire in wires:
+                    qml.Hadamard(wire)
+    
+    return encoding
+
+
+def zz_feature_map(features: np.ndarray, wires: List[int], entanglement: str = 'linear', reps: int = 2) -> Callable:
+    """
+    ZZ feature map with configurable entanglement.
+    
+    Args:
+        features: Input data to encode
+        wires: Qubits to use for encoding
+        entanglement: Entanglement strategy ('linear', 'circular', 'all_to_all')
+        reps: Number of repetitions
         
-        # Create circuit
-        circuit = QuantumCircuit(self.n_qubits)
+    Returns:
+        Encoding function that can be used in a circuit
+    """
+    def encoding():
+        n_qubits = len(wires)
         
-        if self.encoding_type == 'angle':
-            # Angle encoding uses rotation gates
-            for i, value in enumerate(normalized_data):
-                if i < self.n_qubits:
-                    circuit.rx(value, i)
+        # Initial Hadamard layer
+        for wire in wires:
+            qml.Hadamard(wire)
+        
+        # Repeat the encoding block
+        for _ in range(reps):
+            # First rotation layer
+            for i, wire in enumerate(wires):
+                if i < len(features):
+                    qml.RZ(features[i], wire)
+            
+            # Entanglement layer with ZZ rotations
+            if entanglement == 'linear':
+                for i in range(n_qubits - 1):
+                    if i < len(features) and i+1 < len(features):
+                        qml.CNOT(wires=[wires[i], wires[i+1]])
+                        qml.RZ(features[i] * features[i+1], wires[i+1])
+                        qml.CNOT(wires=[wires[i], wires[i+1]])
+            
+            elif entanglement == 'circular':
+                for i in range(n_qubits):
+                    next_i = (i + 1) % n_qubits
+                    if i < len(features) and next_i < len(features):
+                        qml.CNOT(wires=[wires[i], wires[next_i]])
+                        qml.RZ(features[i] * features[next_i], wires[next_i])
+                        qml.CNOT(wires=[wires[i], wires[next_i]])
+            
+            elif entanglement == 'all_to_all':
+                for i in range(n_qubits):
+                    for j in range(i+1, n_qubits):
+                        if i < len(features) and j < len(features):
+                            qml.CNOT(wires=[wires[i], wires[j]])
+                            qml.RZ(features[i] * features[j], wires[j])
+                            qml.CNOT(wires=[wires[i], wires[j]])
+    
+    return encoding
+
+
+def hybrid_encoding(features: np.ndarray, wires: List[int], strategy: str = 'angle_basis') -> Callable:
+    """
+    Hybrid encoding strategy combining multiple encoding methods.
+    
+    Args:
+        features: Input data to encode
+        wires: Qubits to use for encoding
+        strategy: Which hybrid strategy to use ('angle_basis', 'amplitude_iqp')
+        
+    Returns:
+        Encoding function that can be used in a circuit
+    """
+    def encoding():
+        if strategy == 'angle_basis':
+            # Use angle encoding for the first half of features
+            # and basis encoding for the second half
+            half_point = len(features) // 2
+            first_half = features[:half_point]
+            second_half = features[half_point:2*half_point]
+            
+            # Apply angle encoding
+            for i, value in enumerate(first_half):
+                if i < len(wires):
+                    qml.RX(value, wires=wires[i])
+            
+            # Apply basis encoding
+            for i, value in enumerate(second_half):
+                if i < len(wires) and value > 0.5:  # Threshold for binary encoding
+                    qml.PauliX(wires[i])
                     
-        elif self.encoding_type == 'amplitude':
-            # Amplitude encoding requires initialization to specified amplitudes
-            # This is a simplified version - full amplitude encoding is more complex
-            from qiskit.extensions import Initialize
-            init_gate = Initialize(normalized_data)
-            circuit.append(init_gate, range(self.n_qubits))
+        elif strategy == 'amplitude_iqp':
+            # First apply amplitude encoding
+            n_qubits = len(wires)
+            required_dim = 2**n_qubits
             
-        elif self.encoding_type == 'basis':
-            # Basis encoding: binary representation (0->|0⟩, 1->|1⟩)
-            binary_data = (normalized_data > 0.5).astype(int)
-            for i, bit in enumerate(binary_data):
-                if i < self.n_qubits and bit == 1:
-                    circuit.x(i)
-        
-        return circuit
+            padded_features = np.zeros(required_dim)
+            padded_features[:min(len(features), required_dim)] = features[:min(len(features), required_dim)]
+            
+            norm = np.linalg.norm(padded_features)
+            if norm > 0:
+                padded_features = padded_features / norm
+            
+            qml.AmplitudeEmbedding(padded_features, wires=wires, normalize=False)
+            
+            # Then apply a simplified IQP-like encoding
+            for i, wire in enumerate(wires):
+                if i < len(features):
+                    qml.RZ(features[i], wire)
+            
+            # Apply entanglement
+            for i in range(len(wires) - 1):
+                qml.CNOT(wires=[wires[i], wires[i+1]])
     
-    def encode_pennylane(self, data: np.ndarray) -> Callable:
-        """
-        Create a PennyLane encoding function for classical data.
-        
-        Args:
-            data: Input data to encode
-            
-        Returns:
-            Function that applies the encoding in a PennyLane circuit
-        """
-        if not PENNYLANE_AVAILABLE:
-            raise ImportError("PennyLane is required but not installed.")
-            
-        # Preprocess and normalize
-        processed_data = self.preprocess_data(data)
-        normalized_data = self.normalize_data(processed_data)
-        
-        if self.encoding_type == 'angle':
-            def encoding_function():
-                # Angle encoding uses rotation gates
-                for i, value in enumerate(normalized_data):
-                    if i < self.n_qubits:
-                        qml.RX(value, wires=i)
-                        
-        elif self.encoding_type == 'amplitude':
-            def encoding_function():
-                # Amplitude encoding in PennyLane
-                qml.AmplitudeEmbedding(normalized_data, wires=range(self.n_qubits), normalize=True)
-                
-        elif self.encoding_type == 'basis':
-            def encoding_function():
-                # Basis encoding: binary representation
-                binary_data = (normalized_data > 0.5).astype(int)
-                for i, bit in enumerate(binary_data):
-                    if i < self.n_qubits and bit == 1:
-                        qml.PauliX(wires=i)
-        
-        return encoding_function
-    
-    def encode(self, data: np.ndarray, backend: str = 'qiskit') -> Union[object, Callable]:
-        """
-        Encode classical data for the specified backend.
-        
-        Args:
-            data: Input data to encode
-            backend: Quantum backend ('qiskit' or 'pennylane')
-            
-        Returns:
-            Encoded circuit or function
-        """
-        if backend == 'qiskit':
-            return self.encode_qiskit(data)
-        elif backend == 'pennylane':
-            return self.encode_pennylane(data)
-        else:
-            raise ValueError(f"Unsupported backend: {backend}")
+    return encoding
