@@ -1,141 +1,254 @@
 """
-Spark Manager Module for Quantum Federated Learning Simulator
+Spark Manager for distributed computing in the Federated Learning Simulator.
 
-This module handles Apache Spark integration for large-scale simulation
-of quantum federated learning, allowing the system to scale to hundreds
-of virtual quantum nodes running in parallel on a cluster.
+This module provides integration with Apache Spark for large-scale distributed
+computations across federated learning nodes. It handles Spark session management,
+distributed data processing, and coordination of parallel tasks.
 """
 
-import os
 import logging
-from pyspark import SparkContext, SparkConf
-from pyspark.sql import SparkSession
-from typing import Dict, List, Any, Optional, Callable
+import os
+from typing import Any, Dict, List, Optional, Union
+import yaml
+
+try:
+    import findspark
+    findspark.init()
+except ImportError:
+    pass  # Skip if findspark is not available
+
+try:
+    from pyspark import SparkConf, SparkContext
+    from pyspark.sql import SparkSession
+    from pyspark.ml import Pipeline
+    SPARK_AVAILABLE = True
+except ImportError:
+    SPARK_AVAILABLE = False
+
+logger = logging.getLogger(__name__)
+
 
 class SparkManager:
     """
-    Manages Spark integration for distributed quantum federated learning simulations.
-    Provides an interface for scaling simulations across multiple nodes using Spark.
+    Manages Spark sessions and distributed computing operations for the federated learning system.
+    
+    This class provides a wrapper around Spark functionality, making it easier to:
+    - Initialize and configure Spark sessions
+    - Distribute datasets and models across a cluster
+    - Execute parallel training tasks
+    - Aggregate results from distributed nodes
+    
+    It's designed to work with both classical and quantum models (future integration).
     """
     
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config_path: Optional[str] = None, app_name: str = "FederatedLearningSimulator"):
         """
-        Initialize Spark manager with configuration parameters.
+        Initialize the SparkManager with optional configuration.
         
         Args:
-            config: Dictionary containing Spark configuration parameters
+            config_path: Path to a YAML configuration file for Spark settings
+            app_name: Name of the Spark application
+        
+        Raises:
+            ImportError: If PySpark is not available
+            RuntimeError: If Spark initialization fails
         """
-        self.config = config
-        self.app_name = config.get("app_name", "quantum_federated_learning")
-        self.master = config.get("master", "local[*]")
-        self.log_level = config.get("log_level", "WARN")
+        self.app_name = app_name
+        self.config = self._load_config(config_path)
         self.spark_session = None
         self.spark_context = None
-        self.logger = logging.getLogger(__name__)
-    
-    def initialize(self) -> None:
+        
+        if not SPARK_AVAILABLE:
+            logger.warning("PySpark is not installed. SparkManager will operate in local-only mode.")
+        
+    def _load_config(self, config_path: Optional[str]) -> Dict[str, Any]:
         """
-        Initialize Spark session and context based on configuration.
-        """
-        try:
-            conf = SparkConf().setAppName(self.app_name).setMaster(self.master)
-            
-            # Add any additional configuration from the config file
-            for key, value in self.config.get("spark_properties", {}).items():
-                conf = conf.set(key, value)
-            
-            # Create Spark session
-            self.spark_session = SparkSession.builder.config(conf=conf).getOrCreate()
-            self.spark_context = self.spark_session.sparkContext
-            self.spark_context.setLogLevel(self.log_level)
-            
-            self.logger.info(f"Spark session initialized. Master: {self.master}, " 
-                            f"App name: {self.app_name}")
-        except Exception as e:
-            self.logger.error(f"Failed to initialize Spark: {str(e)}")
-            raise
-    
-    def shutdown(self) -> None:
-        """
-        Shutdown Spark session and clean up resources.
-        """
-        if self.spark_session:
-            self.spark_session.stop()
-            self.logger.info("Spark session stopped")
-    
-    def distribute_training(self, node_configs: List[Dict[str, Any]], 
-                           training_function: Callable) -> List[Any]:
-        """
-        Distribute quantum model training across Spark cluster.
+        Load Spark configuration from a YAML file.
         
         Args:
-            node_configs: List of node configuration dictionaries
-            training_function: Function to execute on each node
+            config_path: Path to configuration file
             
         Returns:
-            List of results from all nodes
+            Dict containing configuration parameters
         """
-        if not self.spark_context:
-            self.initialize()
-        
-        # Convert node configs to RDD
-        node_configs_rdd = self.spark_context.parallelize(node_configs)
-        
-        # Execute training function on each node
-        results = node_configs_rdd.map(training_function).collect()
-        self.logger.info(f"Distributed training completed on {len(results)} nodes")
-        
-        return results
-    
-    def distribute_evaluation(self, global_model_params: Dict[str, Any], 
-                             node_configs: List[Dict[str, Any]],
-                             evaluation_function: Callable) -> List[Any]:
-        """
-        Distribute quantum model evaluation across Spark cluster.
-        
-        Args:
-            global_model_params: Parameters of the global model
-            node_configs: List of node configuration dictionaries
-            evaluation_function: Function to execute on each node
-            
-        Returns:
-            List of evaluation results from all nodes
-        """
-        if not self.spark_context:
-            self.initialize()
-        
-        # Broadcast global model parameters
-        global_params_bc = self.spark_context.broadcast(global_model_params)
-        
-        # Convert node configs to RDD
-        node_configs_rdd = self.spark_context.parallelize(node_configs)
-        
-        # Create evaluation tasks by mapping configurations with the global model parameters
-        tasks = node_configs_rdd.map(
-            lambda config: (config, global_params_bc.value)
-        )
-        
-        # Execute evaluation function on each node
-        results = tasks.map(lambda args: evaluation_function(*args)).collect()
-        self.logger.info(f"Distributed evaluation completed on {len(results)} nodes")
-        
-        return results
-    
-    def get_cluster_stats(self) -> Dict[str, Any]:
-        """
-        Get statistics about the Spark cluster.
-        
-        Returns:
-            Dictionary containing cluster statistics
-        """
-        if not self.spark_context:
-            self.initialize()
-        
-        stats = {
-            "number_of_nodes": len(self.spark_context.statusTracker().getExecutorInfos()),
-            "active_jobs": len(self.spark_context.statusTracker().getActiveJobIds()),
-            "app_id": self.spark_context.applicationId,
-            "version": self.spark_context.version
+        default_config = {
+            "master": "local[*]",
+            "executor_memory": "4g",
+            "driver_memory": "4g",
+            "max_result_size": "2g",
+            "shuffle_partitions": 10,
+            "serializer": "org.apache.spark.serializer.KryoSerializer",
+            "local_dir": "/tmp",
+            "log_level": "WARN"
         }
         
-        return stats
+        if not config_path:
+            logger.info("No Spark config provided, using default settings")
+            return default_config
+            
+        try:
+            with open(config_path, 'r') as file:
+                user_config = yaml.safe_load(file)
+                # Merge with defaults, with user config taking precedence
+                return {**default_config, **user_config}
+        except Exception as e:
+            logger.warning(f"Failed to load Spark config from {config_path}: {e}")
+            logger.info("Using default Spark configuration")
+            return default_config
+    
+    def start(self) -> "SparkManager":
+        """
+        Start the Spark session with configured parameters.
+        
+        Returns:
+            Self for method chaining
+            
+        Raises:
+            RuntimeError: If Spark initialization fails
+        """
+        if not SPARK_AVAILABLE:
+            logger.warning("PySpark not available, running in local-only mode")
+            return self
+            
+        try:
+            # Configure Spark
+            conf = SparkConf().setAppName(self.app_name)
+            conf.setMaster(self.config["master"])
+            conf.set("spark.executor.memory", self.config["executor_memory"])
+            conf.set("spark.driver.memory", self.config["driver_memory"])
+            conf.set("spark.driver.maxResultSize", self.config["max_result_size"])
+            conf.set("spark.sql.shuffle.partitions", str(self.config["shuffle_partitions"]))
+            conf.set("spark.serializer", self.config["serializer"])
+            conf.set("spark.local.dir", self.config["local_dir"])
+            
+            # Create or get existing session
+            self.spark_session = (SparkSession.builder
+                                 .config(conf=conf)
+                                 .getOrCreate())
+            
+            self.spark_context = self.spark_session.sparkContext
+            self.spark_context.setLogLevel(self.config["log_level"])
+            
+            logger.info(f"Spark session started with master: {self.config['master']}")
+            logger.info(f"Spark UI available at: {self.spark_context.uiWebUrl}")
+            
+            return self
+            
+        except Exception as e:
+            logger.error(f"Failed to initialize Spark: {e}")
+            raise RuntimeError(f"Spark initialization failed: {e}")
+    
+    def stop(self) -> None:
+        """Stop the Spark session and release resources."""
+        if self.spark_session:
+            logger.info("Stopping Spark session")
+            self.spark_session.stop()
+            self.spark_session = None
+            self.spark_context = None
+    
+    def parallelize(self, data: List[Any], num_partitions: Optional[int] = None) -> Any:
+        """
+        Distribute data across the cluster.
+        
+        Args:
+            data: List of data items to distribute
+            num_partitions: Number of partitions (if None, Spark decides)
+            
+        Returns:
+            Spark RDD containing the distributed data
+            
+        Raises:
+            RuntimeError: If Spark is not available or initialized
+        """
+        self._check_spark_available()
+        
+        if num_partitions:
+            return self.spark_context.parallelize(data, num_partitions)
+        else:
+            return self.spark_context.parallelize(data)
+    
+    def distribute_training(self, 
+                           model_params: Dict[str, Any], 
+                           node_data_mapping: Dict[str, Any],
+                           train_fn: callable,
+                           **kwargs) -> Dict[str, Any]:
+        """
+        Distribute a training task across multiple nodes.
+        
+        Args:
+            model_params: Parameters of the model to train
+            node_data_mapping: Mapping of node IDs to their data
+            train_fn: Function that performs training on a single node
+            **kwargs: Additional arguments for the training function
+            
+        Returns:
+            Dictionary of node results with trained model parameters
+            
+        Raises:
+            RuntimeError: If Spark is not available or initialized
+        """
+        self._check_spark_available()
+        
+        # Convert the data mapping to a list of (node_id, data) tuples
+        tasks = list(node_data_mapping.items())
+        
+        # Distribute the tasks
+        distributed_tasks = self.parallelize(tasks)
+        
+        # Execute training on each node and collect results
+        results = (distributed_tasks
+                  .map(lambda node_data: (
+                      node_data[0],  # node_id
+                      train_fn(
+                          node_id=node_data[0],
+                          data=node_data[1],
+                          model_params=model_params,
+                          **kwargs
+                      )
+                  ))
+                  .collect())
+        
+        # Convert results list back to dictionary
+        return dict(results)
+    
+    def aggregate_results(self, results: Dict[str, Any], aggregation_fn: callable) -> Any:
+        """
+        Aggregate results from multiple nodes.
+        
+        Args:
+            results: Dictionary mapping node IDs to their results
+            aggregation_fn: Function to aggregate results
+            
+        Returns:
+            Aggregated result
+        """
+        return aggregation_fn(results)
+    
+    def _check_spark_available(self) -> None:
+        """
+        Check if Spark is available and initialized.
+        
+        Raises:
+            RuntimeError: If Spark is not available or not initialized
+        """
+        if not SPARK_AVAILABLE:
+            raise RuntimeError("PySpark is not installed")
+        
+        if not self.spark_context:
+            raise RuntimeError("Spark session not initialized. Call start() first.")
+    
+    def get_spark_session(self) -> Optional[SparkSession]:
+        """Get the current Spark session."""
+        return self.spark_session
+    
+    def get_spark_context(self) -> Optional[SparkContext]:
+        """Get the current Spark context."""
+        return self.spark_context
+    
+    def __enter__(self) -> "SparkManager":
+        """Context manager entry - starts Spark session."""
+        return self.start()
+    
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        """Context manager exit - stops Spark session."""
+        self.stop()
