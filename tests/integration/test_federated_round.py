@@ -158,11 +158,18 @@ class TestFederatedRound(unittest.TestCase):
             evaluation_dataset=self.test_dataset
         )
         
-        # Create non-IID partitioning
-        # Assuming dataset has binary labels (0, 1)
+        # Create a new dataset with targets attribute
+        x = torch.randn(100, 10)
+        y = torch.randint(0, 2, (100,))
+        dataset = TensorDataset(x, y)
+        
+        # Add targets attribute manually for non-IID partitioning
+        dataset.targets = y
+        
+        # Use the new dataset with targets instead of self.train_dataset
         num_clients = 5
         non_iid_datasets = FederatedDataset.non_iid_label_partition(
-            self.train_dataset, 
+            dataset,  # Use the new dataset with targets, not self.train_dataset
             num_clients=num_clients,
             num_classes=2,
             classes_per_client=1  # Each client gets only one class

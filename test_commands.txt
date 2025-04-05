@@ -1,0 +1,3 @@
+python mnist_federated.py --num-clients 10 --rounds 5 --iid
+python mnist_federated.py --num-clients 10 --rounds 10 --iid --save-model
+python mnist_federated.py --num-clients 20 --classes-per-client 3 --rounds 15 --save-model

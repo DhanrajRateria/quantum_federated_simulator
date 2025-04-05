@@ -16,6 +16,7 @@ pennylane_qiskit
 # Machine Learning Frameworks
 tensorflow
 torch
+torchvision
 scikit-learn
 
 # Federated Learning

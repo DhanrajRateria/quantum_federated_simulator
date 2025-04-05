@@ -14,8 +14,8 @@ import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 
-from federated.aggregation import AggregationStrategy, FedAvg
-from federated.client import FederatedClient
+from src.federated.aggregation import AggregationStrategy, FedAvg
+from src.federated.client import FederatedClient
 
 logger = logging.getLogger(__name__)
 

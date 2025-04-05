@@ -66,12 +66,17 @@ class FederatedDataset:
         Returns:
             List of dataset subsets, one for each client
         """
-        if not hasattr(dataset, 'targets'):
-            raise ValueError("Dataset must have a 'targets' attribute for non-IID partitioning")
+        if isinstance(dataset, torch.utils.data.Subset):
+            dataset = dataset.dataset
+
+        if not hasattr(dataset, 'targets') and not hasattr(dataset, 'train_labels'):
+            raise ValueError("Dataset must have a 'targets' or 'train_labels' attribute for non-IID partitioning")
+        
+        labels = dataset.targets if hasattr(dataset, 'targets') else dataset.train_labels
             
         # Get indices for each class
         class_indices = [[] for _ in range(num_classes)]
-        for idx, label in enumerate(dataset.targets):
+        for idx, label in enumerate(labels):
             class_indices[label].append(idx)
             
         # Assign classes to clients
@@ -117,12 +122,18 @@ class FederatedDataset:
         Returns:
             List of dataset subsets, one for each client
         """
-        if not hasattr(dataset, 'targets'):
-            raise ValueError("Dataset must have a 'targets' attribute for Dirichlet partitioning")
+
+        if isinstance(dataset, torch.utils.data.Subset):
+            dataset = dataset.dataset
+
+        if not hasattr(dataset, 'targets') and not hasattr(dataset, 'train_labels'):
+            raise ValueError("Dataset must have a 'targets' or 'train_labels' attribute for non-IID partitioning")
+        
+        labels = dataset.targets if hasattr(dataset, 'targets') else dataset.train_labels
         
         # Get indices for each class
         class_indices = [[] for _ in range(num_classes)]
-        for idx, label in enumerate(dataset.targets):
+        for idx, label in enumerate(labels):
             class_indices[label].append(idx)
             
         # Sample from Dirichlet distribution

@@ -6,7 +6,7 @@ implementations and aggregation strategies. The implementation is designed to be
 extended for quantum computing in the future.
 """
 
-from federated.aggregation import (
+from src.federated.aggregation import (
     AggregationStrategy,
     FedAvg,
     FedProx,
@@ -14,8 +14,8 @@ from federated.aggregation import (
     TrimmedMean
 )
 
-from federated.client import FederatedClient
-from federated.server import FederatedServer
+from src.federated.client import FederatedClient
+from src.federated.server import FederatedServer
 
 __all__ = [
     # Aggregation strategies
