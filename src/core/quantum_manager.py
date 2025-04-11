@@ -10,7 +10,7 @@ import numpy as np
 import torch
 from typing import Dict, List, Tuple, Optional, Any, Union, Callable
 import types
-
+import torch.nn as nn
 from src.federated.server import FederatedServer
 from src.federated.aggregation import AggregationStrategy
 from src.quantum.models import VariationalQuantumClassifier, QuantumNeuralNetwork, HybridQuantumModel
@@ -18,6 +18,175 @@ from src.core.quantum_client import QuantumFederatedClient
 
 logger = logging.getLogger(__name__)
 
+class QuantumFederatedServer(FederatedServer):
+    """
+    Server for federated learning with quantum models.
+    
+    This class extends the standard FederatedServer to handle quantum models,
+    including parameter conversion between different model types.
+    """
+    
+    def __init__(
+        self,
+        model: Union[VariationalQuantumClassifier, QuantumNeuralNetwork, HybridQuantumModel, nn.Module],
+        aggregation_strategy: AggregationStrategy,
+        evaluation_dataset: Optional[Any] = None,
+        **kwargs
+    ):
+        """
+        Initialize a quantum federated server.
+        
+        Args:
+            model: Global quantum model
+            aggregation_strategy: Strategy for aggregating client updates
+            evaluation_dataset: Optional dataset for evaluation
+            **kwargs: Additional arguments to pass to parent class
+        """
+        super().__init__(
+            model=model,
+            aggregation_strategy=aggregation_strategy,
+            evaluation_dataset=evaluation_dataset,
+            **kwargs
+        )
+        # Determine model type
+        self.model_type = self._determine_model_type(model)
+        logger.debug(f"Initialized quantum federated server with {self.model_type} model type")
+        
+    def _determine_model_type(self, model: Any) -> str:
+        """
+        Determine the type of quantum model.
+        
+        Args:
+            model: The model to check
+            
+        Returns:
+            String indicating the model type
+        """
+        if isinstance(model, VariationalQuantumClassifier):
+            return "vqc"
+        elif isinstance(model, QuantumNeuralNetwork):
+            return "qnn"
+        elif isinstance(model, HybridQuantumModel):
+            return "hybrid"
+        elif isinstance(model, nn.Module):
+            return "torch"
+        else:
+            raise ValueError(f"Unsupported model type: {type(model)}")
+    
+    def get_parameters(self) -> Dict[str, torch.Tensor]:
+        """
+        Get the current global model parameters.
+        
+        Returns:
+            Dictionary of parameter name -> tensor
+        """
+        if self.model_type == "vqc":
+            # For VariationalQuantumClassifier, convert numpy parameters to torch tensors
+            params_tensor = torch.tensor(self.model.params)
+            return {"quantum_params": params_tensor}
+        else:
+            # For PyTorch-based models, use the standard approach
+            return {name: param.data.clone() for name, param in self.model.named_parameters()}
+    
+    def set_parameters(self, parameters: Dict[str, torch.Tensor]) -> None:
+        """
+        Update the global model with the provided parameters.
+        
+        Args:
+            parameters: Dictionary of parameter name -> tensor
+        """
+        if self.model_type == "vqc":
+            # For VariationalQuantumClassifier, convert torch tensor to numpy array
+            if "quantum_params" in parameters:
+                self.model.params = parameters["quantum_params"].numpy()
+            else:
+                logger.warning("No quantum_params found in parameters dictionary")
+        else:
+            # For PyTorch-based models, use the standard approach
+            for name, param in self.model.named_parameters():
+                if name in parameters:
+                    param.data = parameters[name].clone()
+                    
+    def evaluate(self) -> Dict[str, float]:
+        """
+        Evaluate the global model on the evaluation dataset.
+        
+        Returns:
+            Dictionary of evaluation metrics
+        """
+        if self.evaluation_dataset is None:
+            return {}
+        
+        # Create data loader for evaluation
+        eval_loader = torch.utils.data.DataLoader(
+            self.evaluation_dataset, batch_size=32, shuffle=False
+        )
+        
+        if self.model_type == "vqc":
+            # Special evaluation for VQC models
+            return self._evaluate_vqc(eval_loader)
+        else:
+            # Standard evaluation for PyTorch models
+            return super().evaluate()
+            
+    def _evaluate_vqc(self, eval_loader: torch.utils.data.DataLoader) -> Dict[str, float]:
+        """
+        Evaluate a VariationalQuantumClassifier model.
+        
+        Args:
+            eval_loader: DataLoader for evaluation data
+            
+        Returns:
+            Dictionary of evaluation metrics
+        """
+        correct = 0
+        total = 0
+        
+        # Convert dataset to numpy arrays for VQC evaluation
+        features_list = []
+        labels_list = []
+        
+        for data, target in eval_loader:
+            batch_size = data.shape[0]
+            total += batch_size
+            
+            # Flatten input data if needed
+            if len(data.shape) > 2:
+                data = data.reshape(batch_size, -1)
+            
+            # Convert to numpy
+            features_list.append(data.numpy())
+            labels_list.append(target.numpy())
+        
+        # Concatenate batches
+        features = np.concatenate(features_list, axis=0)
+        labels = np.concatenate(labels_list, axis=0)
+        
+        # Normalize features to improve numerical stability
+        features = features / np.linalg.norm(features, axis=1, keepdims=True)
+        
+        try:
+            # Try using model's predict method
+            predictions = np.array([self.model.predict(x) for x in features])
+        except ValueError as e:
+            if "probabilities do not sum to 1" in str(e):
+                # Fallback: Use expectation values instead of sampling
+                original_shots = self.model.shots
+                self.model.shots = None  # Temporarily switch to analytic mode
+                
+                predictions = np.array([self.model.predict(x) for x in features])
+                
+                # Restore original shots setting
+                self.model.shots = original_shots
+            else:
+                # Re-raise if it's a different error
+                raise
+        
+        # Calculate accuracy
+        correct = (predictions == labels).sum()
+        accuracy = correct / total
+        
+        return {"accuracy": accuracy, "loss": None}
 
 class FederatedQuantumManager:
     """
@@ -78,7 +247,7 @@ class FederatedQuantumManager:
         aggregation_strategy: AggregationStrategy,
         evaluation_dataset: Optional[Any] = None,
         server_kwargs: Optional[Dict[str, Any]] = None
-    ) -> FederatedServer:
+    ) -> QuantumFederatedServer:  # Updated return type
         """
         Initialize a federated server with a quantum model.
         
@@ -90,14 +259,14 @@ class FederatedQuantumManager:
             server_kwargs: Additional keyword arguments for server initialization
             
         Returns:
-            Initialized federated server
+            Initialized quantum federated server
         """
         # Initialize the global model
         global_model = model_class(**model_kwargs)
         
         # Initialize the server
         server_kwargs = server_kwargs or {}
-        server = FederatedServer(
+        server = QuantumFederatedServer(  # Use the quantum server
             model=global_model,
             aggregation_strategy=aggregation_strategy,
             evaluation_dataset=evaluation_dataset,

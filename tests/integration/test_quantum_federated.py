@@ -16,7 +16,7 @@ from src.federated.server import FederatedServer
 from src.federated.aggregation import FedAvg
 from src.quantum.models import VariationalQuantumClassifier, QuantumNeuralNetwork
 from src.core.quantum_client import QuantumFederatedClient
-from src.core.quantum_manager import QuantumAggregationStrategy
+from src.core.quantum_manager import QuantumAggregationStrategy, QuantumFederatedServer
 from src.quantum.utils import set_random_seed
 
 
@@ -65,7 +65,7 @@ class TestQuantumFederated(unittest.TestCase):
         )
         
         # Initialize server with quantum aggregation
-        self.server = FederatedServer(
+        self.server = QuantumFederatedServer(
             model=self.global_model,
             aggregation_strategy=QuantumAggregationStrategy(FedAvg()),
             evaluation_dataset=self.test_dataset

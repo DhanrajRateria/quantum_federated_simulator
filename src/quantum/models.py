@@ -654,28 +654,43 @@ class HybridQuantumModel:
         
         return x
     
-    def train_step(self, x: torch.Tensor, y: torch.Tensor, optimizer: torch.optim.Optimizer) -> float:
+    def train_step(self, features: np.ndarray, labels: np.ndarray, learning_rate: float = 0.1) -> float:
         """
-        Perform one training step.
+        Perform one training step using parameter-shift rule.
         
         Args:
-            x: Input data
-            y: Target labels
-            optimizer: PyTorch optimizer
+            features: Input data batch
+            labels: Target labels
+            learning_rate: Learning rate for gradient descent
             
         Returns:
-            Loss value
+            Current loss value
         """
-        # Forward pass
-        output = self.forward(x)
+        # Compute current loss
+        current_loss = self.loss(features, labels)
         
-        # Compute loss
-        loss_fn = nn.CrossEntropyLoss()
-        loss = loss_fn(output, y)
+        # Compute gradients using parameter-shift rule
+        gradients = np.zeros_like(self.params)
         
-        # Backward pass
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+        for i in range(len(self.params)):
+            # Shift parameter up
+            self.params[i] += np.pi/2
+            loss_plus = self.loss(features, labels)
+            
+            # Shift parameter down
+            self.params[i] -= np.pi
+            loss_minus = self.loss(features, labels)
+            
+            # Restore original parameter
+            self.params[i] += np.pi/2
+            
+            # Compute gradient
+            gradients[i] = (loss_plus - loss_minus) / 2
         
-        return loss.item()
+        # Update parameters
+        self.params -= learning_rate * gradients
+        
+        # Clip parameters to ensure numerical stability
+        self.params = np.clip(self.params, 0, 2*np.pi)
+        
+        return current_loss
