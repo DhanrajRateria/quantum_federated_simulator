@@ -4,9 +4,10 @@ Unit tests for quantum circuit implementations.
 
 import os
 import sys
-import pytest
+import unittest
 import numpy as np
 import pennylane as qml
+import tempfile
 
 # Add project root to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -20,134 +21,136 @@ from src.quantum.circuits import (
 )
 
 
-# Set random seed for reproducibility
-@pytest.fixture(scope="module")
-def seed():
-    """Set random seed for tests."""
-    set_random_seed(42)
-
-
-@pytest.fixture(scope="module")
-def basic_setup():
-    """Basic test setup."""
-    n_qubits = 4
-    n_layers = 2
-    device = qml.device("default.qubit", wires=n_qubits)
-    return n_qubits, n_layers, device
-
-
-class TestBasicCircuit:
+class TestBasicCircuit(unittest.TestCase):
     """Test basic circuit implementation."""
     
-    def test_creation(self, seed, basic_setup):
-        """Test circuit creation."""
-        n_qubits, n_layers, _ = basic_setup
-        circuit_fn = create_basic_circuit(n_qubits, n_layers)
-        assert callable(circuit_fn)
+    def setUp(self):
+        """Set up test environment."""
+        set_random_seed(42)
+        self.n_qubits = 4
+        self.n_layers = 2
+        self.device = qml.device("default.qubit", wires=self.n_qubits)
     
-    def test_execution(self, seed, basic_setup):
+    def test_creation(self):
+        """Test circuit creation."""
+        circuit_fn = create_basic_circuit(self.n_qubits, self.n_layers)
+        self.assertTrue(callable(circuit_fn))
+    
+    def test_execution(self):
         """Test circuit execution."""
-        n_qubits, n_layers, device = basic_setup
-        circuit_fn = create_basic_circuit(n_qubits, n_layers)
-        qnode = qml.QNode(circuit_fn, device)
+        circuit_fn = create_basic_circuit(self.n_qubits, self.n_layers)
+        qnode = qml.QNode(circuit_fn, self.device)
         
-        n_params = n_qubits * 3 * n_layers  # 3 rotation gates per qubit per layer
+        n_params = self.n_qubits * 3 * self.n_layers  # 3 rotation gates per qubit per layer
         params = np.random.uniform(0, 2*np.pi, size=n_params)
-        features = np.random.uniform(-1, 1, size=n_qubits)
+        features = np.random.uniform(-1, 1, size=self.n_qubits)
         
         result = qnode(params, features)
-        assert len(result) == n_qubits
-        assert all(-1 <= val <= 1 for val in result)  # PauliZ expectation values
+        self.assertEqual(len(result), self.n_qubits)
+        for val in result:
+            self.assertTrue(-1 <= val <= 1)  # PauliZ expectation values
     
-    def test_parameter_count(self, seed, basic_setup):
+    def test_parameter_count(self):
         """Test parameter count in circuit."""
-        n_qubits, n_layers, _ = basic_setup
-        circuit_fn = create_basic_circuit(n_qubits, n_layers)
+        circuit_fn = create_basic_circuit(self.n_qubits, self.n_layers)
         
-        # Expected parameter count
-        expected_param_count = n_qubits * 3 * n_layers
+        # Expected parameter count - now including data encoding parameters
+        data_encoding_params = self.n_qubits  # One RX gate per qubit for data encoding
+        circuit_params = self.n_qubits * 3 * self.n_layers  # Actual circuit parameters
+        expected_param_count = circuit_params + data_encoding_params
         
         # Create a QNode to inspect the circuit
-        dev = qml.device("default.qubit", wires=n_qubits)
+        dev = qml.device("default.qubit", wires=self.n_qubits)
         qnode = qml.QNode(circuit_fn, dev)
         
         # Execute the QNode to build the circuit
-        params = np.random.uniform(0, 2*np.pi, size=expected_param_count)
-        features = np.random.uniform(-1, 1, size=n_qubits)
+        params = np.random.uniform(0, 2*np.pi, size=circuit_params)
+        features = np.random.uniform(-1, 1, size=self.n_qubits)
         qnode(params, features)
         
-        # Count parameters in the circuit (only the trainable ones)
+        # Count parameters in the circuit (including data encoding)
         param_count = 0
         for op in qnode.qtape.operations:
             if op.name in ['RX', 'RY', 'RZ'] and not isinstance(op.parameters[0], np.ndarray):
                 param_count += 1
                 
-        assert param_count == expected_param_count
+        self.assertEqual(param_count, expected_param_count)
 
 
-class TestComplexCircuit:
+class TestComplexCircuit(unittest.TestCase):
     """Test complex circuit implementation."""
     
-    def test_creation(self, seed, basic_setup):
-        """Test circuit creation."""
-        n_qubits, n_layers, _ = basic_setup
-        circuit_fn = create_complex_circuit(n_qubits, n_layers)
-        assert callable(circuit_fn)
+    def setUp(self):
+        """Set up test environment."""
+        set_random_seed(42)
+        self.n_qubits = 4
+        self.n_layers = 2
+        self.device = qml.device("default.qubit", wires=self.n_qubits)
     
-    def test_execution(self, seed, basic_setup):
+    def test_creation(self):
+        """Test circuit creation."""
+        circuit_fn = create_complex_circuit(self.n_qubits, self.n_layers)
+        self.assertTrue(callable(circuit_fn))
+    
+    def test_execution(self):
         """Test circuit execution."""
-        n_qubits, n_layers, device = basic_setup
-        circuit_fn = create_complex_circuit(n_qubits, n_layers)
-        qnode = qml.QNode(circuit_fn, device)
+        circuit_fn = create_complex_circuit(self.n_qubits, self.n_layers)
+        qnode = qml.QNode(circuit_fn, self.device)
         
         # Parameter count for complex circuit
-        rotation_params = n_qubits * 3 * n_layers
-        pairs_count = n_qubits + (n_qubits if n_qubits > 3 else 0)
-        entanglement_params = pairs_count * 2 * n_layers
+        rotation_params = self.n_qubits * 3 * self.n_layers
+        pairs_count = self.n_qubits + (self.n_qubits if self.n_qubits > 3 else 0)
+        entanglement_params = pairs_count * 2 * self.n_layers
         n_params = rotation_params + entanglement_params
         
         params = np.random.uniform(0, 2*np.pi, size=n_params)
-        features = np.random.uniform(-1, 1, size=n_qubits)
+        features = np.random.uniform(-1, 1, size=self.n_qubits)
         
         result = qnode(params, features)
-        assert len(result) >= n_qubits  # May include two-qubit observables
-        assert all(-1 <= val <= 1 for val in result)  # Expectation values
+        self.assertTrue(len(result) >= self.n_qubits)  # May include two-qubit observables
+        for val in result:
+            self.assertTrue(-1 <= val <= 1)  # Expectation values
     
-    def test_parameter_count(self, seed, basic_setup):
+    def test_parameter_count(self):
         """Test parameter count in complex circuit."""
-        n_qubits, n_layers, _ = basic_setup
-        circuit_fn = create_complex_circuit(n_qubits, n_layers)
+        circuit_fn = create_complex_circuit(self.n_qubits, self.n_layers)
         
-        # Expected parameter count
-        rotation_params = n_qubits * 3 * n_layers
-        pairs_count = n_qubits + (n_qubits if n_qubits > 3 else 0)
-        entanglement_params = pairs_count * 2 * n_layers
-        expected_param_count = rotation_params + entanglement_params
+        # Expected parameter count - now including data encoding parameters
+        data_encoding_params = self.n_qubits  # One RX gate per qubit for data encoding
+        rotation_params = self.n_qubits * 3 * self.n_layers
+        pairs_count = self.n_qubits + (self.n_qubits if self.n_qubits > 3 else 0)
+        entanglement_params = pairs_count * 2 * self.n_layers
+        expected_param_count = rotation_params + entanglement_params + data_encoding_params
         
         # Create a QNode to inspect the circuit
-        dev = qml.device("default.qubit", wires=n_qubits)
+        dev = qml.device("default.qubit", wires=self.n_qubits)
         qnode = qml.QNode(circuit_fn, dev)
         
         # Execute the QNode to build the circuit
-        params = np.random.uniform(0, 2*np.pi, size=expected_param_count)
-        features = np.random.uniform(-1, 1, size=n_qubits)
+        circuit_params = rotation_params + entanglement_params
+        params = np.random.uniform(0, 2*np.pi, size=circuit_params)
+        features = np.random.uniform(-1, 1, size=self.n_qubits)
         qnode(params, features)
         
-        # Count parameters in the circuit (only the trainable ones)
+        # Count parameters in the circuit (including data encoding)
         param_count = 0
         for op in qnode.qtape.operations:
             if op.name in ['RX', 'RY', 'RZ', 'CRX', 'CRY'] and not isinstance(op.parameters[0], np.ndarray):
                 param_count += 1
                 
-        assert param_count == expected_param_count
+        self.assertEqual(param_count, expected_param_count)
 
 
-class TestCustomCircuit:
+class TestCustomCircuit(unittest.TestCase):
     """Test custom circuit from configuration."""
     
-    @pytest.fixture
-    def config_path(self, tmpdir):
-        """Create a temporary config file."""
+    def setUp(self):
+        """Set up test environment."""
+        set_random_seed(42)
+        # Create a temporary config file
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.config_path = os.path.join(self.temp_dir.name, "test_config.yaml")
+        
         config_content = """
         n_qubits: 4
         n_layers: 2
@@ -161,20 +164,23 @@ class TestCustomCircuit:
         encoding: angle
         measurement: z
         """
-        config_file = tmpdir.join("test_config.yaml")
-        config_file.write(config_content)
-        return str(config_file)
+        with open(self.config_path, 'w') as f:
+            f.write(config_content)
     
-    def test_creation(self, seed, config_path):
+    def tearDown(self):
+        """Clean up temporary files."""
+        self.temp_dir.cleanup()
+    
+    def test_creation(self):
         """Test custom circuit creation."""
-        circuit_fn = create_custom_circuit(config_path)
-        assert callable(circuit_fn)
+        circuit_fn = create_custom_circuit(self.config_path)
+        self.assertTrue(callable(circuit_fn))
     
-    def test_execution(self, seed, config_path):
+    def test_execution(self):
         """Test custom circuit execution."""
-        circuit_fn = create_custom_circuit(config_path)
+        circuit_fn = create_custom_circuit(self.config_path)
         
-        config = load_config(config_path)
+        config = load_config(self.config_path)
         n_qubits = config.get('n_qubits', 4)
         n_params = config.get('n_params', 24)
         
@@ -185,39 +191,45 @@ class TestCustomCircuit:
         features = np.random.uniform(-1, 1, size=n_qubits)
         
         result = qnode(params, features)
-        assert len(result) == n_qubits  # Default measurement returns one value per qubit
-        assert all(-1 <= val <= 1 for val in result)  # Expectation values
+        self.assertEqual(len(result), n_qubits)  # Default measurement returns one value per qubit
+        for val in result:
+            self.assertTrue(-1 <= val <= 1)  # Expectation values
 
 
-class TestNoisyCircuit:
+class TestNoisyCircuit(unittest.TestCase):
     """Test noisy circuit implementation."""
     
-    def test_creation(self, seed, basic_setup):
-        """Test noisy circuit creation."""
-        n_qubits, n_layers, _ = basic_setup
-        base_circuit = create_basic_circuit(n_qubits, n_layers)
-        noise_model = {'type': 'depolarizing', 'probability': 0.01}
-        
-        noisy_circuit = create_noisy_circuit(base_circuit, noise_model)
-        assert callable(noisy_circuit)
+    def setUp(self):
+        """Set up test environment."""
+        set_random_seed(42)
+        self.n_qubits = 4
+        self.n_layers = 2
+        self.device = qml.device("default.qubit", wires=self.n_qubits)
     
-    def test_execution(self, seed, basic_setup):
-        """Test noisy circuit execution."""
-        n_qubits, n_layers, device = basic_setup
-        base_circuit = create_basic_circuit(n_qubits, n_layers)
+    def test_creation(self):
+        """Test noisy circuit creation."""
+        base_circuit = create_basic_circuit(self.n_qubits, self.n_layers)
         noise_model = {'type': 'depolarizing', 'probability': 0.01}
         
         noisy_circuit = create_noisy_circuit(base_circuit, noise_model)
-        qnode = qml.QNode(noisy_circuit, device)
+        self.assertTrue(callable(noisy_circuit))
+    
+    def test_execution(self):
+        """Test noisy circuit execution."""
+        base_circuit = create_basic_circuit(self.n_qubits, self.n_layers)
+        noise_model = {'type': 'depolarizing', 'probability': 0.01}
         
-        n_params = n_qubits * 3 * n_layers
+        noisy_circuit = create_noisy_circuit(base_circuit, noise_model)
+        qnode = qml.QNode(noisy_circuit, self.device)
+        
+        n_params = self.n_qubits * 3 * self.n_layers
         params = np.random.uniform(0, 2*np.pi, size=n_params)
-        features = np.random.uniform(-1, 1, size=n_qubits)
+        features = np.random.uniform(-1, 1, size=self.n_qubits)
         
         # Should run without errors
         result = qnode(params, features)
-        assert len(result) == n_qubits
+        self.assertEqual(len(result), self.n_qubits)
 
 
 if __name__ == "__main__":
-    pytest.main(["-v"])
+    unittest.main()

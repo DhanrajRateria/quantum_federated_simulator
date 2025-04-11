@@ -5,7 +5,7 @@ Quantum circuit implementations for the Federated Quantum ML Simulator.
 import pennylane as qml
 import numpy as np
 from typing import List, Callable, Dict, Any, Optional, Union, Tuple
-from .utils import load_config, get_device
+from src.quantum.utils import load_config, get_device
 
 
 def create_basic_circuit(n_qubits: int, n_layers: int = 1) -> Callable:

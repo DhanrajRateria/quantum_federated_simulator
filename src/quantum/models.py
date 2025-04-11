@@ -411,6 +411,11 @@ class QuantumNeuralNetwork(nn.Module):
         Returns:
             Output tensor
         """
+
+        is_single_sample = x.dim() == 1
+        if is_single_sample:
+            x = x.unsqueeze(0)  # Add batch dimension
+
         batch_size = x.shape[0]
         
         # Apply pre-processing
@@ -433,8 +438,13 @@ class QuantumNeuralNetwork(nn.Module):
         q_out.requires_grad_(True)
         
         # Apply post-processing
-        return self.post_proc(q_out)
-
+        result = self.post_proc(q_out)
+        
+        # Remove batch dimension for single samples
+        if is_single_sample:
+            result = result.squeeze(0)
+        
+        return result
 
 class QiskitVQC:
     """

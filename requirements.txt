@@ -9,7 +9,8 @@ tqdm
 # Quantum Computing
 pennylane
 qiskit
-pyquil
+qiskit_aer
+# pyquil
 qiskit_machine_learning
 pennylane_qiskit
 
@@ -27,7 +28,7 @@ syft>=0.8.0
 pyspark==3.2.2
 pyzmq
 pyyaml
-findspark>=2.0.1
+findspark
 grpcio
 grpcio-tools
 protobuf
@@ -38,12 +39,12 @@ coverage
 # hadoop-py>=0.1.0
 
 # Security & Privacy
-cryptography>=36.0.0
-diffprivlib>=0.5.0
-opacus>=1.1.0
+cryptography
+diffprivlib
+opacus
 
 # Utilities
 pytest
-flake8>=4.0.0
-sphinx>=4.4.0
-jupyter>=1.0.0
+flake8
+sphinx
+jupyter

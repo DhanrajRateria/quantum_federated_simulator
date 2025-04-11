@@ -30,9 +30,9 @@ class QuantumFederatedClient(FederatedClient):
         dataset: Any,
         batch_size: int = 32,
         learning_rate: float = 0.01,
-        optimizer_class: Any = None,  # Will be handled differently based on model type
+        optimizer_class: Any = None,
         optimizer_kwargs: Optional[Dict[str, Any]] = None,
-        loss_fn: Any = None  # Will be handled differently based on model type
+        loss_fn: Any = None
     ):
         """
         Initialize a quantum federated client.
@@ -47,21 +47,39 @@ class QuantumFederatedClient(FederatedClient):
             optimizer_kwargs: Additional keyword arguments for optimizer
             loss_fn: Optional loss function
         """
-        # Call the parent constructor for common initialization
-        super().__init__(
-            client_id=client_id,
-            model=model,
-            dataset=dataset,
-            batch_size=batch_size,
-            learning_rate=learning_rate,
-            optimizer_class=optimizer_class if not isinstance(model, VariationalQuantumClassifier) else None,
-            optimizer_kwargs=optimizer_kwargs,
-            loss_fn=loss_fn
-        )
+        # Store base attributes without calling parent constructor yet
+        self.client_id = client_id
+        self.model = model
+        self.dataset = dataset
+        self.batch_size = batch_size
+        self.learning_rate = learning_rate
         
-        # Specific handling for different quantum model types
+        # Determine model type before initializing optimizer
         self.model_type = self._determine_model_type(model)
         logger.debug(f"Initialized quantum federated client with {self.model_type} model type")
+        
+        # Create data loader
+        self.data_loader = torch.utils.data.DataLoader(
+            dataset, batch_size=batch_size, shuffle=True
+        )
+        
+        # Initialize optimizer based on model type
+        if self.model_type == "vqc":
+            # VQC models don't use PyTorch optimizers
+            self.optimizer = None
+            self.loss_fn = None
+        else:
+            # For PyTorch-based models (QNN, hybrid, torch)
+            self.optimizer = None
+            if optimizer_class is not None:
+                self.optimizer = optimizer_class(
+                    self.model.parameters(),
+                    lr=learning_rate,
+                    **(optimizer_kwargs or {})
+                )
+            
+            # Set loss function
+            self.loss_fn = loss_fn or nn.CrossEntropyLoss()
     
     def _determine_model_type(self, model: Any) -> str:
         """

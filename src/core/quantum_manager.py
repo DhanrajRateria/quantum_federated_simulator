@@ -14,7 +14,7 @@ import types
 from src.federated.server import FederatedServer
 from src.federated.aggregation import AggregationStrategy
 from src.quantum.models import VariationalQuantumClassifier, QuantumNeuralNetwork, HybridQuantumModel
-from quantum_client import QuantumFederatedClient
+from src.core.quantum_client import QuantumFederatedClient
 
 logger = logging.getLogger(__name__)
 

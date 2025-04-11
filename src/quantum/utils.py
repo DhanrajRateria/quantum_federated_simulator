@@ -13,16 +13,56 @@ import qiskit
 from qiskit.visualization import circuit_drawer
 
 
-def set_random_seed(seed: int = 42) -> None:
+def set_random_seed(seed: int) -> None:
     """
-    Set random seeds for reproducibility.
+    Set random seed for reproducibility across random, numpy, and quantum libraries.
     
     Args:
-        seed: Integer seed for random number generators
+        seed: Random seed value
     """
+    import random
+    import numpy as np
+    
+    # Set Python's random seed
     random.seed(seed)
+    
+    # Set NumPy's random seed
     np.random.seed(seed)
-    qiskit.utils.algorithm_globals.random_seed = seed
+    
+    # Try to set Qiskit's random seed if available
+    try:
+        import qiskit
+        # Try different approaches based on Qiskit version
+        try:
+            # Newer Qiskit versions
+            from qiskit.utils import algorithm_globals
+            algorithm_globals.random_seed = seed
+        except (ImportError, AttributeError):
+            try:
+                # Older Qiskit versions
+                qiskit.utils.algorithm_globals.random_seed = seed
+            except AttributeError:
+                try:
+                    # Even older versions
+                    qiskit.aqua.utils.random_matrix_factory.algorithm_globals.random_seed = seed
+                except (AttributeError, ImportError):
+                    # If all else fails, just move on
+                    pass
+    except ImportError:
+        # Qiskit not installed, which is fine for PennyLane-only use
+        pass
+    
+    # Try to set PennyLane's random seed if it has one
+    try:
+        import pennylane as qml
+        try:
+            qml.numpy.random.seed(seed)
+        except (AttributeError, ImportError):
+            # PennyLane doesn't expose this or has changed
+            pass
+    except ImportError:
+        # PennyLane not installed (unlikely in this context but being thorough)
+        pass
     
 
 def load_config(config_path: str) -> Dict[str, Any]:
@@ -69,7 +109,7 @@ def save_circuit_diagram(circuit: Union[qml.tape.QuantumTape, qiskit.QuantumCirc
         raise TypeError("Circuit must be a PennyLane tape or Qiskit QuantumCircuit")
 
 
-def get_device(device_name: str, wires: int, shots: Optional[int] = None, **kwargs) -> qml.Device:
+def get_device(device_name: str, wires: int, shots: Optional[int] = None, **kwargs) -> qml.device:
     """
     Get a PennyLane device with specific parameters.
     

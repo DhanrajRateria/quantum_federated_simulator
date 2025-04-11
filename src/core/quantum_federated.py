@@ -11,11 +11,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from torch.utils.data import TensorDataset
 
-from federated.aggregation import FedAvg
-from federated.utils import setup_logger, set_seed, FederatedDataset
-from quantum.models import VariationalQuantumClassifier, QuantumNeuralNetwork, HybridQuantumModel
-from quantum_client import QuantumFederatedClient
-from quantum_manager import FederatedQuantumManager, QuantumAggregationStrategy
+from src.federated.aggregation import FedAvg
+from src.federated.utils import setup_logger, set_seed, FederatedDataset
+from src.quantum.models import VariationalQuantumClassifier, QuantumNeuralNetwork, HybridQuantumModel
+from src.core.quantum_client import QuantumFederatedClient
+from src.core.quantum_manager import FederatedQuantumManager, QuantumAggregationStrategy
 
 
 # Setup logging

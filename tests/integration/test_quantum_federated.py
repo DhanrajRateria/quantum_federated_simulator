@@ -15,8 +15,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.federated.server import FederatedServer
 from src.federated.aggregation import FedAvg
 from src.quantum.models import VariationalQuantumClassifier, QuantumNeuralNetwork
-from src.main.quantum_client import QuantumFederatedClient
-from src.main.quantum_manager import QuantumAggregationStrategy
+from src.core.quantum_client import QuantumFederatedClient
+from src.core.quantum_manager import QuantumAggregationStrategy
 from src.quantum.utils import set_random_seed
 
 
