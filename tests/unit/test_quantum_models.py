@@ -12,14 +12,14 @@ import pennylane as qml
 # Add project root to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from ...src.quantum.utils import set_random_seed
-from...src.quantum.models import (
+from src.quantum.utils import set_random_seed
+from src.quantum.models import (
     VariationalQuantumClassifier,
     QuantumNeuralNetwork,
     QiskitVQC,
     HybridQuantumModel
 )
-from ...src.quantum.encodings import (
+from src.quantum.encodings import (
     angle_encoding,
     amplitude_encoding,
     basis_encoding,

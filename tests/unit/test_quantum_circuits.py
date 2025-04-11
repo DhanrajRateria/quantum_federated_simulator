@@ -11,8 +11,8 @@ import pennylane as qml
 # Add project root to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from ...src.quantum.utils import load_config, set_random_seed
-from ...src.quantum.circuits import (
+from src.quantum.utils import load_config, set_random_seed
+from src.quantum.circuits import (
     create_basic_circuit, 
     create_complex_circuit, 
     create_custom_circuit,

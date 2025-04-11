@@ -1,0 +1,22 @@
+# Quantum circuit configuration
+
+# Basic circuit parameters
+n_qubits: 8
+n_layers: 2
+n_params: 48
+
+# Gate set to use
+gate_set:
+  - rx
+  - ry
+  - rz
+  - cz
+
+# Entanglement pattern
+entanglement: circular
+
+# Data encoding method
+encoding: angle
+
+# Measurement strategy
+measurement: z
