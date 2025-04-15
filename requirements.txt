@@ -49,3 +49,4 @@ pytest
 flake8
 sphinx
 jupyter
+findspark

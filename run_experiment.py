@@ -9,7 +9,7 @@ import pandas as pd
 import torch
 import torch.nn as nn
 import sys
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, Subset
 
 # Setup project paths assuming this script is in the root
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -234,7 +234,16 @@ def run_all_experiments(experiment_configs: List[Dict]):
     os.makedirs(RESULTS_DIR, exist_ok=True) # Ensure results directory exists
 
     # Load base dataset once
-    train_data, test_data, n_features_original = load_mnist_data()
+    logger.info("Loading SMALL SUBSET of MNIST data for testing...")
+    full_train_data, full_test_data, n_features_original = load_mnist_data()
+
+    subset_train_size = 1000 # e.g., use 1000 samples for training
+    subset_test_size = 200  # e.g., use 200 samples for testing
+    train_indices = torch.randperm(len(full_train_data))[:subset_train_size]
+    test_indices = torch.randperm(len(full_test_data))[:subset_test_size]
+    train_data = Subset(full_train_data, train_indices)
+    test_data = Subset(full_test_data, test_indices)
+    logger.info(f"Using subset: Train size={len(train_data)}, Test size={len(test_data)}")
 
     for i, exp_config in enumerate(experiment_configs):
         exp_name = exp_config.get("name", f"Experiment_{i+1}")
