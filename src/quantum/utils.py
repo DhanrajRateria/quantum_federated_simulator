@@ -7,153 +7,186 @@ import yaml
 import random
 import numpy as np
 import pennylane as qml
-import matplotlib.pyplot as plt
-from typing import Dict, Any, Optional, Union, List, Tuple
-import qiskit
-from qiskit.visualization import circuit_drawer
+from pennylane.tape import QuantumScript, QuantumTape
+# Optional imports with error handling
+try:
+    import matplotlib.pyplot as plt
+    MATPLOTLIB_AVAILABLE = True
+except ImportError:
+    MATPLOTLIB_AVAILABLE = False
+try:
+    import qiskit
+    from qiskit.visualization import circuit_drawer
+    QISKIT_AVAILABLE = True
+except ImportError:
+    QISKIT_AVAILABLE = False
+try:
+    from pennylane_qiskit import to_qiskit
+    PENNYLANE_QISKIT_AVAILABLE = True
+except ImportError:
+    PENNYLANE_QISKIT_AVAILABLE = False
 
+from typing import Dict, Any, Optional, Union, List, Tuple
+import logging
+
+logger = logging.getLogger(__name__)
 
 def set_random_seed(seed: int) -> None:
     """
-    Set random seed for reproducibility across random, numpy, and quantum libraries.
-    
+    Set random seed for reproducibility across random, numpy, and PennyLane.
+
     Args:
         seed: Random seed value
     """
-    import random
-    import numpy as np
-    
-    # Set Python's random seed
     random.seed(seed)
-    
-    # Set NumPy's random seed
     np.random.seed(seed)
-    
-    # Try to set Qiskit's random seed if available
-    try:
-        import qiskit
-        # Try different approaches based on Qiskit version
-        try:
-            # Newer Qiskit versions
-            from qiskit.utils import algorithm_globals
-            algorithm_globals.random_seed = seed
-        except (ImportError, AttributeError):
-            try:
-                # Older Qiskit versions
-                qiskit.utils.algorithm_globals.random_seed = seed
-            except AttributeError:
-                try:
-                    # Even older versions
-                    qiskit.aqua.utils.random_matrix_factory.algorithm_globals.random_seed = seed
-                except (AttributeError, ImportError):
-                    # If all else fails, just move on
-                    pass
-    except ImportError:
-        # Qiskit not installed, which is fine for PennyLane-only use
-        pass
-    
-    # Try to set PennyLane's random seed if it has one
-    try:
-        import pennylane as qml
-        try:
-            qml.numpy.random.seed(seed)
-        except (AttributeError, ImportError):
-            # PennyLane doesn't expose this or has changed
-            pass
-    except ImportError:
-        # PennyLane not installed (unlikely in this context but being thorough)
-        pass
-    
+    qml.numpy.random.seed(seed) # PennyLane's numpy
+    logger.debug(f"Set random, numpy, and PennyLane seeds to {seed}")
+    # Removed outdated Qiskit global seed setting
+
 
 def load_config(config_path: str) -> Dict[str, Any]:
     """
     Load configuration from a YAML file.
-    
+
     Args:
         config_path: Path to the YAML configuration file
-        
+
     Returns:
         Dict containing configuration parameters
+
+    Raises:
+        FileNotFoundError: If the config file does not exist.
+        yaml.YAMLError: If the file cannot be parsed.
     """
     if not os.path.exists(config_path):
         raise FileNotFoundError(f"Configuration file not found: {config_path}")
-    
-    with open(config_path, 'r') as file:
-        config = yaml.safe_load(file)
-    
-    return config
 
-
-def save_circuit_diagram(circuit: Union[qml.tape.QuantumTape, qiskit.QuantumCircuit], 
-                         filename: str, 
-                         format_type: str = 'png') -> None:
-    """
-    Save a visualization of the quantum circuit.
-    
-    Args:
-        circuit: PennyLane or Qiskit quantum circuit
-        filename: Output filename without extension
-        format_type: Output format (png, pdf, etc.)
-    """
-    if isinstance(circuit, qml.tape.QuantumTape):
-        # For PennyLane circuits
-        fig, ax = qml.draw_mpl(circuit)
-        fig.savefig(f"{filename}.{format_type}", bbox_inches='tight')
-        plt.close(fig)
-    elif isinstance(circuit, qiskit.QuantumCircuit):
-        # For Qiskit circuits
-        circuit_diagram = circuit_drawer(circuit, output='mpl')
-        circuit_diagram.savefig(f"{filename}.{format_type}", bbox_inches='tight')
-        plt.close(circuit_diagram)
-    else:
-        raise TypeError("Circuit must be a PennyLane tape or Qiskit QuantumCircuit")
-
+    try:
+        with open(config_path, 'r') as file:
+            config = yaml.safe_load(file)
+        logger.info(f"Successfully loaded configuration from {config_path}")
+        return config
+    except yaml.YAMLError as e:
+        logger.error(f"Error parsing YAML file {config_path}: {e}")
+        raise
 
 def get_device(device_name: str, wires: int, shots: Optional[int] = None, **kwargs) -> qml.device:
     """
     Get a PennyLane device with specific parameters.
-    
+
     Args:
-        device_name: Name of the device (default.qubit, lightning.qubit, qiskit.aer, etc.)
-        wires: Number of qubits
-        shots: Number of measurement shots (None for exact simulation)
-        **kwargs: Additional device-specific parameters
-        
+        device_name: Name of the device (e.g., "default.qubit", "lightning.qubit").
+        wires: Number of qubits.
+        shots: Number of measurement shots (None for exact analytical results).
+        **kwargs: Additional device-specific parameters.
+
     Returns:
-        Initialized PennyLane device
+        Initialized PennyLane device.
+
+    Raises:
+        qml.DeviceError: If the device cannot be loaded or initialized.
     """
-    return qml.device(device_name, wires=wires, shots=shots, **kwargs)
+    try:
+        logger.info(f"Loading PennyLane device '{device_name}' with wires={wires}, shots={shots}, kwargs={kwargs}")
+        device = qml.device(device_name, wires=wires, shots=shots, **kwargs)
+        logger.info(f"Device '{device_name}' loaded successfully.")
+        return device
+    except qml.DeviceError as e:
+        logger.error(f"Failed to load PennyLane device '{device_name}': {e}", exc_info=True)
+        raise
 
 
-def circuit_to_qiskit(circuit: qml.tape.QuantumTape) -> qiskit.QuantumCircuit:
+def circuit_to_qiskit(tape: qml.tape.QuantumTape) -> qiskit.QuantumCircuit:
     """
-    Convert a PennyLane circuit to a Qiskit QuantumCircuit.
-    
+    Convert a PennyLane QuantumTape to a Qiskit QuantumCircuit.
+
+    Requires the pennylane-qiskit plugin to be installed.
+
     Args:
-        circuit: PennyLane quantum circuit
-        
+        tape: PennyLane quantum tape.
+
     Returns:
-        Equivalent Qiskit QuantumCircuit
+        Equivalent Qiskit QuantumCircuit.
+
+    Raises:
+        ImportError: If pennylane-qiskit is not installed.
+        TypeError: If the input is not a PennyLane QuantumTape.
+        Exception: For errors during conversion.
     """
-    from pennylane_qiskit import to_qiskit
-    return to_qiskit(circuit)
+    if not isinstance(tape, qml.tape.QuantumTape):
+        raise TypeError(f"Input must be a PennyLane QuantumTape, got {type(tape)}")
+
+    if not PENNYLANE_QISKIT_AVAILABLE:
+        raise ImportError("pennylane-qiskit plugin is required for conversion. Please install it.")
+
+    try:
+        logger.info("Converting PennyLane tape to Qiskit circuit...")
+        qiskit_circuit = to_qiskit(tape)
+        logger.info("Conversion successful.")
+        return qiskit_circuit
+    except Exception as e:
+        logger.error(f"Error converting PennyLane tape to Qiskit circuit: {e}", exc_info=True)
+        raise
 
 
 def calculate_circuit_depth(circuit: Union[qml.tape.QuantumTape, qiskit.QuantumCircuit]) -> int:
     """
-    Calculate the depth of a quantum circuit.
-    
+    Calculate the depth of a quantum circuit using Qiskit's definition.
+
+    For PennyLane tapes, it first converts them to Qiskit circuits.
+
     Args:
-        circuit: PennyLane or Qiskit quantum circuit
-        
+        circuit: PennyLane QuantumTape or Qiskit QuantumCircuit.
+
     Returns:
-        Circuit depth
+        Circuit depth.
+
+    Raises:
+        TypeError: If the input type is not supported.
+        ImportError: If Qiskit (or pennylane-qiskit for tapes) is not installed.
+        Exception: For errors during conversion or depth calculation.
     """
+    logger.info(f"Calculating depth for circuit of type {type(circuit)}")
     if isinstance(circuit, qml.tape.QuantumTape):
-        # Convert to Qiskit to use its depth calculation
-        qiskit_circuit = circuit_to_qiskit(circuit)
-        return qiskit_circuit.depth()
-    elif isinstance(circuit, qiskit.QuantumCircuit):
-        return circuit.depth()
+        if not QISKIT_AVAILABLE:
+             raise ImportError("Qiskit is required to calculate depth for PennyLane tapes (via conversion). Please install it.")
+        try:
+            qiskit_circuit = circuit_to_qiskit(circuit)
+            # Use optimization_level=0 for depth calculation to avoid modification
+            depth = qiskit_circuit.depth(optimization_level=0)
+            logger.info(f"Calculated depth for converted PennyLane tape: {depth}")
+            return depth
+        except Exception as e:
+            logger.error(f"Error calculating depth for PennyLane tape: {e}", exc_info=True)
+            raise
+    elif QISKIT_AVAILABLE and isinstance(circuit, qiskit.QuantumCircuit):
+        try:
+            # Use optimization_level=0 for depth calculation to avoid modification
+            depth = circuit.depth(optimization_level=0)
+            logger.info(f"Calculated depth for Qiskit circuit: {depth}")
+            return depth
+        except Exception as e:
+            logger.error(f"Error calculating depth for Qiskit circuit: {e}", exc_info=True)
+            raise
     else:
-        raise TypeError("Circuit must be a PennyLane tape or Qiskit QuantumCircuit")
+        if not QISKIT_AVAILABLE and type(circuit).__name__ == 'QuantumCircuit':
+             raise ImportError("Qiskit is required to process Qiskit QuantumCircuit objects. Please install it.")
+        raise TypeError(f"Unsupported circuit type for depth calculation: {type(circuit)}")
+
+# --- Optional: Add utility to calculate expected parameters ---
+def calculate_expected_params(n_qubits: int, n_layers: int, gate_set: List[str], entanglement: str) -> int:
+    """Calculates the expected number of *trainable* parameters for a custom circuit."""
+    # This calculation depends heavily on how create_custom_circuit assigns parameters.
+    # Based on the current create_custom_circuit: only single-qubit RX, RY, RZ in the gate_set
+    # contribute to trainable parameters within the layers loop.
+    trainable_params_per_layer = 0
+    parameterized_single_qubit_gates = [g.lower() for g in gate_set if g.lower() in ['rx', 'ry', 'rz']]
+
+    # Each parameterized single-qubit gate is applied to each qubit in each layer
+    trainable_params_per_layer = n_qubits * len(parameterized_single_qubit_gates)
+
+    total_params = trainable_params_per_layer * n_layers
+    logger.debug(f"Calculated expected params: {total_params} ({n_qubits} qubits, {n_layers} layers, "
+                 f"param_gates={parameterized_single_qubit_gates})")
+    return total_params

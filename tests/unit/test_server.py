@@ -10,7 +10,12 @@ from torch.utils.data import TensorDataset
 from src.federated.server import FederatedServer
 from src.federated.client import FederatedClient
 from src.federated.aggregation import FedAvg, FedProx
+import logging
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(name)s - %(message)s'
+)
 
 class SimpleModel(nn.Module):
     """Simple model for testing."""

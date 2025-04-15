@@ -1,0 +1,7 @@
+Comparison and metrics
+Implementing the Communication Layer if you plan to simulate network effects (or keeping it direct calls for now).
+Adding Data Partitioning strategies.
+Implementing Security mechanisms (encryption, privacy).
+Developing the Main Simulation Script to tie everything together and run experiments.
+Distributed environment
+Paper

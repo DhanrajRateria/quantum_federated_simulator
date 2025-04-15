@@ -5,6 +5,7 @@ matplotlib
 pandas
 pyyaml
 tqdm
+seaborn
 
 # Quantum Computing
 pennylane

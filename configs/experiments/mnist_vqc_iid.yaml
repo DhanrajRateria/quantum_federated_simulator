@@ -1,0 +1,40 @@
+experiment_name: mnist_vqc_fedavg_iid
+seed: 42
+output_dir: results/mnist_vqc_fedavg_iid
+
+dataset:
+  name: MNIST
+  path: ./data
+  num_classes: 10
+  preprocess: # Preprocessing for VQC
+    type: cnn_feature_extractor # Identifier for main.py
+    output_dim: 8 # Number of features = n_qubits
+  partition:
+    type: iid
+    num_clients: 5
+
+model:
+  type: vqc # Identifier for main.py
+  params:
+    n_qubits: 8
+    n_layers: 2
+    n_classes: 10 # Although VQC might handle binary better
+    circuit_type: basic # Or complex, custom
+    encoding_type: angle
+    shots: null # Use analytic expectation for stability if possible
+    optimizer: AdamOptimizer # PennyLane optimizer name
+    optimizer_stepsize: 0.05 # Learning rate for VQC optimizer
+
+federated:
+  num_rounds: 20
+  clients_per_round: 5
+  local_epochs: 2
+  aggregation:
+    type: fedavg # Uses QuantumAggregationStrategy wrapper
+
+training:
+  batch_size: 16 # Often smaller for VQC
+
+logging:
+  level: INFO
+  log_file: results/mnist_vqc_fedavg_iid/run.log

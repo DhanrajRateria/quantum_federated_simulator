@@ -23,8 +23,7 @@ optimization:
   
   # Optimizer settings
   optimizer: 
-    name: "SGD"
-    momentum: 0.9
+    name: "Adam"
     weight_decay: 0.0001
     
   # Loss function

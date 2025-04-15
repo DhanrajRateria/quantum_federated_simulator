@@ -1,0 +1,348 @@
+2025-04-15 18:27:34,290 [INFO] ExperimentRunner: Starting All Experiments...
+2025-04-15 18:27:34,290 [INFO] src.utils.data_utils: Loading MNIST data from ./data. Target features: None. Normalize: True
+2025-04-15 18:27:34,973 [INFO] src.utils.data_utils: Using original 784 features (PCA not requested).
+2025-04-15 18:27:34,973 [INFO] src.utils.data_utils: Applying MinMaxScaler to scale features to [-1, 1] range.
+2025-04-15 18:27:35,214 [INFO] src.utils.data_utils: MNIST data loaded. Train size: 60000, Test size: 10000, Features: 784
+2025-04-15 18:27:35,215 [INFO] ExperimentRunner: ========== Starting Classical_MLP_FedAvg_IID ==========
+2025-04-15 18:27:35,215 [INFO] ExperimentRunner: --- Setting up experiment: Classical_MLP_FedAvg_IID ---
+2025-04-15 18:27:36,527 [INFO] src.utils.data_utils: Set random seed to 42
+2025-04-15 18:27:36,532 [INFO] src.utils.data_utils: Successfully loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/server_config.yaml
+2025-04-15 18:27:36,534 [INFO] src.utils.data_utils: Successfully loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/client_config.yaml
+2025-04-15 18:27:36,537 [INFO] src.utils.data_utils: Successfully loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/default_aggregation.yaml
+2025-04-15 18:27:36,537 [INFO] src.utils.data_utils: Partitioning data IID among 5 clients.
+2025-04-15 18:27:36,539 [INFO] src.utils.data_utils: Data partitioning complete.
+2025-04-15 18:27:36,540 [INFO] ExperimentRunner: Creating model of type: classical_mlp
+2025-04-15 18:27:36,541 [INFO] src.federated.aggregation: Creating aggregation strategy of type: fedavg
+2025-04-15 18:27:36,541 [INFO] ExperimentRunner: Using aggregation strategy: FedAvg
+2025-04-15 18:27:36,868 [INFO] src.federated.server: Federated server initialized on device 'cuda' with aggregation strategy: FedAvg
+2025-04-15 18:27:36,868 [INFO] ExperimentRunner: Creating model of type: classical_mlp
+2025-04-15 18:27:36,870 [INFO] src.federated.client: Client classical_mlp_client_0 initialized on device 'cuda' with 12000 samples.
+2025-04-15 18:27:36,870 [INFO] src.federated.server: Registered client 'classical_mlp_client_0'. Total clients: 1.
+2025-04-15 18:27:36,870 [INFO] ExperimentRunner: Creating model of type: classical_mlp
+2025-04-15 18:27:36,872 [INFO] src.federated.client: Client classical_mlp_client_1 initialized on device 'cuda' with 12000 samples.
+2025-04-15 18:27:36,872 [INFO] src.federated.server: Registered client 'classical_mlp_client_1'. Total clients: 2.
+2025-04-15 18:27:36,872 [INFO] ExperimentRunner: Creating model of type: classical_mlp
+2025-04-15 18:27:36,874 [INFO] src.federated.client: Client classical_mlp_client_2 initialized on device 'cuda' with 12000 samples.
+2025-04-15 18:27:36,874 [INFO] src.federated.server: Registered client 'classical_mlp_client_2'. Total clients: 3.
+2025-04-15 18:27:36,874 [INFO] ExperimentRunner: Creating model of type: classical_mlp
+2025-04-15 18:27:36,876 [INFO] src.federated.client: Client classical_mlp_client_3 initialized on device 'cuda' with 12000 samples.
+2025-04-15 18:27:36,876 [INFO] src.federated.server: Registered client 'classical_mlp_client_3'. Total clients: 4.
+2025-04-15 18:27:36,876 [INFO] ExperimentRunner: Creating model of type: classical_mlp
+2025-04-15 18:27:36,890 [INFO] src.federated.client: Client classical_mlp_client_4 initialized on device 'cuda' with 12000 samples.
+2025-04-15 18:27:36,890 [INFO] src.federated.server: Registered client 'classical_mlp_client_4'. Total clients: 5.
+2025-04-15 18:27:36,910 [INFO] ExperimentRunner: --- Scenario setup complete for Classical_MLP_FedAvg_IID ---
+2025-04-15 18:27:36,910 [INFO] src.federated.server: Starting federated training process for 10 rounds.
+2025-04-15 18:27:36,911 [INFO] src.federated.server: Config: local_epochs=2, client_fraction=0.1, min_clients=3, FedProx mu=0.0
+2025-04-15 18:27:36,911 [INFO] src.federated.server: Performing initial evaluation of global model...
+2025-04-15 18:27:37,244 [INFO] src.federated.server: Initial Evaluation Metrics: {'loss': 2.312205010796474, 'accuracy': 0.1164}
+2025-04-15 18:27:37,244 [INFO] src.federated.server: ===== Starting Round 1/10 =====
+2025-04-15 18:27:37,244 [INFO] src.federated.server: Starting federated training round...
+2025-04-15 18:27:37,244 [INFO] src.federated.server: Selected 3 clients out of 5 available (fraction=0.1, min_clients=3): ['classical_mlp_client_0', 'classical_mlp_client_4', 'classical_mlp_client_2']
+2025-04-15 18:27:37,246 [INFO] src.federated.client: Client classical_mlp_client_0: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:27:38,343 [INFO] src.federated.client: Client classical_mlp_client_0 - Epoch 1/2 completed. Average Loss: 0.6423
+2025-04-15 18:27:39,275 [INFO] src.federated.client: Client classical_mlp_client_0 - Epoch 2/2 completed. Average Loss: 0.3714
+2025-04-15 18:27:39,276 [INFO] src.federated.client: Client classical_mlp_client_0: Local training finished. Processed 24000 samples.
+2025-04-15 18:27:39,277 [INFO] src.federated.client: Client classical_mlp_client_4: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:27:40,274 [INFO] src.federated.client: Client classical_mlp_client_4 - Epoch 1/2 completed. Average Loss: 0.6946
+2025-04-15 18:27:41,297 [INFO] src.federated.client: Client classical_mlp_client_4 - Epoch 2/2 completed. Average Loss: 0.4126
+2025-04-15 18:27:41,298 [INFO] src.federated.client: Client classical_mlp_client_4: Local training finished. Processed 24000 samples.
+2025-04-15 18:27:41,299 [INFO] src.federated.client: Client classical_mlp_client_2: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:27:42,317 [INFO] src.federated.client: Client classical_mlp_client_2 - Epoch 1/2 completed. Average Loss: 0.7080
+2025-04-15 18:27:43,333 [INFO] src.federated.client: Client classical_mlp_client_2 - Epoch 2/2 completed. Average Loss: 0.3958
+2025-04-15 18:27:43,334 [INFO] src.federated.client: Client classical_mlp_client_2: Local training finished. Processed 24000 samples.
+2025-04-15 18:27:43,334 [INFO] src.federated.server: Aggregating updates from 3 clients using FedAvg.
+2025-04-15 18:27:43,334 [INFO] src.federated.aggregation: FedAvg: Aggregating updates from 3 clients.
+2025-04-15 18:27:43,335 [INFO] src.federated.aggregation: FedAvg: Aggregation complete.
+2025-04-15 18:27:43,336 [INFO] src.federated.server: Global model updated with aggregated parameters.
+2025-04-15 18:27:43,336 [INFO] src.federated.server: Evaluating updated global model...
+2025-04-15 18:27:43,457 [INFO] src.federated.server: Round 1 completed in 6.21s. Eval Metrics: {'loss': 1.312165149589559, 'accuracy': 0.7095}
+2025-04-15 18:27:43,458 [INFO] src.federated.server: ===== Starting Round 2/10 =====
+2025-04-15 18:27:43,458 [INFO] src.federated.server: Starting federated training round...
+2025-04-15 18:27:43,458 [INFO] src.federated.server: Selected 3 clients out of 5 available (fraction=0.1, min_clients=3): ['classical_mlp_client_2', 'classical_mlp_client_1', 'classical_mlp_client_0']
+2025-04-15 18:27:43,459 [INFO] src.federated.client: Client classical_mlp_client_2: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:27:44,325 [INFO] src.federated.client: Client classical_mlp_client_2 - Epoch 1/2 completed. Average Loss: 0.4716
+2025-04-15 18:27:45,173 [INFO] src.federated.client: Client classical_mlp_client_2 - Epoch 2/2 completed. Average Loss: 0.3360
+2025-04-15 18:27:45,174 [INFO] src.federated.client: Client classical_mlp_client_2: Local training finished. Processed 24000 samples.
+2025-04-15 18:27:45,174 [INFO] src.federated.client: Client classical_mlp_client_1: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:27:46,106 [INFO] src.federated.client: Client classical_mlp_client_1 - Epoch 1/2 completed. Average Loss: 0.4452
+2025-04-15 18:27:47,041 [INFO] src.federated.client: Client classical_mlp_client_1 - Epoch 2/2 completed. Average Loss: 0.3635
+2025-04-15 18:27:47,042 [INFO] src.federated.client: Client classical_mlp_client_1: Local training finished. Processed 24000 samples.
+2025-04-15 18:27:47,043 [INFO] src.federated.client: Client classical_mlp_client_0: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:27:48,029 [INFO] src.federated.client: Client classical_mlp_client_0 - Epoch 1/2 completed. Average Loss: 0.5158
+2025-04-15 18:27:49,030 [INFO] src.federated.client: Client classical_mlp_client_0 - Epoch 2/2 completed. Average Loss: 0.3694
+2025-04-15 18:27:49,031 [INFO] src.federated.client: Client classical_mlp_client_0: Local training finished. Processed 24000 samples.
+2025-04-15 18:27:49,032 [INFO] src.federated.server: Aggregating updates from 3 clients using FedAvg.
+2025-04-15 18:27:49,032 [INFO] src.federated.aggregation: FedAvg: Aggregating updates from 3 clients.
+2025-04-15 18:27:49,033 [INFO] src.federated.aggregation: FedAvg: Aggregation complete.
+2025-04-15 18:27:49,033 [INFO] src.federated.server: Global model updated with aggregated parameters.
+2025-04-15 18:27:49,033 [INFO] src.federated.server: Evaluating updated global model...
+2025-04-15 18:27:49,153 [INFO] src.federated.server: Round 2 completed in 5.70s. Eval Metrics: {'loss': 0.3702669616527411, 'accuracy': 0.889}
+2025-04-15 18:27:49,154 [INFO] src.federated.server: ===== Starting Round 3/10 =====
+2025-04-15 18:27:49,154 [INFO] src.federated.server: Starting federated training round...
+2025-04-15 18:27:49,154 [INFO] src.federated.server: Selected 3 clients out of 5 available (fraction=0.1, min_clients=3): ['classical_mlp_client_1', 'classical_mlp_client_0', 'classical_mlp_client_2']
+2025-04-15 18:27:49,155 [INFO] src.federated.client: Client classical_mlp_client_1: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:27:50,142 [INFO] src.federated.client: Client classical_mlp_client_1 - Epoch 1/2 completed. Average Loss: 0.3642
+2025-04-15 18:27:51,140 [INFO] src.federated.client: Client classical_mlp_client_1 - Epoch 2/2 completed. Average Loss: 0.3349
+2025-04-15 18:27:51,140 [INFO] src.federated.client: Client classical_mlp_client_1: Local training finished. Processed 24000 samples.
+2025-04-15 18:27:51,141 [INFO] src.federated.client: Client classical_mlp_client_0: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:27:52,074 [INFO] src.federated.client: Client classical_mlp_client_0 - Epoch 1/2 completed. Average Loss: 0.3747
+2025-04-15 18:27:52,953 [INFO] src.federated.client: Client classical_mlp_client_0 - Epoch 2/2 completed. Average Loss: 0.3387
+2025-04-15 18:27:52,954 [INFO] src.federated.client: Client classical_mlp_client_0: Local training finished. Processed 24000 samples.
+2025-04-15 18:27:52,955 [INFO] src.federated.client: Client classical_mlp_client_2: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:27:53,867 [INFO] src.federated.client: Client classical_mlp_client_2 - Epoch 1/2 completed. Average Loss: 0.3569
+2025-04-15 18:27:54,792 [INFO] src.federated.client: Client classical_mlp_client_2 - Epoch 2/2 completed. Average Loss: 0.3306
+2025-04-15 18:27:54,792 [INFO] src.federated.client: Client classical_mlp_client_2: Local training finished. Processed 24000 samples.
+2025-04-15 18:27:54,793 [INFO] src.federated.server: Aggregating updates from 3 clients using FedAvg.
+2025-04-15 18:27:54,793 [INFO] src.federated.aggregation: FedAvg: Aggregating updates from 3 clients.
+2025-04-15 18:27:54,793 [INFO] src.federated.aggregation: FedAvg: Aggregation complete.
+2025-04-15 18:27:54,794 [INFO] src.federated.server: Global model updated with aggregated parameters.
+2025-04-15 18:27:54,794 [INFO] src.federated.server: Evaluating updated global model...
+2025-04-15 18:27:54,905 [INFO] src.federated.server: Round 3 completed in 5.75s. Eval Metrics: {'loss': 0.2936752139853548, 'accuracy': 0.9148}
+2025-04-15 18:27:54,906 [INFO] src.federated.server: ===== Starting Round 4/10 =====
+2025-04-15 18:27:54,906 [INFO] src.federated.server: Starting federated training round...
+2025-04-15 18:27:54,906 [INFO] src.federated.server: Selected 3 clients out of 5 available (fraction=0.1, min_clients=3): ['classical_mlp_client_4', 'classical_mlp_client_0', 'classical_mlp_client_2']
+2025-04-15 18:27:54,907 [INFO] src.federated.client: Client classical_mlp_client_4: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:27:54,713 [INFO] src.federated.client: Client classical_mlp_client_4 - Epoch 1/2 completed. Average Loss: 0.5234
+2025-04-15 18:27:55,639 [INFO] src.federated.client: Client classical_mlp_client_4 - Epoch 2/2 completed. Average Loss: 0.3778
+2025-04-15 18:27:55,640 [INFO] src.federated.client: Client classical_mlp_client_4: Local training finished. Processed 24000 samples.
+2025-04-15 18:27:55,641 [INFO] src.federated.client: Client classical_mlp_client_0: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:27:56,602 [INFO] src.federated.client: Client classical_mlp_client_0 - Epoch 1/2 completed. Average Loss: 0.3240
+2025-04-15 18:27:57,572 [INFO] src.federated.client: Client classical_mlp_client_0 - Epoch 2/2 completed. Average Loss: 0.3043
+2025-04-15 18:27:57,572 [INFO] src.federated.client: Client classical_mlp_client_0: Local training finished. Processed 24000 samples.
+2025-04-15 18:27:57,573 [INFO] src.federated.client: Client classical_mlp_client_2: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:27:58,519 [INFO] src.federated.client: Client classical_mlp_client_2 - Epoch 1/2 completed. Average Loss: 0.3243
+2025-04-15 18:27:59,515 [INFO] src.federated.client: Client classical_mlp_client_2 - Epoch 2/2 completed. Average Loss: 0.3034
+2025-04-15 18:27:59,515 [INFO] src.federated.client: Client classical_mlp_client_2: Local training finished. Processed 24000 samples.
+2025-04-15 18:27:59,515 [INFO] src.federated.server: Aggregating updates from 3 clients using FedAvg.
+2025-04-15 18:27:59,516 [INFO] src.federated.aggregation: FedAvg: Aggregating updates from 3 clients.
+2025-04-15 18:27:59,516 [INFO] src.federated.aggregation: FedAvg: Aggregation complete.
+2025-04-15 18:27:59,517 [INFO] src.federated.server: Global model updated with aggregated parameters.
+2025-04-15 18:27:59,517 [INFO] src.federated.server: Evaluating updated global model...
+2025-04-15 18:27:59,645 [INFO] src.federated.server: Round 4 completed in 4.74s. Eval Metrics: {'loss': 0.3259180807119241, 'accuracy': 0.902}
+2025-04-15 18:27:59,645 [INFO] src.federated.server: ===== Starting Round 5/10 =====
+2025-04-15 18:27:59,645 [INFO] src.federated.server: Starting federated training round...
+2025-04-15 18:27:59,645 [INFO] src.federated.server: Selected 3 clients out of 5 available (fraction=0.1, min_clients=3): ['classical_mlp_client_3', 'classical_mlp_client_0', 'classical_mlp_client_4']
+2025-04-15 18:27:59,646 [INFO] src.federated.client: Client classical_mlp_client_3: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:28:00,643 [INFO] src.federated.client: Client classical_mlp_client_3 - Epoch 1/2 completed. Average Loss: 0.3714
+2025-04-15 18:28:01,609 [INFO] src.federated.client: Client classical_mlp_client_3 - Epoch 2/2 completed. Average Loss: 0.3429
+2025-04-15 18:28:01,610 [INFO] src.federated.client: Client classical_mlp_client_3: Local training finished. Processed 24000 samples.
+2025-04-15 18:28:01,610 [INFO] src.federated.client: Client classical_mlp_client_0: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:28:02,460 [INFO] src.federated.client: Client classical_mlp_client_0 - Epoch 1/2 completed. Average Loss: 0.3462
+2025-04-15 18:28:03,324 [INFO] src.federated.client: Client classical_mlp_client_0 - Epoch 2/2 completed. Average Loss: 0.3057
+2025-04-15 18:28:03,324 [INFO] src.federated.client: Client classical_mlp_client_0: Local training finished. Processed 24000 samples.
+2025-04-15 18:28:03,325 [INFO] src.federated.client: Client classical_mlp_client_4: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:28:04,234 [INFO] src.federated.client: Client classical_mlp_client_4 - Epoch 1/2 completed. Average Loss: 0.3975
+2025-04-15 18:28:05,155 [INFO] src.federated.client: Client classical_mlp_client_4 - Epoch 2/2 completed. Average Loss: 0.3466
+2025-04-15 18:28:05,156 [INFO] src.federated.client: Client classical_mlp_client_4: Local training finished. Processed 24000 samples.
+2025-04-15 18:28:05,156 [INFO] src.federated.server: Aggregating updates from 3 clients using FedAvg.
+2025-04-15 18:28:05,156 [INFO] src.federated.aggregation: FedAvg: Aggregating updates from 3 clients.
+2025-04-15 18:28:05,157 [INFO] src.federated.aggregation: FedAvg: Aggregation complete.
+2025-04-15 18:28:05,158 [INFO] src.federated.server: Global model updated with aggregated parameters.
+2025-04-15 18:28:05,158 [INFO] src.federated.server: Evaluating updated global model...
+2025-04-15 18:28:05,286 [INFO] src.federated.server: Round 5 completed in 5.64s. Eval Metrics: {'loss': 0.31211441830646, 'accuracy': 0.9166}
+2025-04-15 18:28:05,287 [INFO] src.federated.server: ===== Starting Round 6/10 =====
+2025-04-15 18:28:05,287 [INFO] src.federated.server: Starting federated training round...
+2025-04-15 18:28:05,287 [INFO] src.federated.server: Selected 3 clients out of 5 available (fraction=0.1, min_clients=3): ['classical_mlp_client_0', 'classical_mlp_client_1', 'classical_mlp_client_4']
+2025-04-15 18:28:05,288 [INFO] src.federated.client: Client classical_mlp_client_0: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:28:06,280 [INFO] src.federated.client: Client classical_mlp_client_0 - Epoch 1/2 completed. Average Loss: 0.3337
+2025-04-15 18:28:07,263 [INFO] src.federated.client: Client classical_mlp_client_0 - Epoch 2/2 completed. Average Loss: 0.3127
+2025-04-15 18:28:07,264 [INFO] src.federated.client: Client classical_mlp_client_0: Local training finished. Processed 24000 samples.
+2025-04-15 18:28:07,265 [INFO] src.federated.client: Client classical_mlp_client_1: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:28:08,179 [INFO] src.federated.client: Client classical_mlp_client_1 - Epoch 1/2 completed. Average Loss: 0.3497
+2025-04-15 18:28:09,047 [INFO] src.federated.client: Client classical_mlp_client_1 - Epoch 2/2 completed. Average Loss: 0.3289
+2025-04-15 18:28:09,048 [INFO] src.federated.client: Client classical_mlp_client_1: Local training finished. Processed 24000 samples.
+2025-04-15 18:28:09,049 [INFO] src.federated.client: Client classical_mlp_client_4: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:28:09,954 [INFO] src.federated.client: Client classical_mlp_client_4 - Epoch 1/2 completed. Average Loss: 0.3534
+2025-04-15 18:28:10,894 [INFO] src.federated.client: Client classical_mlp_client_4 - Epoch 2/2 completed. Average Loss: 0.3476
+2025-04-15 18:28:10,895 [INFO] src.federated.client: Client classical_mlp_client_4: Local training finished. Processed 24000 samples.
+2025-04-15 18:28:10,895 [INFO] src.federated.server: Aggregating updates from 3 clients using FedAvg.
+2025-04-15 18:28:10,895 [INFO] src.federated.aggregation: FedAvg: Aggregating updates from 3 clients.
+2025-04-15 18:28:10,896 [INFO] src.federated.aggregation: FedAvg: Aggregation complete.
+2025-04-15 18:28:10,896 [INFO] src.federated.server: Global model updated with aggregated parameters.
+2025-04-15 18:28:10,897 [INFO] src.federated.server: Evaluating updated global model...
+2025-04-15 18:28:11,010 [INFO] src.federated.server: Round 6 completed in 5.72s. Eval Metrics: {'loss': 0.2943599134012899, 'accuracy': 0.9171}
+2025-04-15 18:28:11,010 [INFO] src.federated.server: ===== Starting Round 7/10 =====
+2025-04-15 18:28:11,010 [INFO] src.federated.server: Starting federated training round...
+2025-04-15 18:28:11,010 [INFO] src.federated.server: Selected 3 clients out of 5 available (fraction=0.1, min_clients=3): ['classical_mlp_client_4', 'classical_mlp_client_0', 'classical_mlp_client_2']
+2025-04-15 18:28:11,011 [INFO] src.federated.client: Client classical_mlp_client_4: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:28:11,993 [INFO] src.federated.client: Client classical_mlp_client_4 - Epoch 1/2 completed. Average Loss: 0.3394
+2025-04-15 18:28:13,016 [INFO] src.federated.client: Client classical_mlp_client_4 - Epoch 2/2 completed. Average Loss: 0.2976
+2025-04-15 18:28:13,017 [INFO] src.federated.client: Client classical_mlp_client_4: Local training finished. Processed 24000 samples.
+2025-04-15 18:28:13,018 [INFO] src.federated.client: Client classical_mlp_client_0: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:28:14,044 [INFO] src.federated.client: Client classical_mlp_client_0 - Epoch 1/2 completed. Average Loss: 0.2966
+2025-04-15 18:28:15,061 [INFO] src.federated.client: Client classical_mlp_client_0 - Epoch 2/2 completed. Average Loss: 0.2956
+2025-04-15 18:28:15,062 [INFO] src.federated.client: Client classical_mlp_client_0: Local training finished. Processed 24000 samples.
+2025-04-15 18:28:15,063 [INFO] src.federated.client: Client classical_mlp_client_2: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:28:16,046 [INFO] src.federated.client: Client classical_mlp_client_2 - Epoch 1/2 completed. Average Loss: 0.3489
+2025-04-15 18:28:16,994 [INFO] src.federated.client: Client classical_mlp_client_2 - Epoch 2/2 completed. Average Loss: 0.3263
+2025-04-15 18:28:16,995 [INFO] src.federated.client: Client classical_mlp_client_2: Local training finished. Processed 24000 samples.
+2025-04-15 18:28:16,995 [INFO] src.federated.server: Aggregating updates from 3 clients using FedAvg.
+2025-04-15 18:28:16,995 [INFO] src.federated.aggregation: FedAvg: Aggregating updates from 3 clients.
+2025-04-15 18:28:16,996 [INFO] src.federated.aggregation: FedAvg: Aggregation complete.
+2025-04-15 18:28:16,996 [INFO] src.federated.server: Global model updated with aggregated parameters.
+2025-04-15 18:28:16,997 [INFO] src.federated.server: Evaluating updated global model...
+2025-04-15 18:28:17,109 [INFO] src.federated.server: Round 7 completed in 6.10s. Eval Metrics: {'loss': 0.23475223137911616, 'accuracy': 0.9337}
+2025-04-15 18:28:17,109 [INFO] src.federated.server: ===== Starting Round 8/10 =====
+2025-04-15 18:28:17,109 [INFO] src.federated.server: Starting federated training round...
+2025-04-15 18:28:17,109 [INFO] src.federated.server: Selected 3 clients out of 5 available (fraction=0.1, min_clients=3): ['classical_mlp_client_1', 'classical_mlp_client_3', 'classical_mlp_client_0']
+2025-04-15 18:28:17,110 [INFO] src.federated.client: Client classical_mlp_client_1: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:28:18,032 [INFO] src.federated.client: Client classical_mlp_client_1 - Epoch 1/2 completed. Average Loss: 0.3111
+2025-04-15 18:28:18,981 [INFO] src.federated.client: Client classical_mlp_client_1 - Epoch 2/2 completed. Average Loss: 0.3195
+2025-04-15 18:28:18,982 [INFO] src.federated.client: Client classical_mlp_client_1: Local training finished. Processed 24000 samples.
+2025-04-15 18:28:18,982 [INFO] src.federated.client: Client classical_mlp_client_3: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:28:19,945 [INFO] src.federated.client: Client classical_mlp_client_3 - Epoch 1/2 completed. Average Loss: 0.3395
+2025-04-15 18:28:20,962 [INFO] src.federated.client: Client classical_mlp_client_3 - Epoch 2/2 completed. Average Loss: 0.3203
+2025-04-15 18:28:20,963 [INFO] src.federated.client: Client classical_mlp_client_3: Local training finished. Processed 24000 samples.
+2025-04-15 18:28:20,963 [INFO] src.federated.client: Client classical_mlp_client_0: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:28:21,966 [INFO] src.federated.client: Client classical_mlp_client_0 - Epoch 1/2 completed. Average Loss: 0.3072
+2025-04-15 18:28:22,972 [INFO] src.federated.client: Client classical_mlp_client_0 - Epoch 2/2 completed. Average Loss: 0.2995
+2025-04-15 18:28:22,973 [INFO] src.federated.client: Client classical_mlp_client_0: Local training finished. Processed 24000 samples.
+2025-04-15 18:28:22,973 [INFO] src.federated.server: Aggregating updates from 3 clients using FedAvg.
+2025-04-15 18:28:22,973 [INFO] src.federated.aggregation: FedAvg: Aggregating updates from 3 clients.
+2025-04-15 18:28:22,974 [INFO] src.federated.aggregation: FedAvg: Aggregation complete.
+2025-04-15 18:28:22,975 [INFO] src.federated.server: Global model updated with aggregated parameters.
+2025-04-15 18:28:22,975 [INFO] src.federated.server: Evaluating updated global model...
+2025-04-15 18:28:23,095 [INFO] src.federated.server: Round 8 completed in 5.99s. Eval Metrics: {'loss': 0.21098582938132504, 'accuracy': 0.9411}
+2025-04-15 18:28:23,095 [INFO] src.federated.server: ===== Starting Round 9/10 =====
+2025-04-15 18:28:23,095 [INFO] src.federated.server: Starting federated training round...
+2025-04-15 18:28:23,095 [INFO] src.federated.server: Selected 3 clients out of 5 available (fraction=0.1, min_clients=3): ['classical_mlp_client_3', 'classical_mlp_client_2', 'classical_mlp_client_0']
+2025-04-15 18:28:23,096 [INFO] src.federated.client: Client classical_mlp_client_3: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:28:24,110 [INFO] src.federated.client: Client classical_mlp_client_3 - Epoch 1/2 completed. Average Loss: 0.3206
+2025-04-15 18:28:25,069 [INFO] src.federated.client: Client classical_mlp_client_3 - Epoch 2/2 completed. Average Loss: 0.3134
+2025-04-15 18:28:25,070 [INFO] src.federated.client: Client classical_mlp_client_3: Local training finished. Processed 24000 samples.
+2025-04-15 18:28:25,071 [INFO] src.federated.client: Client classical_mlp_client_2: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:28:26,005 [INFO] src.federated.client: Client classical_mlp_client_2 - Epoch 1/2 completed. Average Loss: 0.3130
+2025-04-15 18:28:26,938 [INFO] src.federated.client: Client classical_mlp_client_2 - Epoch 2/2 completed. Average Loss: 0.3085
+2025-04-15 18:28:26,939 [INFO] src.federated.client: Client classical_mlp_client_2: Local training finished. Processed 24000 samples.
+2025-04-15 18:28:26,940 [INFO] src.federated.client: Client classical_mlp_client_0: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:28:26,710 [INFO] src.federated.client: Client classical_mlp_client_0 - Epoch 1/2 completed. Average Loss: 0.2929
+2025-04-15 18:28:27,650 [INFO] src.federated.client: Client classical_mlp_client_0 - Epoch 2/2 completed. Average Loss: 0.2676
+2025-04-15 18:28:27,651 [INFO] src.federated.client: Client classical_mlp_client_0: Local training finished. Processed 24000 samples.
+2025-04-15 18:28:27,651 [INFO] src.federated.server: Aggregating updates from 3 clients using FedAvg.
+2025-04-15 18:28:27,651 [INFO] src.federated.aggregation: FedAvg: Aggregating updates from 3 clients.
+2025-04-15 18:28:27,652 [INFO] src.federated.aggregation: FedAvg: Aggregation complete.
+2025-04-15 18:28:27,653 [INFO] src.federated.server: Global model updated with aggregated parameters.
+2025-04-15 18:28:27,653 [INFO] src.federated.server: Evaluating updated global model...
+2025-04-15 18:28:27,764 [INFO] src.federated.server: Round 9 completed in 4.67s. Eval Metrics: {'loss': 0.24774614448586899, 'accuracy': 0.9299}
+2025-04-15 18:28:27,764 [INFO] src.federated.server: ===== Starting Round 10/10 =====
+2025-04-15 18:28:27,764 [INFO] src.federated.server: Starting federated training round...
+2025-04-15 18:28:27,764 [INFO] src.federated.server: Selected 3 clients out of 5 available (fraction=0.1, min_clients=3): ['classical_mlp_client_1', 'classical_mlp_client_3', 'classical_mlp_client_4']
+2025-04-15 18:28:27,765 [INFO] src.federated.client: Client classical_mlp_client_1: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:28:28,729 [INFO] src.federated.client: Client classical_mlp_client_1 - Epoch 1/2 completed. Average Loss: 0.3157
+2025-04-15 18:28:29,706 [INFO] src.federated.client: Client classical_mlp_client_1 - Epoch 2/2 completed. Average Loss: 0.3139
+2025-04-15 18:28:29,707 [INFO] src.federated.client: Client classical_mlp_client_1: Local training finished. Processed 24000 samples.
+2025-04-15 18:28:29,708 [INFO] src.federated.client: Client classical_mlp_client_3: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:28:30,682 [INFO] src.federated.client: Client classical_mlp_client_3 - Epoch 1/2 completed. Average Loss: 0.3248
+2025-04-15 18:28:31,660 [INFO] src.federated.client: Client classical_mlp_client_3 - Epoch 2/2 completed. Average Loss: 0.3170
+2025-04-15 18:28:31,661 [INFO] src.federated.client: Client classical_mlp_client_3: Local training finished. Processed 24000 samples.
+2025-04-15 18:28:31,662 [INFO] src.federated.client: Client classical_mlp_client_4: Starting local training for 2 epochs. Proximal term mu=0.0.
+2025-04-15 18:28:32,625 [INFO] src.federated.client: Client classical_mlp_client_4 - Epoch 1/2 completed. Average Loss: 0.3133
+2025-04-15 18:28:33,598 [INFO] src.federated.client: Client classical_mlp_client_4 - Epoch 2/2 completed. Average Loss: 0.3184
+2025-04-15 18:28:33,599 [INFO] src.federated.client: Client classical_mlp_client_4: Local training finished. Processed 24000 samples.
+2025-04-15 18:28:33,599 [INFO] src.federated.server: Aggregating updates from 3 clients using FedAvg.
+2025-04-15 18:28:33,599 [INFO] src.federated.aggregation: FedAvg: Aggregating updates from 3 clients.
+2025-04-15 18:28:33,600 [INFO] src.federated.aggregation: FedAvg: Aggregation complete.
+2025-04-15 18:28:33,601 [INFO] src.federated.server: Global model updated with aggregated parameters.
+2025-04-15 18:28:33,601 [INFO] src.federated.server: Evaluating updated global model...
+2025-04-15 18:28:33,721 [INFO] src.federated.server: Round 10 completed in 5.96s. Eval Metrics: {'loss': 0.24003145876965828, 'accuracy': 0.9342}
+2025-04-15 18:28:33,721 [INFO] src.federated.server: Federated training process completed after 10 rounds.
+2025-04-15 18:28:33,721 [INFO] ExperimentRunner: ========== Finished Classical_MLP_FedAvg_IID ==========
+
+2025-04-15 18:28:33,721 [INFO] ExperimentRunner: ========== Starting VQC_FedAvg_IID_PCA4 ==========
+2025-04-15 18:28:33,721 [INFO] ExperimentRunner: --- Setting up experiment: VQC_FedAvg_IID_PCA4 ---
+2025-04-15 18:28:33,722 [INFO] src.utils.data_utils: Set random seed to 42
+2025-04-15 18:28:33,725 [INFO] src.utils.data_utils: Successfully loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/server_config.yaml
+2025-04-15 18:28:33,727 [INFO] src.utils.data_utils: Successfully loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/client_config.yaml
+2025-04-15 18:28:33,729 [INFO] src.utils.data_utils: Successfully loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/default_aggregation.yaml
+2025-04-15 18:28:33,729 [INFO] ExperimentRunner: Quantum model specified: Reloading data with PCA features=4
+2025-04-15 18:28:33,729 [INFO] src.utils.data_utils: Loading MNIST data from ./data. Target features: 4. Normalize: True
+2025-04-15 18:28:35,100 [INFO] src.utils.data_utils: Applying PCA to reduce features from 784 to 4
+2025-04-15 18:28:35,425 [INFO] src.utils.data_utils: PCA completed. Explained variance ratio sum: 0.1635
+2025-04-15 18:28:35,425 [INFO] src.utils.data_utils: Applying MinMaxScaler to scale features to [-1, 1] range.
+2025-04-15 18:28:35,435 [INFO] src.utils.data_utils: MNIST data loaded. Train size: 60000, Test size: 10000, Features: 4
+2025-04-15 18:28:35,435 [INFO] src.utils.data_utils: Partitioning data IID among 5 clients.
+2025-04-15 18:28:35,439 [INFO] src.utils.data_utils: Data partitioning complete.
+2025-04-15 18:28:35,439 [INFO] ExperimentRunner: Creating model of type: vqc
+2025-04-15 18:28:35,439 [INFO] src.quantum.models: Initializing VQC: qubits=4, layers=2, classes=10, circuit='basic', device='default.qubit', shots=None
+2025-04-15 18:28:35,439 [INFO] src.quantum.utils: Loading PennyLane device 'default.qubit' with wires=4, shots=None, kwargs={}
+2025-04-15 18:28:35,442 [INFO] src.quantum.utils: Device 'default.qubit' loaded successfully.
+2025-04-15 18:28:35,442 [INFO] src.quantum.circuits: Creating basic circuit with 4 qubits, 2 layers.
+2025-04-15 18:28:35,442 [INFO] src.quantum.circuits: Basic circuit expects 24 trainable parameters.
+2025-04-15 18:28:35,442 [INFO] src.quantum.models: Circuit function requires 24 parameters.
+2025-04-15 18:28:35,443 [INFO] src.quantum.models: Initialized 24 parameters randomly.
+2025-04-15 18:28:35,444 [WARNING] src.quantum.models: VQC WARNING: Circuit output dimension (4) is less than target n_classes (10). Prediction/Loss may be suboptimal.
+2025-04-15 18:28:35,444 [INFO] src.federated.aggregation: Creating aggregation strategy of type: fedavg
+2025-04-15 18:28:35,445 [INFO] ExperimentRunner: Using aggregation strategy: QuantumAggregationStrategy
+2025-04-15 18:28:35,445 [INFO] src.core.quantum_manager: QuantumServer: Initializing with model type 'vqc'.
+2025-04-15 18:28:35,446 [INFO] src.federated.server: Federated server initialized on device 'cuda' with aggregation strategy: QuantumAggregationStrategy
+2025-04-15 18:28:35,446 [INFO] ExperimentRunner: Creating model of type: vqc
+2025-04-15 18:28:35,446 [INFO] src.quantum.models: Initializing VQC: qubits=4, layers=2, classes=10, circuit='basic', device='default.qubit', shots=None
+2025-04-15 18:28:35,446 [INFO] src.quantum.utils: Loading PennyLane device 'default.qubit' with wires=4, shots=None, kwargs={}
+2025-04-15 18:28:35,447 [INFO] src.quantum.utils: Device 'default.qubit' loaded successfully.
+2025-04-15 18:28:35,447 [INFO] src.quantum.circuits: Creating basic circuit with 4 qubits, 2 layers.
+2025-04-15 18:28:35,447 [INFO] src.quantum.circuits: Basic circuit expects 24 trainable parameters.
+2025-04-15 18:28:35,447 [INFO] src.quantum.models: Circuit function requires 24 parameters.
+2025-04-15 18:28:35,447 [INFO] src.quantum.models: Initialized 24 parameters randomly.
+2025-04-15 18:28:35,448 [WARNING] src.quantum.models: VQC WARNING: Circuit output dimension (4) is less than target n_classes (10). Prediction/Loss may be suboptimal.
+2025-04-15 18:28:35,448 [INFO] src.core.quantum_client: QuantumClient vqc_client_0: Initializing with model type 'vqc'.
+2025-04-15 18:28:35,449 [INFO] src.federated.client: Client vqc_client_0 initialized on device 'cuda' with 12000 samples.
+2025-04-15 18:28:35,450 [INFO] src.federated.server: Registered client 'vqc_client_0'. Total clients: 1.
+2025-04-15 18:28:35,451 [INFO] ExperimentRunner: Creating model of type: vqc
+2025-04-15 18:28:35,451 [INFO] src.quantum.models: Initializing VQC: qubits=4, layers=2, classes=10, circuit='basic', device='default.qubit', shots=None
+2025-04-15 18:28:35,451 [INFO] src.quantum.utils: Loading PennyLane device 'default.qubit' with wires=4, shots=None, kwargs={}
+2025-04-15 18:28:35,451 [INFO] src.quantum.utils: Device 'default.qubit' loaded successfully.
+2025-04-15 18:28:35,452 [INFO] src.quantum.circuits: Creating basic circuit with 4 qubits, 2 layers.
+2025-04-15 18:28:35,452 [INFO] src.quantum.circuits: Basic circuit expects 24 trainable parameters.
+2025-04-15 18:28:35,452 [INFO] src.quantum.models: Circuit function requires 24 parameters.
+2025-04-15 18:28:35,452 [INFO] src.quantum.models: Initialized 24 parameters randomly.
+2025-04-15 18:28:35,453 [WARNING] src.quantum.models: VQC WARNING: Circuit output dimension (4) is less than target n_classes (10). Prediction/Loss may be suboptimal.
+2025-04-15 18:28:35,453 [INFO] src.core.quantum_client: QuantumClient vqc_client_1: Initializing with model type 'vqc'.
+2025-04-15 18:28:35,453 [INFO] src.federated.client: Client vqc_client_1 initialized on device 'cuda' with 12000 samples.
+2025-04-15 18:28:35,453 [INFO] src.federated.server: Registered client 'vqc_client_1'. Total clients: 2.
+2025-04-15 18:28:35,454 [INFO] ExperimentRunner: Creating model of type: vqc
+2025-04-15 18:28:35,454 [INFO] src.quantum.models: Initializing VQC: qubits=4, layers=2, classes=10, circuit='basic', device='default.qubit', shots=None
+2025-04-15 18:28:35,454 [INFO] src.quantum.utils: Loading PennyLane device 'default.qubit' with wires=4, shots=None, kwargs={}
+2025-04-15 18:28:35,455 [INFO] src.quantum.utils: Device 'default.qubit' loaded successfully.
+2025-04-15 18:28:35,455 [INFO] src.quantum.circuits: Creating basic circuit with 4 qubits, 2 layers.
+2025-04-15 18:28:35,455 [INFO] src.quantum.circuits: Basic circuit expects 24 trainable parameters.
+2025-04-15 18:28:35,455 [INFO] src.quantum.models: Circuit function requires 24 parameters.
+2025-04-15 18:28:35,456 [INFO] src.quantum.models: Initialized 24 parameters randomly.
+2025-04-15 18:28:35,456 [WARNING] src.quantum.models: VQC WARNING: Circuit output dimension (4) is less than target n_classes (10). Prediction/Loss may be suboptimal.
+2025-04-15 18:28:35,456 [INFO] src.core.quantum_client: QuantumClient vqc_client_2: Initializing with model type 'vqc'.
+2025-04-15 18:28:35,456 [INFO] src.federated.client: Client vqc_client_2 initialized on device 'cuda' with 12000 samples.
+2025-04-15 18:28:35,457 [INFO] src.federated.server: Registered client 'vqc_client_2'. Total clients: 3.
+2025-04-15 18:28:35,457 [INFO] ExperimentRunner: Creating model of type: vqc
+2025-04-15 18:28:35,457 [INFO] src.quantum.models: Initializing VQC: qubits=4, layers=2, classes=10, circuit='basic', device='default.qubit', shots=None
+2025-04-15 18:28:35,457 [INFO] src.quantum.utils: Loading PennyLane device 'default.qubit' with wires=4, shots=None, kwargs={}
+2025-04-15 18:28:35,458 [INFO] src.quantum.utils: Device 'default.qubit' loaded successfully.
+2025-04-15 18:28:35,458 [INFO] src.quantum.circuits: Creating basic circuit with 4 qubits, 2 layers.
+2025-04-15 18:28:35,460 [INFO] src.quantum.circuits: Basic circuit expects 24 trainable parameters.
+2025-04-15 18:28:35,460 [INFO] src.quantum.models: Circuit function requires 24 parameters.
+2025-04-15 18:28:35,460 [INFO] src.quantum.models: Initialized 24 parameters randomly.
+2025-04-15 18:28:35,461 [WARNING] src.quantum.models: VQC WARNING: Circuit output dimension (4) is less than target n_classes (10). Prediction/Loss may be suboptimal.
+2025-04-15 18:28:35,461 [INFO] src.core.quantum_client: QuantumClient vqc_client_3: Initializing with model type 'vqc'.
+2025-04-15 18:28:35,461 [INFO] src.federated.client: Client vqc_client_3 initialized on device 'cuda' with 12000 samples.
+2025-04-15 18:28:35,461 [INFO] src.federated.server: Registered client 'vqc_client_3'. Total clients: 4.
+2025-04-15 18:28:35,461 [INFO] ExperimentRunner: Creating model of type: vqc
+2025-04-15 18:28:35,462 [INFO] src.quantum.models: Initializing VQC: qubits=4, layers=2, classes=10, circuit='basic', device='default.qubit', shots=None
+2025-04-15 18:28:35,462 [INFO] src.quantum.utils: Loading PennyLane device 'default.qubit' with wires=4, shots=None, kwargs={}
+2025-04-15 18:28:35,462 [INFO] src.quantum.utils: Device 'default.qubit' loaded successfully.
+2025-04-15 18:28:35,463 [INFO] src.quantum.circuits: Creating basic circuit with 4 qubits, 2 layers.
+2025-04-15 18:28:35,463 [INFO] src.quantum.circuits: Basic circuit expects 24 trainable parameters.
+2025-04-15 18:28:35,463 [INFO] src.quantum.models: Circuit function requires 24 parameters.
+2025-04-15 18:28:35,463 [INFO] src.quantum.models: Initialized 24 parameters randomly.
+2025-04-15 18:28:35,464 [WARNING] src.quantum.models: VQC WARNING: Circuit output dimension (4) is less than target n_classes (10). Prediction/Loss may be suboptimal.
+2025-04-15 18:28:35,464 [INFO] src.core.quantum_client: QuantumClient vqc_client_4: Initializing with model type 'vqc'.
+2025-04-15 18:28:35,464 [INFO] src.federated.client: Client vqc_client_4 initialized on device 'cuda' with 12000 samples.
+2025-04-15 18:28:35,464 [INFO] src.federated.server: Registered client 'vqc_client_4'. Total clients: 5.
+2025-04-15 18:28:35,464 [INFO] ExperimentRunner: --- Scenario setup complete for VQC_FedAvg_IID_PCA4 ---
+2025-04-15 18:28:35,465 [INFO] src.federated.server: Starting federated training process for 5 rounds.
+2025-04-15 18:28:35,466 [INFO] src.federated.server: Config: local_epochs=1, client_fraction=0.1, min_clients=3, FedProx mu=0.0
+2025-04-15 18:28:35,466 [INFO] src.federated.server: Performing initial evaluation of global model...
+2025-04-15 18:28:35,466 [INFO] src.core.quantum_manager: Server: Starting evaluation (model type: vqc).
+2025-04-15 18:29:19,064 [INFO] src.core.quantum_manager: Server VQC: Evaluation finished. Metrics: {'accuracy': 0.0488, 'loss': None}
+2025-04-15 18:29:19,065 [INFO] src.federated.server: Initial Evaluation Metrics: {'accuracy': 0.0488, 'loss': None}
+2025-04-15 18:29:19,065 [INFO] src.federated.server: ===== Starting Round 1/5 =====
+2025-04-15 18:29:19,065 [INFO] src.federated.server: Starting federated training round...
+2025-04-15 18:29:19,065 [INFO] src.federated.server: Selected 3 clients out of 5 available (fraction=0.1, min_clients=3): ['vqc_client_0', 'vqc_client_4', 'vqc_client_2']
+2025-04-15 18:29:19,066 [INFO] src.core.quantum_client: Client vqc_client_0: Starting local training (model type: vqc).

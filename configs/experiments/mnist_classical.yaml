@@ -1,0 +1,37 @@
+experiment_name: mnist_classical_fedavg_iid
+seed: 42
+output_dir: results/mnist_classical_fedavg_iid
+
+dataset:
+  name: MNIST
+  path: ./data
+  num_classes: 10
+  preprocess: # Classical model takes raw images
+    flatten: true # Flatten 28x28 to 784 for MLP
+  partition:
+    type: iid
+    num_clients: 5
+
+model:
+  type: classical # Identifier for main.py
+  name: MLP # Or CNN
+  params:
+    input_dim: 784 # 28*28
+    hidden_dims: [128, 64]
+    output_dim: 10
+
+federated:
+  num_rounds: 20
+  clients_per_round: 5 # Fraction = 1.0
+  local_epochs: 2
+  aggregation:
+    type: fedavg
+
+training:
+  batch_size: 32
+  learning_rate: 0.01
+  optimizer: Adam # For classical model client side
+
+logging:
+  level: INFO
+  log_file: results/mnist_classical_fedavg_iid/run.log

@@ -5,7 +5,7 @@ This module provides implementations of quantum circuits, data encodings,
 and quantum machine learning models using PennyLane and Qiskit.
 """
 
-from .utils import load_config, save_circuit_diagram, set_random_seed
+from .utils import load_config, set_random_seed
 from .circuits import (
     create_basic_circuit, 
     create_complex_circuit, 
