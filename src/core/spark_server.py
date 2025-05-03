@@ -34,7 +34,11 @@ class SparkFederatedServer:
     ):
         self.model = model
         self.spark_manager = spark_manager
-        self.spark_context = spark_manager.get_context()
+        self.spark_context = spark_manager.get_spark_context()
+        if self.spark_context is None:
+            # This can happen if SparkManager wasn't started or PySpark isn't available
+            raise RuntimeError("SparkContext is not available from SparkManager. Ensure SparkManager.start() was called.")
+
         self.aggregation_strategy = aggregation_strategy
         self.evaluation_dataset = evaluation_dataset
         self.round_history: List[Dict[str, Any]] = []
@@ -126,6 +130,7 @@ class SparkFederatedServer:
         logger.info(f"Starting Spark FL process: {num_rounds} rounds, {num_data_partitions} partitions/clients.")
         if self.evaluation_dataset: logger.info("Performing initial evaluation..."); initial_metrics = self.evaluate(); logger.info(f"Initial Metrics: {initial_metrics}")
 
+        data_rdd = None
         # --- Prepare Data RDD ---
         try:
              logger.info(f"Preparing data RDD for {num_data_partitions} partitions...")
@@ -143,61 +148,65 @@ class SparkFederatedServer:
              logger.info(f"Training data parallelized into {num_partitions} RDD partitions ({rdd_count} total samples) and cached.")
              if num_partitions != num_data_partitions:
                   logger.warning(f"Requested {num_data_partitions} partitions, but Spark created {num_partitions}.")
-        except Exception as e:
-             logger.error(f"Failed to parallelize training data: {e}", exc_info=True); return self.round_history
+             for round_idx in range(num_rounds):
+                round_num = round_idx + 1
+                round_start_time = time.time()  # Define round_start_time at the start of each round
+                logger.info(f"===== Starting Spark Round {round_num}/{num_rounds} =====")
 
-        # --- Run Rounds ---
-        for round_idx in range(num_rounds):
-            round_num = round_idx + 1
-            round_start_time = time.time()  # Define round_start_time at the start of each round
-            logger.info(f"===== Starting Spark Round {round_num}/{num_rounds} =====")
-
-            # 1. Broadcast Global Parameters
-            global_params_cpu = self.get_parameters()
-            global_params_bc = self.spark_context.broadcast(global_params_cpu)
-            logger.info(f"Round {round_num}: Broadcasted global parameters (ID: {global_params_bc.id})")
+                # 1. Broadcast Global Parameters
+                global_params_cpu = self.get_parameters()
+                global_params_bc = self.spark_context.broadcast(global_params_cpu)
+                logger.info(f"Round {round_num}: Broadcasted global parameters.")
 
             # 2. Execute Training Task on RDD
-            try:
-                results_rdd = data_rdd.mapPartitionsWithIndex(
-                    # Use lambda to pass args correctly to the executor function
-                    lambda pid, iter: run_client_training_partition(
-                        partition_iterator=iter, partition_id=pid,
-                        model_info={'class_name': model_class_for_client.__name__, 'kwargs': model_kwargs_for_client},
-                        client_config=client_config, global_params_bc=global_params_bc,
-                        local_epochs=local_epochs, proximal_term=proximal_term, seed=seed + round_idx
-                    )
-                )
-                # 3. Collect Results
-                logger.info(f"Round {round_num}: Collecting results from executors...")
-                start_collect = time.time()
-                collected_results = results_rdd.collect() # List[Tuple[Dict, int]]
-                logger.info(f"Round {round_num}: Collection finished in {time.time() - start_collect:.2f}s. "
-                            f"Received results from {len(collected_results)} clients.")
-
-            except Exception as e:
-                 logger.error(f"Spark job failed during round {round_num}: {e}", exc_info=True)
-                 global_params_bc.unpersist(); # Cleanup broadcast variable
-                 # Log round failure but continue to next round? Or break?
-                 round_info = {"round": round_num, "status": "failed", "error": f"Spark execution failed: {e}"}
-                 self.round_history.append(round_info)
-                 continue # Continue to next round
-
-            global_params_bc.unpersist() # Cleanup broadcast variable
-
-            # 4. Aggregate & Update
-            client_updates = collected_results
-            if not client_updates:
-                logger.warning(f"Round {round_num}: No valid client updates received.")
-                status="failed"; error_msg="No valid updates"; metrics={}
-            else:
-                agg_start = time.time()
-                logger.info(f"Round {round_num}: Aggregating {len(client_updates)} updates using {type(self.aggregation_strategy).__name__}.")
                 try:
-                    aggregated_params_cpu = self.aggregation_strategy.aggregate(client_updates)
-                    self.set_parameters(aggregated_params_cpu)
-                    logger.info(f"Round {round_num}: Aggregation and model update complete in {time.time() - agg_start:.2f}s.")
-                    status="success"; error_msg=None
+                    results_rdd = data_rdd.mapPartitionsWithIndex(
+                        # Use lambda to pass args correctly to the executor function
+                        lambda pid, iter: run_client_training_partition(
+                            partition_iterator=iter, partition_id=pid,
+                            model_info={'class_name': model_class_for_client.__name__, 'kwargs': model_kwargs_for_client},
+                            client_config=client_config, global_params_bc=global_params_bc,
+                            local_epochs=local_epochs, proximal_term=proximal_term, seed=seed + round_idx
+                        )
+                    )
+                    # 3. Collect Results
+                    logger.info(f"Round {round_num}: Collecting results from executors...")
+                    start_collect = time.time()
+                    collected_results = results_rdd.collect() # List[Tuple[Dict, int]]
+                    logger.info(f"Round {round_num}: Collection finished in {time.time() - start_collect:.2f}s. "
+                                f"Received results from {len(collected_results)} clients.")
+
+                except Exception as e:
+                    logger.error(f"Spark job failed during round {round_num}: {e}", exc_info=True)
+                    global_params_bc.unpersist(); # Cleanup broadcast variable
+                    # Log round failure but continue to next round? Or break?
+                    round_info = {"round": round_num, "status": "failed", "error": f"Spark execution failed: {e}"}
+                    self.round_history.append(round_info)
+                    continue # Continue to next round
+
+                finally:
+                        bc_id_internal = global_params_bc._jbroadcast.id() # Get internal Java ID if needed for debugging
+                        global_params_bc.unpersist(blocking=False) # Cleanup broadcast variable (non-blocking)
+                        logger.debug(f"Round {round_num}: Unpersisted broadcast variable (Internal ID: {bc_id_internal})")
+
+                # 4. Aggregate & Update
+                client_updates = collected_results
+                if not client_updates:
+                    logger.warning(f"Round {round_num}: No valid client updates received.")
+                    status="failed"; error_msg="No valid updates"; metrics={}
+                else:
+                    agg_start = time.time()
+                    logger.info(f"Round {round_num}: Aggregating {len(client_updates)} updates using {type(self.aggregation_strategy).__name__}.")
+                    try:
+                        aggregated_params_cpu = self.aggregation_strategy.aggregate(client_updates)
+                        self.set_parameters(aggregated_params_cpu)
+                        logger.info(f"Round {round_num}: Aggregation and model update complete in {time.time() - agg_start:.2f}s.")
+                        status="success"; error_msg=None
+                    except Exception as e:
+                        logger.error(f"Aggregation/Update error: {e}", exc_info=True); status="failed"
+                        error_msg="Aggregation/Update failed"
+                        metrics={}
+                        continue
                     # 5. Evaluate
                     metrics = {};
                     if self.evaluation_dataset is not None:
@@ -205,25 +214,28 @@ class SparkFederatedServer:
                         try: metrics = self.evaluate()
                         except Exception as e: logger.error(f"Evaluation error: {e}", exc_info=True); metrics = {"eval_error": str(e)}
                         logger.info(f"Round {round_num}: Evaluation complete in {time.time() - eval_start:.2f}s.")
-                except Exception as e:
-                    logger.error(f"Aggregation/Update error: {e}", exc_info=True); status="failed"; error_msg="Aggregation/Update failed"; metrics={}
-
+                
             # 6. Record History
-            round_duration = time.time() - round_start_time # Redefine round_start_time before loop
-            round_info = {
+             round_duration = time.time() - round_start_time # Redefine round_start_time before loop
+             round_info = {
                 "round": round_num, "status": status, "error": error_msg,
                 "successful_clients": len(client_updates),
                 "client_samples": [s for _, s in client_updates], "total_samples": sum(s for _, s in client_updates),
                 "duration_seconds": round_duration, "evaluation_metrics": metrics
             }
-            self.round_history.append(round_info)
-            logger.info(f"Round {round_num} ({status}) completed in {round_duration:.2f}s. Eval Metrics: {metrics}")
+             self.round_history.append(round_info)
+             logger.info(f"Round {round_num} ({status}) completed in {round_duration:.2f}s. Eval Metrics: {metrics}")
             # Optional: Add early stopping logic here based on metrics
 
-        # --- Cleanup ---
-        data_rdd.unpersist()
+        finally: # --- Cleanup RDD ---
+              if data_rdd is not None:
+                   logger.info("Unpersisting data RDD.")
+                   data_rdd.unpersist()
+
         logger.info(f"Spark FL process completed after {num_rounds} rounds.")
         return self.round_history
+
+        
 
     def save_model(self, path: str) -> None:
         # (Same logic as before - only handles nn.Module or VQC)
@@ -236,3 +248,138 @@ class SparkFederatedServer:
          if isinstance(self.model, nn.Module): logger.info(f"Loading global nn.Module state_dict from {path}"); state_dict = torch.load(path, map_location=self.device); self.model.load_state_dict(state_dict); self.model.to(self.device)
          elif isinstance(self.model, VariationalQuantumClassifier): self.model.load_params(path.replace('.pt', '.npy')); logger.info(f"Loaded VQC params from {path.replace('.pt', '.npy')}")
          else: logger.warning(f"Server load_model skipped: Model type {type(self.model)} not handled.")
+
+    # Explicit support for non-IID data partitioning
+    def create_non_iid_partitions(self, dataset, num_partitions, alpha, seed=42):
+        """Create Dirichlet-based non-IID partitions similar to original code"""
+        import numpy as np
+        from torch.utils.data import Subset
+        
+        np.random.seed(seed)
+        
+        # Extract all labels
+        all_labels = []
+        for i in range(len(dataset)):
+            _, label = dataset[i]
+            if isinstance(label, torch.Tensor):
+                label = label.item()
+            all_labels.append(int(label))
+        all_labels = np.array(all_labels)
+        
+        # Get label distribution
+        unique_labels = sorted(set(all_labels))
+        n_classes = len(unique_labels)
+        
+        # Generate Dirichlet distribution for each partition
+        label_distribution = np.random.dirichlet([alpha] * n_classes, size=num_partitions)
+        
+        # Create class indices
+        class_indices = [np.where(all_labels == l)[0] for l in unique_labels]
+        
+        # Assign samples to partitions
+        partition_indices = [[] for _ in range(num_partitions)]
+        
+        # For each class
+        for c_idx, c_indices in enumerate(class_indices):
+            # Shuffle indices for this class
+            np.random.shuffle(c_indices)
+            
+            # Get proportion for each partition
+            proportions = label_distribution[:, c_idx]
+            proportions = proportions / proportions.sum()
+            proportions = (np.cumsum(proportions) * len(c_indices)).astype(int)
+            
+            # Split indices according to proportions
+            start_idx = 0
+            for p_idx in range(num_partitions):
+                end_idx = proportions[p_idx]
+                # Get indices for this partition and class
+                if p_idx == num_partitions - 1:
+                    partition_indices[p_idx].extend(c_indices[start_idx:])
+                else:
+                    partition_indices[p_idx].extend(c_indices[start_idx:end_idx])
+                start_idx = end_idx
+        
+        # Create list of Subset datasets
+        partitions = [Subset(dataset, indices) for indices in partition_indices]
+        
+        # Optionally, print statistics about the partitions
+        stats = self._analyze_partition_distribution(partitions, n_classes)
+        logger.info(f"Created {num_partitions} non-IID partitions with alpha={alpha}")
+        logger.info(f"Partition sizes: {[len(p) for p in partitions]}")
+        logger.info(f"Class distribution variation: {stats['std_per_class']}")
+        
+        return partitions
+
+    # Better progress tracking with Spark's accumulator pattern
+    def initialize_accumulators(self):
+        """Initialize Spark accumulators for tracking progress"""
+        sc = self.spark_context
+        
+        # Accumulators for error tracking
+        self.failed_tasks_acc = sc.accumulator(0)
+        self.successful_tasks_acc = sc.accumulator(0)
+        
+        # Accumulator for tracking metrics
+        import json
+        class MetricsAccumulator:
+            def zero(self): return {}
+            def addInPlace(self, v1, v2): 
+                if not v1: return v2
+                if not v2: return v1
+                # Merge dictionaries, summing values for the same keys
+                result = v1.copy()
+                for k, v in v2.items():
+                    if k in result:
+                        result[k] += v
+                    else:
+                        result[k] = v
+                return result
+        
+        # Register custom accumulator
+        from pyspark.accumulators import AccumulatorParam
+        class DictAccumulatorParam(AccumulatorParam):
+            def zero(self, initialValue): return {}
+            def addInPlace(self, v1, v2): 
+                if not v1: return v2
+                if not v2: return v1
+                # Merge dictionaries, summing values for the same keys
+                result = v1.copy()
+                for k, v in v2.items():
+                    if k in result:
+                        result[k] += v
+                    else:
+                        result[k] = v
+                return result
+        
+        # Create accumulators 
+        self.metrics_acc = sc.accumulator({}, DictAccumulatorParam())
+        self.memory_acc = sc.accumulator({}, DictAccumulatorParam())
+        
+        logger.info("Initialized Spark accumulators for progress tracking")
+
+    # Client sampling functionality
+    def sample_clients(self, data_rdd, fraction=0.5, min_clients=1, seed=None):
+        """Sample a fraction of partitions/clients for a round"""
+        num_partitions = data_rdd.getNumPartitions()
+        num_to_sample = max(min_clients, int(fraction * num_partitions))
+        
+        if seed is not None:
+            import random
+            random.seed(seed)
+        
+        # Sample partition indices
+        sampled_indices = random.sample(range(num_partitions), num_to_sample)
+        
+        # Create a mapping RDD that selects only sampled partitions
+        def filter_by_partition_idx(partition_idx, iterator):
+            if partition_idx in sampled_indices:
+                yield from iterator
+            else:
+                return
+        
+        # Create a new RDD with only the sampled partitions
+        sampled_rdd = data_rdd.mapPartitionsWithIndex(filter_by_partition_idx)
+        
+        logger.info(f"Sampled {num_to_sample}/{num_partitions} clients (fraction={fraction})")
+        return sampled_rdd, sampled_indices

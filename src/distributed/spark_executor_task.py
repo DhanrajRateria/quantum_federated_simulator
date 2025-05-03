@@ -88,7 +88,11 @@ def run_client_training_partition(
     # --- 2. Get Model Class and Instantiate ---
     try:
         model_class_name = model_info['class_name']
-        model_kwargs = model_info['kwargs']
+        model_kwargs_received = model_info['kwargs']
+        model_init_kwargs = {
+            k: v for k, v in model_kwargs_received.items()
+            if k not in ['type', 'quantum_features', 'quantum_config_path', '_original_n_features'] # Add any other meta-keys used only in run_experiment
+        }
         # Find the actual class object based on its name string
         # This requires the relevant modules to be imported above
         if model_class_name == "VariationalQuantumClassifier": model_class = VariationalQuantumClassifier
@@ -101,7 +105,7 @@ def run_client_training_partition(
         # Add other models here...
         else: raise ValueError(f"Unknown model class name: {model_class_name}")
 
-        model_instance = model_class(**model_kwargs)
+        model_instance = model_class(**model_init_kwargs)
         is_pytorch_model = isinstance(model_instance, nn.Module)
         if is_pytorch_model: model_instance.double() # Ensure dtype
         logger.info(f"Task {client_id}: Instantiated model type: {model_class_name}")
@@ -125,16 +129,17 @@ def run_client_training_partition(
     try:
         global_params = global_params_bc.value # Access broadcasted value
         client.set_parameters(global_params)
+        logger.debug(f"Task {client_id}: Loaded global parameters.")
     except Exception as e: logger.error(f"Task {client_id}: Failed loading broadcasted params: {e}", exc_info=True); return iter([])
 
     # --- 5. Perform Local Training ---
+    updated_params_dict = {}; samples_trained = 0 # Defaults
     try:
         logger.info(f"Task {client_id}: Starting {local_epochs} epochs training.")
-        # Client's train method handles model type internally
         updated_params_dict, samples_trained = client.train(
             epochs=local_epochs,
             proximal_term=proximal_term,
-            global_params=global_params # Pass the loaded global params for FedProx
+            global_params=global_params # Pass dict for FedProx
         )
         logger.info(f"Task {client_id}: Training finished. Samples={samples_trained}.")
     except Exception as e: logger.error(f"Task {client_id}: Error during training: {e}", exc_info=True); return iter([])
@@ -144,3 +149,73 @@ def run_client_training_partition(
     logger.info(f"Task {client_id}: Completed in {process_end_time - process_start_time:.2f}s.")
     # Parameters are already on CPU from client.get_parameters()
     yield (updated_params_dict, samples_trained)
+
+# Enhanced error handling
+def enhanced_error_handling(partition_id, phase, exception):
+    """Structured error reporting with classification and context"""
+    error_code = classify_error(exception)
+    context = {"partition_id": partition_id, "phase": phase, "timestamp": time.time()}
+    error_report = {"error_code": error_code, "message": str(exception), "context": context}
+    return error_report
+
+# Memory metrics collection
+def collect_memory_metrics():
+    """Collect memory usage during training"""
+    import psutil
+    import gc
+    
+    # Force garbage collection before measurement
+    gc.collect()
+    
+    process = psutil.Process()
+    metrics = {
+        "rss_mb": process.memory_info().rss / (1024 * 1024),
+        "vms_mb": process.memory_info().vms / (1024 * 1024),
+        "percent": process.memory_percent(),
+        "cpu_percent": process.cpu_percent()
+    }
+    
+    # For quantum models, collect circuit metrics if available
+    try:
+        if hasattr(current_model, "circuit"):
+            metrics["q_depth"] = current_model.circuit.depth
+            metrics["q_gates"] = len(current_model.circuit.operations)
+    except:
+        pass
+        
+    return metrics
+
+# Non-IID partitioning within executor
+def create_non_iid_local_partition(dataset, alpha=0.5, min_size=10):
+    """Create a non-IID partition from dataset on executor"""
+    import numpy as np
+    
+    # Extract labels
+    all_labels = [y for _, y in dataset]
+    unique_labels = sorted(set(all_labels))
+    label_indices = {l: [i for i, (_, y) in enumerate(dataset) if y == l] 
+                     for l in unique_labels}
+    
+    # Use Dirichlet to determine proportion of each class to include
+    proportions = np.random.dirichlet([alpha] * len(unique_labels))
+    
+    # Ensure minimum samples per class
+    min_proportion = min_size / len(dataset)
+    proportions = np.clip(proportions, min_proportion, 1.0)
+    proportions = proportions / proportions.sum()
+    
+    # Select indices based on proportions
+    selected_indices = []
+    for l_idx, proportion in enumerate(proportions):
+        label_count = int(proportion * len(dataset))
+        # Pick randomly from this label's indices
+        indices = np.random.choice(
+            label_indices[unique_labels[l_idx]], 
+            size=min(label_count, len(label_indices[unique_labels[l_idx]])),
+            replace=False
+        )
+        selected_indices.extend(indices)
+    
+    # Create subset
+    from torch.utils.data import Subset
+    return Subset(dataset, selected_indices)

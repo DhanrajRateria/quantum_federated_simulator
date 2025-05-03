@@ -11,6 +11,7 @@ from torchvision import datasets, transforms
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from typing import Dict, Any, List, Optional, Tuple # Added List, Optional, Tuple, Any
+from sklearn.datasets import load_iris
 
 logger = logging.getLogger(__name__)
 
@@ -86,6 +87,64 @@ def set_seed(seed: int):
         torch.backends.cudnn.benchmark = False
     logger.info(f"Set random seed to {seed}")
 
+
+def load_iris_data(data_path: Optional[str] = None, n_features: Optional[int] = None, normalize: bool = True) -> Tuple[TensorDataset, TensorDataset, int]:
+        """
+        Loads Iris dataset, applies transformations, and optionally reduces dimensionality.
+
+        Args:
+            data_path: Not used for Iris (loaded from sklearn), kept for API consistency.
+            n_features: If not None and < 4, reduce features using PCA.
+            normalize: If True, scale features using StandardScaler then to [-1, 1] using MinMaxScaler.
+
+        Returns:
+            Tuple: (train_dataset, test_dataset, actual_n_features)
+        """
+        logger.info(f"Loading Iris data. Target features: {n_features}. Normalize: {normalize}")
+        iris = load_iris()
+        X, y = iris.data, iris.target
+
+        original_n_features = X.shape[1] # Should be 4
+        actual_n_features = original_n_features
+
+        # Apply StandardScaler
+        logger.debug("Applying StandardScaler to Iris features.")
+        scaler = StandardScaler()
+        X = scaler.fit_transform(X) # Fit and transform
+
+        # Apply PCA if requested
+        if n_features is not None and 0 < n_features < original_n_features:
+            logger.info(f"Applying PCA to reduce features from {original_n_features} to {n_features}")
+            pca = PCA(n_components=n_features, random_state=42)
+            X = pca.fit_transform(X)
+            actual_n_features = n_features
+            logger.info(f"PCA completed. Explained variance ratio sum: {pca.explained_variance_ratio_.sum():.4f}")
+        elif n_features is not None and n_features >= original_n_features:
+            logger.info(f"Requested n_features ({n_features}) >= original ({original_n_features}). Skipping PCA.")
+        else:
+            logger.info(f"Using original {actual_n_features} features (PCA not requested).")
+
+        # Apply normalization to [-1, 1] range if requested
+        if normalize:
+            logger.info("Applying MinMaxScaler to scale features to [-1, 1] range.")
+            minmax_scaler = MinMaxScaler(feature_range=(-1, 1))
+            X = minmax_scaler.fit_transform(X)
+
+        # Split data (do this *after* scaling/PCA)
+        from sklearn.model_selection import train_test_split
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)
+
+        # Convert back to tensors - use float64 for Pennylane compatibility
+        X_train_tensor = torch.tensor(X_train, dtype=torch.float64)
+        y_train_tensor = torch.tensor(y_train, dtype=torch.long)
+        X_test_tensor = torch.tensor(X_test, dtype=torch.float64)
+        y_test_tensor = torch.tensor(y_test, dtype=torch.long)
+
+        train_dataset = TensorDataset(X_train_tensor, y_train_tensor)
+        test_dataset = TensorDataset(X_test_tensor, y_test_tensor)
+
+        logger.info(f"Iris data loaded. Train size: {len(train_dataset)}, Test size: {len(test_dataset)}, Features: {actual_n_features}")
+        return train_dataset, test_dataset, actual_n_features
 
 # --- Data Loading ---
 def load_mnist_data(data_path: str = "./data", n_features: Optional[int] = None, normalize: bool = True) -> Tuple[TensorDataset, TensorDataset, int]:

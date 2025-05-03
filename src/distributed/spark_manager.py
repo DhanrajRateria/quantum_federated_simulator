@@ -252,3 +252,49 @@ class SparkManager:
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         """Context manager exit - stops Spark session."""
         self.stop()
+
+    def configure_dynamic_allocation(self, initial_executors=2, min_executors=1, 
+                               max_executors=10, executor_idle_timeout=60):
+        """Configure dynamic allocation for the Spark session"""
+        if not self.spark_session:
+            raise RuntimeError("Spark session not initialized")
+            
+        # Enable dynamic allocation
+        self.spark_session.conf.set("spark.dynamicAllocation.enabled", "true")
+        self.spark_session.conf.set("spark.dynamicAllocation.initialExecutors", initial_executors)
+        self.spark_session.conf.set("spark.dynamicAllocation.minExecutors", min_executors)
+        self.spark_session.conf.set("spark.dynamicAllocation.maxExecutors", max_executors)
+        self.spark_session.conf.set("spark.dynamicAllocation.executorIdleTimeout", executor_idle_timeout)
+        
+        # Enable shuffle service (required for dynamic allocation)
+        self.spark_session.conf.set("spark.shuffle.service.enabled", "true")
+        
+        logger.info(f"Dynamic allocation configured: min={min_executors}, max={max_executors}")
+        return self
+
+    # Improved Spark tuning configuration
+    def tune_for_ml_workload(self):
+        """Configure Spark for machine learning workloads"""
+        if not self.spark_session:
+            raise RuntimeError("Spark session not initialized")
+            
+        # Memory management
+        self.spark_session.conf.set("spark.memory.fraction", "0.8")  # % of heap for execution and storage
+        self.spark_session.conf.set("spark.memory.storageFraction", "0.5")  # % of (spark.memory.fraction) for storage
+        
+        # Network timeouts for long-running tasks
+        self.spark_session.conf.set("spark.network.timeout", "800s")
+        self.spark_session.conf.set("spark.executor.heartbeatInterval", "60s")
+        
+        # Serialization for PyTorch/NumPy
+        self.spark_session.conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+        self.spark_session.conf.set("spark.kryo.registrator", "org.apache.spark.serializer.KryoRegistrator")
+        self.spark_session.conf.set("spark.kryoserializer.buffer.max", "512m")
+        
+        # Speculative execution (start backup tasks for stragglers)
+        self.spark_session.conf.set("spark.speculation", "true")
+        self.spark_session.conf.set("spark.speculation.interval", "5000ms")
+        self.spark_session.conf.set("spark.speculation.multiplier", "2")
+        
+        logger.info("Spark tuned for ML workload")
+        return self

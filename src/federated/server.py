@@ -105,8 +105,16 @@ class FederatedServer:
     def get_parameters(self) -> Dict[str, torch.Tensor]:
         """Get the current global model parameters (state dictionary on CPU)."""
         logger.debug("Server: Getting global model parameters.")
-        # Ensure parameters are returned on CPU for consistent distribution
-        return {k: v.cpu().clone() for k, v in self.model.state_dict().items()}
+        params = {k: v.cpu().clone() for k, v in self.model.state_dict().items()} \
+                 if isinstance(self.model, nn.Module) else {} # Handle non-pytorch models gracefully
+        # Calculate total elements (proxy for size)
+        # total_elements = sum(p.numel() for p in params.values())
+        # logger.debug(f"Server: Parameter size (elements): {total_elements}")
+        return params
+    
+    def _get_param_size(self, params_dict: Dict[str, torch.Tensor]) -> int:
+        """Calculates total number of elements in a state_dict."""
+        return sum(p.numel() for p in params_dict.values())
 
     def set_parameters(self, parameters: Dict[str, torch.Tensor]) -> None:
         """Update global model with provided parameters (state dictionary)."""
@@ -154,6 +162,10 @@ class FederatedServer:
         logger.debug("Distributing global model to selected clients...")
         global_params_cpu = self.get_parameters() # Get params on CPU
 
+        download_bytes = np.sum([p.element_size() * p.numel() for p in global_params_cpu.values()])
+
+        total_upload_bytes = 0
+
         client_updates = []
         participating_clients_info = {} # Store client_id -> num_samples
 
@@ -172,6 +184,8 @@ class FederatedServer:
                     proximal_term=proximal_term,
                     global_params=global_params_cpu if proximal_term > 0 else None
                 )
+                # Estimate upload size (parameters received from client)
+                total_upload_bytes += np.sum([p.element_size() * p.numel() for p in updated_params_cpu.values()])
 
                 if num_samples > 0:
                      # Store update (parameters are already on CPU from client.train)
@@ -223,7 +237,10 @@ class FederatedServer:
             "client_samples": list(participating_clients_info.values()),
             "total_samples": sum(participating_clients_info.values()),
             "duration_seconds": round_duration,
-            "evaluation_metrics": metrics
+            "evaluation_metrics": metrics,
+            "comm_download_bytes_per_client": download_bytes if participating_clients_info else 0,
+            "comm_total_upload_bytes": total_upload_bytes,
+            "comm_avg_upload_bytes_per_client": total_upload_bytes / len(participating_clients_info) if participating_clients_info else 0
         }
         self.round_history.append(round_info)
         logger.info(f"Round {round_info['round']} completed in {round_duration:.2f}s. "

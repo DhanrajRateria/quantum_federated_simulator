@@ -1,0 +1,34 @@
+# Basic configuration
+master: spark://master:7077  # Change to your Spark master URL
+executor_memory: 4g
+driver_memory: 6g
+max_result_size: 2g
+
+# Performance tuning
+executor_cores: 4
+shuffle_partitions: 200
+default_parallelism: 200
+memory_fraction: 0.8
+storage_fraction: 0.4
+
+# Networking
+network_timeout: 800s
+executor_heartbeat_interval: 60s
+
+# Dynamic allocation
+dynamic_allocation: true
+min_executors: 2
+max_executors: 10
+executor_idle_timeout: 120s
+
+# Logging
+log_level: INFO
+spark_ui_port: 4040
+
+# Python-specific
+pyspark_submit_args: "--packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.2 --conf spark.executor.extraJavaOptions=-XX:+UseG1GC"
+pyspark_driver_python: python3
+pyspark_python: python3
+
+# Quantum specific
+quantum_executor_memory: 6g  # More memory for quantum executors

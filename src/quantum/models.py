@@ -29,7 +29,7 @@ from .circuits import create_basic_circuit, create_complex_circuit, create_custo
 logger = logging.getLogger(__name__)
 
 class VariationalQuantumClassifier:
-    """
+    """ 
     Variational Quantum Classifier implemented with PennyLane.
     Uses manual parameter-shift rule for training demonstration.
     """

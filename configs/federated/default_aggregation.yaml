@@ -59,6 +59,14 @@ strategies:
     
     # Whether to normalize client updates
     normalize_updates: true
+  
+  # Federated Diversity Averaging (FedDive - New)
+  FedDive:
+    params: # Use 'params' sub-key
+      momentum: 0.9
+      epsilon: 1e-8
+      temperature: 1.0
+      normalize_distances: true
     
 # General aggregation settings
 settings:

@@ -242,3 +242,159 @@ class TrimmedMean(AggregationStrategy):
 
         logger.info("TrimmedMean: Aggregation complete.")
         return aggregated_params
+    
+class FedDive(AggregationStrategy):
+    """
+    Federated Diversity Averaging (FedDive) aggregation strategy.
+
+    Combines momentum with a weighting scheme that prioritizes client updates
+    that diverge most from the momentum-based average velocity.
+    This implementation works with model parameters and maintains proper momentum.
+    """
+    def __init__(self, 
+                 momentum: float = 0.9, 
+                 epsilon: float = 1e-8, 
+                 temperature: float = 1.0,
+                 normalize_distances: bool = True):
+        """
+        Initialize FedDive aggregator.
+
+        Args:
+            momentum: Momentum coefficient (typically between 0 and 1).
+            epsilon: Small value for numerical stability in distance calculation and softmax.
+            temperature: Temperature parameter for softmax to control weighting sensitivity.
+            normalize_distances: Whether to normalize distances before softmax.
+        """
+        super().__init__()
+        if not 0.0 <= momentum < 1.0:
+            raise ValueError("Momentum must be between 0 and 1 (exclusive).")
+        self.momentum = momentum
+        self.velocity: Dict[str, torch.Tensor] = {}  # Store velocity per parameter name
+        self.epsilon = epsilon  # For numerical stability
+        self.temperature = temperature  # Control softmax sensitivity
+        self.normalize_distances = normalize_distances  # Whether to normalize distances
+        self.previous_global_params: Dict[str, torch.Tensor] = {}  # Store previous global parameters
+        logger.debug(f"FedDive strategy initialized with momentum={momentum}, "
+                    f"epsilon={epsilon}, temperature={temperature}, "
+                    f"normalize_distances={normalize_distances}")
+
+    def _calculate_update_distance(self, params: Dict[str, torch.Tensor], velocity: Dict[str, torch.Tensor]) -> float:
+        """Calculates the L2 norm of the difference between parameter dicts."""
+        total_diff_sq = 0.0
+        with torch.no_grad():
+            for name in params.keys():
+                if name in velocity:
+                    diff = params[name] - velocity[name]
+                    total_diff_sq += torch.sum(diff * diff).item()
+                else:
+                    # Handle case where velocity hasn't been initialized for this param yet
+                    total_diff_sq += torch.sum(params[name] * params[name]).item()
+        return np.sqrt(total_diff_sq)
+
+    def aggregate(self, client_updates: List[Tuple[Dict[str, torch.Tensor], float]]) -> Dict[str, torch.Tensor]:
+        """
+        Aggregate client parameters using FedDive.
+
+        Args:
+            client_updates: List of (model_parameters, sample_count) tuples.
+                           Sample counts are currently IGNORED by FedDive's core logic.
+
+        Returns:
+            Aggregated model parameters.
+        """
+        num_clients = len(client_updates)
+        if num_clients == 0:
+            logger.warning("FedDive: No client updates provided for aggregation.")
+            return {}
+
+        logger.info(f"FedDive: Aggregating updates from {num_clients} clients (momentum={self.momentum}).")
+        parameters_list = [params for params, _ in client_updates]
+
+        first_client_params = parameters_list[0]
+        if not first_client_params:
+            logger.warning("FedDive: First client update is empty.")
+            return {}
+
+        # --- Step 1: Calculate Average Parameters ---
+        avg_params = {}
+        for name, tensor in first_client_params.items():
+            avg_params[name] = torch.zeros_like(tensor)
+        
+        for client_params in parameters_list:
+            for name, param_tensor in client_params.items():
+                if name in avg_params:
+                    avg_params[name] += param_tensor  # Accumulate
+        
+        for name in avg_params:
+            avg_params[name] /= num_clients  # Divide by count
+
+        # --- Step 2: Update Velocity (Momentum) based on DELTAS ---
+        # Initialize velocity and previous_global_params if needed
+        if not self.velocity or not self.previous_global_params:
+            logger.info("FedDive: Initializing velocity and previous parameters.")
+            self.velocity = {name: torch.zeros_like(tensor) for name, tensor in first_client_params.items()}
+            self.previous_global_params = {name: tensor.clone() for name, tensor in avg_params.items()}
+        elif any(name not in self.velocity for name in first_client_params):
+            logger.info("FedDive: Updating velocity and previous parameters structure.")
+            for name, tensor in first_client_params.items():
+                if name not in self.velocity:
+                    self.velocity[name] = torch.zeros_like(tensor)
+                if name not in self.previous_global_params:
+                    self.previous_global_params[name] = tensor.clone()
+
+        # Calculate deltas from previous global parameters to current average
+        deltas = {}
+        for name, avg_param in avg_params.items():
+            if name in self.previous_global_params:
+                deltas[name] = avg_param - self.previous_global_params[name]
+            else:
+                deltas[name] = avg_param  # If no previous, use current as delta
+
+        # Update velocity using proper momentum formula: v = momentum * v + (1 - momentum) * delta
+        with torch.no_grad():
+            for name in self.velocity:
+                if name in deltas:
+                    self.velocity[name] = self.momentum * self.velocity[name] + \
+                                         (1.0 - self.momentum) * deltas[name]
+
+        logger.debug("FedDive: Velocity updated based on parameter deltas.")
+
+        # --- Step 3: Calculate Diversity Weights ---
+        distances = np.array([
+            self._calculate_update_distance(params, self.velocity) for params in parameters_list
+        ])
+        
+        # Normalize distances if enabled (subtract mean and optionally scale by std)
+        if self.normalize_distances and len(distances) > 1:
+            mean_dist = np.mean(distances)
+            std_dist = np.std(distances) if np.std(distances) > self.epsilon else 1.0
+            distances = (distances - mean_dist) / std_dist
+            logger.debug(f"FedDive: Normalized distances: {distances}")
+        
+        # Apply temperature scaling to control sensitivity
+        scaled_distances = distances / self.temperature
+        
+        # Use softmax with temperature scaling
+        exp_distances = np.exp(scaled_distances + self.epsilon)
+        diversity_weights = exp_distances / np.sum(exp_distances)
+        
+        logger.debug(f"FedDive: Diversity weights: {diversity_weights}")
+
+        # --- Step 4: Weighted Aggregation using Diversity Weights ---
+        aggregated_params = {}
+        for name, tensor in first_client_params.items():
+            aggregated_params[name] = torch.zeros_like(tensor)
+
+        for client_idx, client_params in enumerate(parameters_list):
+            client_weight = diversity_weights[client_idx]
+            for name, param_tensor in client_params.items():
+                if name in aggregated_params:
+                    aggregated_params[name] += client_weight * param_tensor
+                else:
+                    logger.warning(f"FedDive: Param '{name}' missing.")
+
+        # Store current aggregated parameters as the previous for next round
+        self.previous_global_params = {name: tensor.clone() for name, tensor in aggregated_params.items()}
+
+        logger.info("FedDive: Aggregation complete.")
+        return aggregated_params

@@ -103,14 +103,14 @@ def iqp_feature_map(features: np.ndarray, wires: List[int], reps: int = 1) -> Ca
             # Phase rotations
             for i, wire in enumerate(wires):
                 if i < len(features_to_use):
-                    qml.RZ(features_to_use[i], wire)
+                    qml.RZ(features_to_use[i], wires=wire)
             
             # Two-qubit ZZ rotations for all pairs
             for i in range(n_qubits):
                 for j in range(i+1, n_qubits):
                     if i < len(features_to_use) and j < len(features_to_use):
                         qml.CNOT(wires=[wires[i], wires[j]])
-                        qml.RZ(features_to_use[i] * features_to_use[j], wires[j])
+                        qml.RZ(features_to_use[i] * features_to_use[j], wires=wires[j])
                         qml.CNOT(wires=[wires[i], wires[j]])
             
             # Another Hadamard layer in between repetitions
@@ -146,14 +146,14 @@ def zz_feature_map(features: np.ndarray, wires: List[int], entanglement: str = '
             # First rotation layer
             for i, wire in enumerate(wires):
                 if i < len(features):
-                    qml.RZ(features[i], wire)
+                    qml.RZ(features[i], wires=wire)
             
             # Entanglement layer with ZZ rotations
             if entanglement == 'linear':
                 for i in range(n_qubits - 1):
                     if i < len(features) and i+1 < len(features):
                         qml.CNOT(wires=[wires[i], wires[i+1]])
-                        qml.RZ(features[i] * features[i+1], wires[i+1])
+                        qml.RZ(features[i] * features[i+1], wires=wires[i+1])
                         qml.CNOT(wires=[wires[i], wires[i+1]])
             
             elif entanglement == 'circular':
@@ -161,7 +161,7 @@ def zz_feature_map(features: np.ndarray, wires: List[int], entanglement: str = '
                     next_i = (i + 1) % n_qubits
                     if i < len(features) and next_i < len(features):
                         qml.CNOT(wires=[wires[i], wires[next_i]])
-                        qml.RZ(features[i] * features[next_i], wires[next_i])
+                        qml.RZ(features[i] * features[next_i], wires=wires[next_i])
                         qml.CNOT(wires=[wires[i], wires[next_i]])
             
             elif entanglement == 'all_to_all':
@@ -169,7 +169,7 @@ def zz_feature_map(features: np.ndarray, wires: List[int], entanglement: str = '
                     for j in range(i+1, n_qubits):
                         if i < len(features) and j < len(features):
                             qml.CNOT(wires=[wires[i], wires[j]])
-                            qml.RZ(features[i] * features[j], wires[j])
+                            qml.RZ(features[i] * features[j], wires=wires[j])
                             qml.CNOT(wires=[wires[i], wires[j]])
     
     return encoding
@@ -222,7 +222,7 @@ def hybrid_encoding(features: np.ndarray, wires: List[int], strategy: str = 'ang
             # Then apply a simplified IQP-like encoding
             for i, wire in enumerate(wires):
                 if i < len(features):
-                    qml.RZ(features[i], wire)
+                    qml.RZ(features[i], wires=wire)
             
             # Apply entanglement
             for i in range(len(wires) - 1):

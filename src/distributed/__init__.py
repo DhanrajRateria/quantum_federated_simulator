@@ -6,13 +6,10 @@ communication between nodes, and integration with Apache Spark
 for large-scale simulations.
 """
 
-from .node_manager import NodeManager, Node, NodeStatus
-from .communication import MessageType, CommunicationProtocol
+from .spark_manager import SparkManager
+from .spark_executor_task import run_client_training_partition
 
 __all__ = [
-    'NodeManager',
-    'Node',
-    'NodeStatus',
-    'MessageType',
-    'CommunicationProtocol',
+    'SparkManager',
+    'run_client_training_partition'
 ]
