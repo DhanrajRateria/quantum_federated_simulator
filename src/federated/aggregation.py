@@ -39,6 +39,15 @@ class AggregationStrategy(ABC):
             trim_ratio = config.get('trim_ratio', 0.1)
             logger.info(f"TrimmedMean trim_ratio: {trim_ratio}")
             return TrimmedMean(trim_ratio=trim_ratio)
+        elif strategy_type == 'feddive':
+            momentum = config.get('momentum', 0.9)
+            epsilon = config.get('epsilon', 1e-8)
+            temperature = config.get('temperature', 1.0)
+            normalize_distances = config.get('normalize_distances', True)
+            logger.info(f"FedDive parameters: momentum={momentum}, epsilon={epsilon}, "
+                        f"temperature={temperature}, normalize_distances={normalize_distances}")
+            return FedDive(momentum=momentum, epsilon=epsilon, temperature=temperature,
+                           normalize_distances=normalize_distances)
         else:
             raise ValueError(f"Unsupported aggregation strategy: {strategy_type}")
 

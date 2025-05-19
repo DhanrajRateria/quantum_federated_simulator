@@ -37,6 +37,7 @@ from src.core.quantum_manager import (QuantumFederatedServer, QuantumAggregation
 from src.core.quantum_client import QuantumFederatedClient
 from src.quantum.models import VariationalQuantumClassifier, QuantumNeuralNetwork, HybridQuantumModel
 from src.models.classical_models import SimpleMLP
+from src.visualization.integrate_visualizations import enhanced_plot_bc_results
 
 # Configure logging for this specific experiment script
 log_file_path = os.path.join(LOG_DIR, f"bc_experiment_run_{time.strftime('%Y%m%d-%H%M%S')}.log")
@@ -296,7 +297,7 @@ def setup_federated_scenario(exp_config: Dict,
             device=server_device # Assuming clients run on same device as server for simulation
         )
         clients_for_server.append(client)
-        
+
     for client_obj in clients_for_server: # Then register them
         server.register_client(client_obj)
     logger.info(f"--- Scenario setup complete for {exp_name} ---")
@@ -465,7 +466,7 @@ EXPERIMENTS_BREAST_CANCER = [
         "model": {"type": "classical_mlp", "hidden_dim": 64},
         "data_config": {"name": "breast_cancer", "pca_features": None, "scaling": "standard"},
         "data_partition": {"iid": True},
-        "aggregation_overrides": {"strategy": "FedDive", "strategies": {"FedDive": {"params": {"momentum": 0.9, "temperature": 1.0, "normalize_distances": True}}}},
+        "aggregation_overrides": {"type": "feddive", "momentum": 0.9, "temperature": 1.0, "normalize_distances": True},
         "client_overrides": {"client": {"local_epochs": 3}, "optimization": {"learning_rate": 0.001, "optimizer": {"name": "Adam"}, "loss_function": "CrossEntropyLoss"}},
         "server_overrides": {"server": {"num_rounds": 5}, "client_management": {"num_clients": 5}}
     },
@@ -586,10 +587,13 @@ if __name__ == "__main__":
     logger.info("All Breast Cancer Experiments Finished.")
 
     try:
-        plot_bc_results(results)
+        enhanced_plot_bc_results(results)
     except ImportError:
-         logger.warning("Plotting libraries (matplotlib/seaborn) not found. Skipping plot generation.")
+        logger.warning("Advanced visualization modules not available. Falling back to basic visualization.")
+        plot_bc_results(results)
     except Exception as e:
-         logger.error(f"Error during plotting: {e}", exc_info=True)
+        logger.error(f"Error during advanced plotting: {e}", exc_info=True)
+        logger.info("Falling back to basic visualizations...")
+        plot_bc_results(results)
 
     logger.info("Script for Breast Cancer experiments finished.")
