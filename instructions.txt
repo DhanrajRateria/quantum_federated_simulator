@@ -1,0 +1,64 @@
+Instructions for Running Across Different Systems
+1. Setup on Each System
+Prerequisites on all systems:
+bash
+# Install required packages
+pip install numpy pandas torch matplotlib seaborn pyspark pennylane
+
+# Clone the repository (ensure all systems have the same codebase)
+git clone https://github.com/yourusername/federated-quantum-learning.git
+cd federated-quantum-learning
+2. Configure Spark Cluster
+a. On Master Node:
+bash
+# Create a Spark configuration file
+mkdir -p configs/distributed
+cat > configs/distributed/spark_config.yaml << EOF
+master: spark://master-hostname:7077
+executor_memory: 4g
+driver_memory: 6g
+max_result_size: 2g
+shuffle_partitions: 10
+log_level: INFO
+EOF
+b. On All Worker Nodes:
+bash
+# Start Spark worker process 
+export SPARK_WORKER_CORES=4  # Adjust based on available cores
+export SPARK_WORKER_MEMORY=4g # Adjust based on available memory
+
+# Start the worker
+$SPARK_HOME/sbin/start-slave.sh spark://master-hostname:7077
+3. Package the Code for Distribution
+bash
+# On master node, create a distribution package
+# This simplifies dependency management across the cluster
+cd federated-quantum-learning
+pip install -e .  # Install in development mode
+
+# Alternatively, you can create a self-contained package:
+python setup.py sdist
+4. Run the Experiment
+bash
+# On master node
+python run_spark_experiment.py --spark_config configs/distributed/spark_config.yaml
+5. Monitoring and Results
+Access the Spark UI at http://master-hostname:4040 to monitor job progress
+Results will be saved in the experiments/results directory
+Visualizations will be generated in experiments/visualizations directory
+6. Advanced Configuration for Multi-Node Setup
+For more complex deployments, consider:
+
+Using a shared filesystem (NFS, HDFS) to ensure all nodes access the same data
+Configure a Spark standalone cluster with proper resource allocation
+Set up environment variables consistently across all nodes:
+bash
+export PYTHONPATH=/path/to/federated-quantum-learning:$PYTHONPATH
+export PYSPARK_PYTHON=/path/to/python  # Ensure all nodes use the same Python
+For AWS/Cloud deployment, consider using a tool like Spark on EMR or Dataproc
+7. Troubleshooting
+Check logs in the experiments/logs directory
+Verify network connectivity between all nodes
+Ensure Python environments are consistent across all nodes
+For quantum models, ensure that all nodes have PennyLane installed with appropriate backends
+By following these instructions, you can run the federated learning experiments across a Spark cluster, distributing the client training work across multiple systems while coordinating through the master node.

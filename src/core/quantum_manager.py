@@ -22,9 +22,7 @@ logger = logging.getLogger(__name__)
 
 class QuantumFederatedServer(FederatedServer):
     """
-    Server specialized for federated learning with potentially mixed quantum models.
-
-    Extends FederatedServer to handle parameter conversion for VQC models.
+    Server specialized for federated learning with quantum models (all nn.Modules).
     """
 
     def __init__(
@@ -34,114 +32,84 @@ class QuantumFederatedServer(FederatedServer):
         evaluation_dataset: Optional[Dataset] = None,
         device: Optional[torch.device] = None
     ):
-        """
-        Initialize a quantum federated server.
+        self.model_type = self._determine_model_type(model) # For logging
+        logger.info(f"QuantumServer: Initializing with global model type '{self.model_type}'.")
 
-        Args:
-            model: Global model instance (VQC, QNN, Hybrid, or nn.Module).
-            aggregation_strategy: Strategy for aggregating client updates.
-            evaluation_dataset: Optional PyTorch Dataset for server-side evaluation.
-            device: Device for server-side operations.
-        """
-        # Determine model type *before* calling super init
-        self.model_type = self._determine_model_type(model)
-        logger.info(f"QuantumServer: Initializing with model type '{self.model_type}'.")
-
-        # Pass args to parent init
         super().__init__(
-            model=model, # Parent moves model to device
+            model=model,
             aggregation_strategy=aggregation_strategy,
             evaluation_dataset=evaluation_dataset,
-            device=device # Pass device to parent
+            device=device
         )
-        # self.model is now initialized and on self.device
 
     def _determine_model_type(self, model: Any) -> str:
-        """Determine the type of quantum model."""
+        """Determine the type of quantum model for informational purposes."""
         if isinstance(model, VariationalQuantumClassifier): return "vqc"
         elif isinstance(model, QuantumNeuralNetwork): return "qnn"
         elif isinstance(model, HybridQuantumModel): return "hybrid"
-        elif isinstance(model, nn.Module): return "torch"
-        else: raise ValueError(f"Unsupported model type for QuantumFederatedServer: {type(model)}")
+        elif isinstance(model, nn.Module): return "torch_generic"
+        else:
+            logger.warning(f"Unsupported model type for QuantumFederatedServer: {type(model)}")
+            return "unknown"
 
     def get_parameters(self) -> Dict[str, torch.Tensor]:
-        """Get global parameters, converting VQC NumPy params to Torch tensor."""
-        if self.model_type == "vqc":
-            logger.debug("Server: Getting VQC parameters and converting to Tensor.")
-            if self.model.params is None: raise ValueError("Global VQC model parameters not initialized.")
-            # Ensure consistent dtype and place on CPU for distribution
-            params_tensor = torch.tensor(self.model.params, dtype=torch.float64).cpu()
-            return {"quantum_params": params_tensor}
-        else:
-            # Use parent method for PyTorch models (gets state_dict on CPU)
-            logger.debug(f"Server: Getting {self.model_type} parameters (state_dict).")
-            return super().get_parameters()
+        """Get global model parameters (state_dict on CPU). VQC now uses state_dict."""
+        logger.debug(f"Server: Getting global {self.model_type} parameters (state_dict).")
+        return super().get_parameters()
 
     def set_parameters(self, parameters: Dict[str, torch.Tensor]) -> None:
-        """Set global parameters, converting Torch tensor back to NumPy for VQC."""
-        if self.model_type == "vqc":
-            logger.debug("Server: Setting VQC parameters from Tensor.")
-            if "quantum_params" in parameters:
-                try:
-                    # Convert incoming tensor (CPU) to NumPy array
-                    vqc_params_np = parameters["quantum_params"].numpy()
-                    if self.model.params is not None and self.model.params.shape != vqc_params_np.shape:
-                         logger.error(f"Server VQC parameter shape mismatch. Model: {self.model.params.shape}, Received: {vqc_params_np.shape}")
-                         raise ValueError("VQC parameter shape mismatch during set_parameters.")
-                    self.model.params = vqc_params_np
-                    logger.debug("Server: Global VQC parameters updated.")
-                except Exception as e:
-                     logger.error(f"Server: Error converting/setting VQC parameters: {e}", exc_info=True); raise
-            else:
-                logger.error("Server: 'quantum_params' key not found in parameters for VQC.")
-                raise KeyError("'quantum_params' key missing for VQC model.")
-        else:
-            # Use parent method for PyTorch models (loads state_dict to server's device)
-            logger.debug(f"Server: Setting {self.model_type} parameters (state_dict).")
-            super().set_parameters(parameters)
+        """Set global model parameters (state_dict). VQC now uses state_dict."""
+        logger.debug(f"Server: Setting global {self.model_type} parameters (state_dict).")
+        super().set_parameters(parameters)
 
-    def evaluate(self, dataset: Optional[Dataset] = None) -> Dict[str, float]:
-        """Evaluate the global model, handling VQC separately."""
-        logger.info(f"Server: Starting evaluation (model type: {self.model_type}).")
-        if self.model_type == "vqc":
-            # Use specialized VQC evaluation
-            return self._evaluate_vqc(dataset)
-        else:
-            # Use parent's evaluate method for PyTorch models
-            return super().evaluate(dataset)
-
-    def _evaluate_vqc(self, eval_dataset: Optional[Dataset] = None) -> Dict[str, float]:
-        """Evaluate the global VQC model."""
-        dataset_to_eval = eval_dataset if eval_dataset is not None else self.evaluation_dataset
-        if dataset_to_eval is None or len(dataset_to_eval) == 0:
-             logger.warning("Server VQC evaluation skipped: No data.")
-             return {'loss': None, 'accuracy': 0.0}
-
-        logger.debug(f"Server VQC: Evaluating on {len(dataset_to_eval)} samples.")
-        correct = 0; total = 0; all_labels = []; all_preds = []
-
-        # VQC predict is sample-by-sample
-        for i in range(len(dataset_to_eval)):
-            try:
-                data, target = dataset_to_eval[i]
-                features_np = data.numpy()
-                if features_np.ndim > 1: features_np = features_np.flatten()
-                label = target.item() if isinstance(target, torch.Tensor) else int(target)
-
-                # Use the server's global VQC model instance for prediction
-                prediction = self.model.predict(features_np)
-                if prediction == label: correct += 1
-                total += 1
-                all_labels.append(label)
-                all_preds.append(prediction)
-            except Exception as e:
-                 logger.error(f"Server VQC: Error evaluating sample {i}: {e}", exc_info=False)
-
-        accuracy = correct / total if total > 0 else 0.0
-        # Optional: Add more metrics if needed (e.g., confusion matrix from all_labels/all_preds)
-        metrics = {'accuracy': accuracy, 'loss': None} # Loss hard to calculate efficiently here
-        logger.info(f"Server VQC: Evaluation finished. Metrics: {metrics}")
-        return metrics
+    def evaluate(self, dataset=None):
+        """Override to ensure correct device handling for quantum models"""
+        logger.info(f"Server: Starting evaluation of global model (type: {self.model_type}).")
+        
+        if dataset is None:
+            dataset = self.evaluation_dataset
+        
+        self.model.eval()  # Set model to evaluation mode
+        with torch.no_grad():
+            total_samples = 0
+            correct = 0
+            total_loss = 0.0
+            
+            # Use CrossEntropyLoss as default loss function for evaluation
+            loss_fn = nn.CrossEntropyLoss()
+            
+            # Move loss function to same device as model
+            loss_fn = loss_fn.to(self.device)
+            
+            # Create a dataloader for evaluation
+            eval_loader = torch.utils.data.DataLoader(dataset, batch_size=32, shuffle=False)
+            
+            for data, target in eval_loader:
+                # Move data and target to the model's device
+                data, target = data.to(self.device), target.to(self.device)
+                
+                # Forward pass
+                output = self.model(data)
+                
+                # Ensure output is on same device as target before loss calculation
+                output = output.to(self.device)
+                
+                # Calculate loss
+                loss = loss_fn(output, target)
+                
+                # Update metrics
+                current_batch_size = data.size(0)
+                total_loss += loss.item() * current_batch_size
+                pred = output.argmax(dim=1)
+                correct += (pred == target).sum().item()
+                total_samples += current_batch_size
+        
+        # Calculate overall metrics
+        accuracy = correct / total_samples if total_samples > 0 else 0
+        avg_loss = total_loss / total_samples if total_samples > 0 else float('inf')
+        
+        logger.info(f"Evaluation results: Loss={avg_loss:.4f}, Accuracy={accuracy:.4f}")
+        return {"loss": avg_loss, "accuracy": accuracy}
 
 
 class QuantumAggregationStrategy(AggregationStrategy):
@@ -164,22 +132,25 @@ class QuantumAggregationStrategy(AggregationStrategy):
         logger.debug(f"QuantumAggregationStrategy initialized with base: {type(self.base_strategy).__name__}")
 
     def aggregate(self, client_updates: List[Tuple[Dict[str, torch.Tensor], float]]) -> Dict[str, torch.Tensor]:
-        """Aggregate model updates, detecting VQC structure."""
         if not client_updates:
             logger.warning("QuantumAggregationStrategy: No client updates provided.")
             return {}
 
-        # Check the structure of the first update to determine model type
+        # The old VQC check `list(first_params.keys()) == ["quantum_params"]`
+        # is no longer relevant as VQC now has a full state_dict.
+        # We can assume all updates are state_dicts and delegate.
         first_params = client_updates[0][0]
-        is_vqc_update = list(first_params.keys()) == ["quantum_params"] and isinstance(first_params["quantum_params"], torch.Tensor)
+        # Example: Check if TorchLayer names parameters like 'q_layer.params'
+        is_qnn_like_update = any(key.startswith("q_layer.") for key in first_params.keys())
 
-        if is_vqc_update:
-            logger.info("QuantumAggregationStrategy: Detected VQC parameter structure. Aggregating 'quantum_params'.")
-            return self._aggregate_vqc_params(client_updates)
+        if is_qnn_like_update : # Or any other specific check for quantum layer params if needed
+             logger.info(f"QuantumAggregationStrategy: Detected nn.Module (QNN/VQC/Hybrid) state_dict. "
+                         f"Delegating to base strategy: {type(self.base_strategy).__name__}")
         else:
-            logger.info(f"QuantumAggregationStrategy: Detected non-VQC structure. Delegating to base strategy: {type(self.base_strategy).__name__}")
-            # Use base strategy for standard state_dict updates
-            return self.base_strategy.aggregate(client_updates)
+             logger.info(f"QuantumAggregationStrategy: Standard state_dict detected. "
+                         f"Delegating to base strategy: {type(self.base_strategy).__name__}")
+
+        return self.base_strategy.aggregate(client_updates)
 
     def _aggregate_vqc_params(self, client_updates: List[Tuple[Dict[str, torch.Tensor], float]]) -> Dict[str, torch.Tensor]:
         """Aggregate VQC model parameters based on the 'quantum_params' tensor."""
@@ -221,10 +192,6 @@ class QuantumAggregationStrategy(AggregationStrategy):
 
 
 class FederatedQuantumManager:
-    """
-    Static utility class for setting up quantum federated learning scenarios.
-    """
-
     @staticmethod
     def create_quantum_clients(
         client_ids: List[str],
@@ -233,74 +200,71 @@ class FederatedQuantumManager:
         datasets: List[Dataset],
         client_kwargs: Optional[Dict[str, Any]] = None # Args for QuantumFederatedClient init
     ) -> List[QuantumFederatedClient]:
-        """Create quantum federated clients."""
         if len(client_ids) != len(datasets):
             raise ValueError("Number of client IDs must match number of datasets")
-        if not issubclass(model_class, (VariationalQuantumClassifier, nn.Module)):
-             raise TypeError("model_class must be VQC or a PyTorch nn.Module.")
+        # All model_class options are now expected to be nn.Module or inherit from it
+        if not issubclass(model_class, nn.Module):
+             raise TypeError("model_class must be a PyTorch nn.Module or inherit from it.")
 
         clients = []
         client_setup_kwargs = client_kwargs or {}
+        # Ensure defaults for optimizer and loss if not provided in client_setup_kwargs
+        # These will be passed to QuantumFederatedClient, which now requires them.
+        client_setup_kwargs.setdefault('optimizer_class', torch.optim.SGD)
+        client_setup_kwargs.setdefault('loss_fn', nn.CrossEntropyLoss())
+        # learning_rate should also be present in client_setup_kwargs or have a default in QFC init
+
         logger.info(f"Creating {len(client_ids)} quantum clients with model {model_class.__name__}.")
 
         for i, (client_id, dataset) in enumerate(zip(client_ids, datasets)):
-            # Create a distinct model instance for each client
             try:
                 model_instance = model_class(**model_kwargs)
             except Exception as e:
                  logger.error(f"Failed to instantiate model {model_class.__name__} for client {client_id}: {e}", exc_info=True)
                  raise
 
-            # Initialize QuantumFederatedClient
             try:
                 client = QuantumFederatedClient(
                     client_id=client_id,
                     model=model_instance,
                     dataset=dataset,
-                    **client_setup_kwargs # Pass batch_size, lr, optimizer, loss, device here
+                    **client_setup_kwargs # This now includes optimizer_class, loss_fn, lr, batch_size etc.
                 )
                 clients.append(client)
                 logger.debug(f"Successfully created quantum client '{client_id}' with {len(dataset)} samples.")
             except Exception as e:
                  logger.error(f"Failed to create QuantumFederatedClient '{client_id}': {e}", exc_info=True)
-                 # Decide whether to skip or raise
                  raise
-
         return clients
 
     @staticmethod
     def initialize_quantum_server(
         model_class: Type[Union[VariationalQuantumClassifier, QuantumNeuralNetwork, HybridQuantumModel, nn.Module]],
         model_kwargs: Dict[str, Any],
-        aggregation_strategy: AggregationStrategy, # Can be QuantumAggregationStrategy or base
+        aggregation_strategy: AggregationStrategy,
         evaluation_dataset: Optional[Dataset] = None,
-        server_kwargs: Optional[Dict[str, Any]] = None # Args for QuantumFederatedServer init
+        server_kwargs: Optional[Dict[str, Any]] = None
     ) -> QuantumFederatedServer:
-        """Initialize a quantum federated server."""
-        if not issubclass(model_class, (VariationalQuantumClassifier, nn.Module)):
-             raise TypeError("model_class must be VQC or a PyTorch nn.Module.")
+        if not issubclass(model_class, nn.Module):
+             raise TypeError("model_class must be a PyTorch nn.Module or inherit from it.")
 
         logger.info(f"Initializing quantum server with global model {model_class.__name__}.")
-        # Initialize the global model instance
         try:
             global_model = model_class(**model_kwargs)
         except Exception as e:
             logger.error(f"Failed to instantiate global model {model_class.__name__}: {e}", exc_info=True)
             raise
 
-        # Initialize the QuantumFederatedServer
         server_setup_kwargs = server_kwargs or {}
         try:
             server = QuantumFederatedServer(
                 model=global_model,
                 aggregation_strategy=aggregation_strategy,
                 evaluation_dataset=evaluation_dataset,
-                **server_setup_kwargs # Pass device here if needed
+                **server_setup_kwargs
             )
             logger.info(f"Quantum federated server initialized successfully.")
             return server
         except Exception as e:
              logger.error(f"Failed to initialize QuantumFederatedServer: {e}", exc_info=True)
              raise
-
-    # Removed adapt_evaluation_for_quantum_models as evaluation is handled internally now

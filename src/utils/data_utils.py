@@ -1,79 +1,74 @@
-# src/utils/data_utils.py (or src/federated/utils.py)
+# src/utils/data_utils.py
 
 import logging
 import random
-import os # Import os for path joining
-import yaml # Import yaml
+import os
+import yaml
 import numpy as np
 import torch
+import sys
 from torch.utils.data import Dataset, Subset, TensorDataset
-from torchvision import datasets, transforms
+# torchvision not strictly needed if only using sklearn datasets here
+# from torchvision import datasets, transforms
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
-from typing import Dict, Any, List, Optional, Tuple # Added List, Optional, Tuple, Any
-from sklearn.datasets import load_iris
+from typing import Dict, Any, List, Optional, Tuple
+from sklearn.datasets import load_iris, load_digits, load_breast_cancer # Ensure all are imported
+from sklearn.model_selection import train_test_split
 
-logger = logging.getLogger(__name__)
+logger_data_utils = logging.getLogger(__name__) # Use a specific logger for this module
 
-# --- Configuration Loading ---
-def load_config(config_path: str) -> Dict[str, Any]:
+# --- Configuration Loading (can be kept if you use it within this file) ---
+
+class FederatedTensorDataset(TensorDataset):
+    def __init__(self, data_tensor, target_tensor):
+        super().__init__(data_tensor, target_tensor)
+        self.targets = target_tensor  # Required for non-IID partitioning
+
+def load_config_from_utils(config_path: str, config_root_override: Optional[str] = None) -> Dict[str, Any]:
     """
-    Loads a YAML configuration file relative to the CONFIG_ROOT.
-
-    Args:
-        config_path: Path to the YAML configuration file *relative* to the 'configs' directory
-                     (e.g., "federated/server.yaml", "quantum/basic_circuit.yaml").
-
-    Returns:
-        Dictionary containing configuration parameters.
-
-    Raises:
-        FileNotFoundError: If the configuration file is not found.
-        yaml.YAMLError: If the file cannot be parsed.
+    Loads a YAML configuration file.
+    If config_root_override is provided, it's used. Otherwise, it tries to determine
+    a 'configs' directory relative to this file's project structure.
     """
-    # Assume CONFIG_ROOT is defined globally or passed appropriately.
-    # For standalone use, define it relative to this file or expect absolute path.
-    # In the context of run_experiment.py, CONFIG_ROOT was defined there.
-    # If running this utils file directly, adjust this:
-    if 'CONFIG_ROOT' not in globals():
-        # Define relative to this file's location if run directly
+    if config_root_override:
+        CONFIG_ROOT_UTILS = config_root_override
+    elif 'CONFIG_ROOT' in globals(): # If run_experiment.py set a global one
+        CONFIG_ROOT_UTILS = globals()['CONFIG_ROOT']
+    else:
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        # Go up directories until 'configs' is found or reach project root
-        project_root_marker = 'src' # Or another marker like '.git'
+        project_root_marker = 'src'
         current_dir = script_dir
         while project_root_marker not in os.path.basename(current_dir) and os.path.dirname(current_dir) != current_dir:
              current_dir = os.path.dirname(current_dir)
-        # If marker found, assume configs is sibling to src
         if project_root_marker in os.path.basename(current_dir):
              project_root = os.path.dirname(current_dir)
-        else: # Fallback: assume configs is relative to script_dir if marker not found
-             project_root = script_dir # This might be incorrect depending on structure
-        CONFIG_ROOT = os.path.join(project_root, 'configs')
-        logger.debug(f"CONFIG_ROOT automatically determined as: {CONFIG_ROOT}")
+        else:
+             project_root = script_dir
+        CONFIG_ROOT_UTILS = os.path.join(project_root, 'configs')
+        logger_data_utils.debug(f"data_utils.py determined CONFIG_ROOT as: {CONFIG_ROOT_UTILS}")
 
+    if not os.path.isabs(config_path):
+        full_path = os.path.join(CONFIG_ROOT_UTILS, config_path)
+    else:
+        full_path = config_path
 
-    full_path = os.path.join(CONFIG_ROOT, config_path)
-    logger.debug(f"Attempting to load config from: {full_path}")
+    logger_data_utils.debug(f"Attempting to load config from: {full_path}")
 
     if not os.path.exists(full_path):
-        logger.error(f"Configuration file not found: {full_path}")
+        logger_data_utils.error(f"Configuration file not found: {full_path}")
         raise FileNotFoundError(f"Configuration file not found: {full_path}")
-
     try:
         with open(full_path, 'r') as file:
             config = yaml.safe_load(file)
-        logger.info(f"Successfully loaded configuration from {full_path}")
-        if config is None: # Handle empty YAML file case
-             logger.warning(f"Config file {full_path} is empty.")
-             return {}
-        return config
+        logger_data_utils.info(f"Successfully loaded configuration from {full_path}")
+        return config if config is not None else {}
     except yaml.YAMLError as e:
-        logger.error(f"Error parsing YAML file {full_path}: {e}", exc_info=True)
+        logger_data_utils.error(f"Error parsing YAML file {full_path}: {e}", exc_info=True)
         raise
     except Exception as e:
-        logger.error(f"Unexpected error loading config file {full_path}: {e}", exc_info=True)
+        logger_data_utils.error(f"Unexpected error loading config file {full_path}: {e}", exc_info=True)
         raise
-
 
 # --- Seed setting ---
 def set_seed(seed: int):
@@ -85,250 +80,154 @@ def set_seed(seed: int):
         torch.cuda.manual_seed_all(seed)
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
-    logger.info(f"Set random seed to {seed}")
+    logger_data_utils.info(f"Set all random seeds to {seed}")
 
 
-def load_iris_data(data_path: Optional[str] = None, n_features: Optional[int] = None, normalize: bool = True) -> Tuple[TensorDataset, TensorDataset, int]:
-        """
-        Loads Iris dataset, applies transformations, and optionally reduces dimensionality.
-
-        Args:
-            data_path: Not used for Iris (loaded from sklearn), kept for API consistency.
-            n_features: If not None and < 4, reduce features using PCA.
-            normalize: If True, scale features using StandardScaler then to [-1, 1] using MinMaxScaler.
-
-        Returns:
-            Tuple: (train_dataset, test_dataset, actual_n_features)
-        """
-        logger.info(f"Loading Iris data. Target features: {n_features}. Normalize: {normalize}")
-        iris = load_iris()
-        X, y = iris.data, iris.target
-
-        original_n_features = X.shape[1] # Should be 4
-        actual_n_features = original_n_features
-
-        # Apply StandardScaler
-        logger.debug("Applying StandardScaler to Iris features.")
-        scaler = StandardScaler()
-        X = scaler.fit_transform(X) # Fit and transform
-
-        # Apply PCA if requested
-        if n_features is not None and 0 < n_features < original_n_features:
-            logger.info(f"Applying PCA to reduce features from {original_n_features} to {n_features}")
-            pca = PCA(n_components=n_features, random_state=42)
-            X = pca.fit_transform(X)
-            actual_n_features = n_features
-            logger.info(f"PCA completed. Explained variance ratio sum: {pca.explained_variance_ratio_.sum():.4f}")
-        elif n_features is not None and n_features >= original_n_features:
-            logger.info(f"Requested n_features ({n_features}) >= original ({original_n_features}). Skipping PCA.")
-        else:
-            logger.info(f"Using original {actual_n_features} features (PCA not requested).")
-
-        # Apply normalization to [-1, 1] range if requested
-        if normalize:
-            logger.info("Applying MinMaxScaler to scale features to [-1, 1] range.")
-            minmax_scaler = MinMaxScaler(feature_range=(-1, 1))
-            X = minmax_scaler.fit_transform(X)
-
-        # Split data (do this *after* scaling/PCA)
-        from sklearn.model_selection import train_test_split
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)
-
-        # Convert back to tensors - use float64 for Pennylane compatibility
-        X_train_tensor = torch.tensor(X_train, dtype=torch.float64)
-        y_train_tensor = torch.tensor(y_train, dtype=torch.long)
-        X_test_tensor = torch.tensor(X_test, dtype=torch.float64)
-        y_test_tensor = torch.tensor(y_test, dtype=torch.long)
-
-        train_dataset = TensorDataset(X_train_tensor, y_train_tensor)
-        test_dataset = TensorDataset(X_test_tensor, y_test_tensor)
-
-        logger.info(f"Iris data loaded. Train size: {len(train_dataset)}, Test size: {len(test_dataset)}, Features: {actual_n_features}")
-        return train_dataset, test_dataset, actual_n_features
-
-# --- Data Loading ---
-def load_mnist_data(data_path: str = "./data", n_features: Optional[int] = None, normalize: bool = True) -> Tuple[TensorDataset, TensorDataset, int]:
+# --- Data Loading and Preprocessing ---
+def load_and_preprocess_data(
+    dataset_name: str = "iris",
+    n_features_pca: Optional[int] = None,
+    test_size: float = 0.2,
+    random_state: int = 42,
+    scaling_strategy: Optional[str] = "standard",
+    data_subset_size: Optional[int] = None,
+    tensor_dtype: torch.dtype = torch.float32
+) -> Tuple[TensorDataset, TensorDataset, int, int]:
     """
-    Loads MNIST dataset, applies transformations, and optionally reduces dimensionality.
+    Loads, preprocesses, and splits a specified dataset from sklearn.datasets.
 
     Args:
-        data_path: Path to download/load MNIST data.
-        n_features: If not None, reduce features to this dimension using PCA. Must be <= 784.
-        normalize: If True, scale features using StandardScaler then to [-1, 1] using MinMaxScaler.
+        dataset_name: Name of the dataset ("iris", "digits", "breast_cancer").
+        n_features_pca: Number of features to reduce to using PCA. None for no PCA.
+        test_size: Proportion of dataset for the test split.
+        random_state: Random seed for reproducibility.
+        scaling_strategy: "standard" for StandardScaler, "minmax" for MinMaxScaler, or None.
+        data_subset_size: If not None, use a random subset of this many total samples.
+        tensor_dtype: PyTorch dtype for feature tensors.
 
     Returns:
-        Tuple: (train_dataset, test_dataset, actual_n_features)
+        Tuple of (train_dataset, test_dataset, num_features, num_classes).
     """
-    logger.info(f"Loading MNIST data from {data_path}. Target features: {n_features}. Normalize: {normalize}")
-    # Basic transform to get Tensor data first
-    basic_transform = transforms.Compose([transforms.ToTensor()])
+    logger_data_utils.info(
+        f"Loading dataset: {dataset_name}, PCA features={n_features_pca}, "
+        f"Scaling={scaling_strategy}, Subset size={data_subset_size}, Dtype={tensor_dtype}"
+    )
+    set_seed(random_state)
 
-    try:
-        train_data_raw = datasets.MNIST(data_path, train=True, download=True, transform=basic_transform)
-        test_data_raw = datasets.MNIST(data_path, train=False, download=True, transform=basic_transform)
-    except Exception as e:
-        logger.error(f"Failed to download or load MNIST data from {data_path}: {e}", exc_info=True)
-        raise
-
-    # Flatten images and convert labels
-    # Ensure data is float32 for sklearn compatibility initially
-    X_train = train_data_raw.data.view(len(train_data_raw), -1).numpy().astype(np.float32)
-    y_train = train_data_raw.targets.numpy()
-    X_test = test_data_raw.data.view(len(test_data_raw), -1).numpy().astype(np.float32)
-    y_test = test_data_raw.targets.numpy()
-
-    original_n_features = X_train.shape[1]
-    actual_n_features = original_n_features
-
-    # Apply StandardScaler (important for PCA and general ML)
-    logger.debug("Applying StandardScaler to MNIST features.")
-    scaler = StandardScaler()
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.transform(X_test) # Use transform only on test data
-
-    # Apply PCA if requested
-    if n_features is not None and 0 < n_features < original_n_features:
-        logger.info(f"Applying PCA to reduce features from {original_n_features} to {n_features}")
-        if n_features > original_n_features:
-             logger.warning(f"Requested n_features ({n_features}) > original ({original_n_features}). PCA cannot increase dimensions. Using original features.")
-        else:
-            pca = PCA(n_components=n_features, random_state=42)
-            X_train = pca.fit_transform(X_train)
-            X_test = pca.transform(X_test) # Use transform only on test data
-            actual_n_features = n_features
-            logger.info(f"PCA completed. Explained variance ratio sum: {pca.explained_variance_ratio_.sum():.4f}")
-    elif n_features is not None and n_features >= original_n_features:
-         logger.info(f"Requested n_features ({n_features}) >= original ({original_n_features}). Skipping PCA.")
+    if dataset_name == "iris":
+        data = load_iris()
+    elif dataset_name == "digits":
+        data = load_digits()
+    elif dataset_name == "breast_cancer":
+        data = load_breast_cancer()
     else:
-        logger.info(f"Using original {actual_n_features} features (PCA not requested).")
+        raise ValueError(f"Unsupported dataset_name: {dataset_name}")
 
+    X, y = data.data, data.target
+    n_classes = len(np.unique(y))
+    logger_data_utils.debug(f"Original data shape: X={X.shape}, y={y.shape}. Num classes: {n_classes}")
 
-    # Apply normalization to [-1, 1] range if requested
-    if normalize:
-         logger.info("Applying MinMaxScaler to scale features to [-1, 1] range.")
-         minmax_scaler = MinMaxScaler(feature_range=(-1, 1))
-         X_train = minmax_scaler.fit_transform(X_train)
-         X_test = minmax_scaler.transform(X_test) # Use transform only
+    if data_subset_size is not None and 0 < data_subset_size < len(X):
+        logger_data_utils.info(f"Subsampling dataset to {data_subset_size} total samples.")
+        indices = np.random.choice(len(X), data_subset_size, replace=False)
+        X, y = X[indices], y[indices]
+        logger_data_utils.debug(f"Subsampled data shape: X={X.shape}, y={y.shape}")
 
-    # Convert back to tensors - use float64 for Pennylane compatibility
-    X_train_tensor = torch.tensor(X_train, dtype=torch.float64)
+    X_train_orig, X_test_orig, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, random_state=random_state, stratify=y
+    )
+
+    if scaling_strategy == "standard":
+        scaler = StandardScaler()
+    elif scaling_strategy == "minmax":
+        scaler = MinMaxScaler(feature_range=(-1, 1)) # Common for quantum encodings
+    else: # None or other
+        scaler = None
+
+    if scaler:
+        X_train_scaled = scaler.fit_transform(X_train_orig)
+        X_test_scaled = scaler.transform(X_test_orig)
+    else:
+        X_train_scaled = X_train_orig.astype(np.float32) # Ensure consistent type if no scaling
+        X_test_scaled = X_test_orig.astype(np.float32)
+
+    X_train_final = X_train_scaled
+    X_test_final = X_test_scaled
+    num_features = X_train_final.shape[1]
+
+    if n_features_pca is not None and 0 < n_features_pca < num_features:
+        logger_data_utils.info(f"Applying PCA to reduce features to {n_features_pca}")
+        pca = PCA(n_components=n_features_pca, random_state=random_state)
+        X_train_final = pca.fit_transform(X_train_scaled)
+        X_test_final = pca.transform(X_test_scaled)
+        explained_variance = np.sum(pca.explained_variance_ratio_)
+        num_features = X_train_final.shape[1]
+        logger_data_utils.info(f"PCA applied. New feature count: {num_features}. Explained variance: {explained_variance:.4f}")
+
+    X_train_tensor = torch.tensor(X_train_final, dtype=tensor_dtype)
     y_train_tensor = torch.tensor(y_train, dtype=torch.long)
-    X_test_tensor = torch.tensor(X_test, dtype=torch.float64)
+    X_test_tensor = torch.tensor(X_test_final, dtype=tensor_dtype)
     y_test_tensor = torch.tensor(y_test, dtype=torch.long)
 
-    train_dataset = TensorDataset(X_train_tensor, y_train_tensor)
-    test_dataset = TensorDataset(X_test_tensor, y_test_tensor)
+    train_dataset = FederatedTensorDataset(X_train_tensor, y_train_tensor)
+    test_dataset = FederatedTensorDataset(X_test_tensor, y_test_tensor)
 
-    logger.info(f"MNIST data loaded. Train size: {len(train_dataset)}, Test size: {len(test_dataset)}, Features: {actual_n_features}")
-    return train_dataset, test_dataset, actual_n_features
-
-
-# --- Data Partitioning ---
-def partition_data(dataset: Dataset, num_clients: int, iid: bool = True, alpha: float = 0.5, seed: int = 42) -> List[Subset]:
-    """Partitions a dataset among clients (IID or Non-IID Dirichlet)."""
-    np.random.seed(seed)
-    num_samples = len(dataset)
-    indices = np.arange(num_samples)
-
-    if num_clients <= 0:
-         raise ValueError("Number of clients must be positive.")
-    if num_samples == 0:
-         logger.warning("Dataset is empty, returning empty subsets.")
-         return [Subset(dataset, []) for _ in range(num_clients)]
-
-    client_datasets = []
-
-    if iid:
-        logger.info(f"Partitioning data IID among {num_clients} clients.")
-        np.random.shuffle(indices) # Shuffle for IID split
-        split_indices = np.array_split(indices, num_clients)
-        # Ensure all indices are assigned even if not perfectly divisible
-        client_datasets = [Subset(dataset, idx.tolist()) for idx in split_indices if len(idx) > 0]
-        # If partitioning resulted in fewer subsets than clients (e.g., samples < clients)
-        while len(client_datasets) < num_clients:
-             logger.warning(f"Adding empty subset for client {len(client_datasets)} due to few samples.")
-             client_datasets.append(Subset(dataset, []))
-
-    else: # Non-IID Dirichlet distribution
-        logger.info(f"Partitioning data Non-IID (Dirichlet alpha={alpha}) among {num_clients} clients.")
-
-        # Extract targets efficiently
-        if isinstance(dataset, TensorDataset):
-            targets_np = dataset.tensors[1].numpy()
-        elif isinstance(dataset, Subset) and isinstance(dataset.dataset, TensorDataset):
-            targets_np = dataset.dataset.tensors[1][dataset.indices].numpy()
-        else:
-            logger.warning("Attempting to get targets by iterating dataset for Non-IID split (might be slow).")
-            try:
-                targets_np = np.array([dataset[i][1] for i in range(num_samples)])
-            except Exception as e:
-                logger.error(f"Failed to extract targets for Non-IID split: {e}. Cannot proceed with Non-IID.", exc_info=True)
-                raise ValueError("Could not extract targets for Non-IID split.") from e
-
-        num_classes = len(np.unique(targets_np))
-        if num_classes <= 1 and num_clients > 1:
-             logger.warning(f"Only {num_classes} class(es) found in data. Non-IID Dirichlet split might behave like IID.")
-
-        # Map targets to indices
-        indices_per_class = {cls: indices[targets_np[indices] == cls] for cls in range(num_classes)}
-        client_indices_map = {i: [] for i in range(num_clients)}
-
-        # Distribute indices for each class based on Dirichlet proportions
-        for cls in range(num_classes):
-            class_indices = indices_per_class.get(cls, np.array([]))
-            num_class_samples = len(class_indices)
-            if num_class_samples == 0: continue
-
-            # Ensure class indices are shuffled
-            np.random.shuffle(class_indices)
-
-            # Generate proportions for this class
-            try:
-                proportions = np.random.dirichlet([alpha] * num_clients)
-            except ValueError as e: # Handle alpha <= 0 case if needed
-                 logger.error(f"Invalid alpha value {alpha} for Dirichlet distribution: {e}")
-                 raise
-
-            target_samples_per_client = (proportions * num_class_samples).astype(int)
-            # Distribute remainder due to rounding
-            remainder = num_class_samples - target_samples_per_client.sum()
-            add_indices = np.random.choice(num_clients, size=remainder, replace=True) # Distribute randomly
-            for client_idx in add_indices: target_samples_per_client[client_idx] += 1
-
-            # Assign indices
-            current_idx = 0
-            for client_id in range(num_clients):
-                take = target_samples_per_client[client_id]
-                assigned_indices = class_indices[current_idx : current_idx + take]
-                client_indices_map[client_id].extend(assigned_indices)
-                current_idx += take
-
-        client_datasets = [Subset(dataset, client_indices_map[i]) for i in range(num_clients)]
-
-    # Log distribution summary
-    logger.info("Data partitioning complete.")
-    for i, d in enumerate(client_datasets): logger.debug(f"Client {i} final data size: {len(d)}")
-
-    return client_datasets
+    logger_data_utils.info(
+        f"Data preparation complete for '{dataset_name}'. Train size: {len(train_dataset)}, "
+        f"Test size: {len(test_dataset)}, Features: {num_features}, Classes: {n_classes}"
+    )
+    return train_dataset, test_dataset, num_features, n_classes
 
 
-# --- FederatedDataset Wrapper (Optional but can be useful) ---
-class FederatedDataset:
-    """ Helper class to manage partitioned datasets """
-    def __init__(self, base_dataset: Dataset, num_clients: int, iid: bool = True, alpha: float = 0.5, seed: int = 42):
-        self.base_dataset = base_dataset
-        self.num_clients = num_clients
-        self.client_datasets = partition_data(base_dataset, num_clients, iid, alpha, seed)
+# --- FederatedDataset (contains partitioning logic) ---
+# (This is the FederatedDataset class from src/federated/utils.py,
+# ensure it's correctly defined and imported in run_experiment.py or defined here if this is the sole utils file)
+# For now, I will assume it's imported correctly in run_experiment.py.
+# If you want to consolidate it here, copy the FederatedDataset class definition from
+# your `src/federated/utils.py` (the one with iid_partition and dirichlet_partition).
 
-    def get_client_dataset(self, client_id: int) -> Subset:
-        """ Returns the dataset for a specific client ID """
-        if 0 <= client_id < self.num_clients:
-            return self.client_datasets[client_id]
-        else:
-            raise IndexError(f"Client ID {client_id} out of range (0-{self.num_clients-1})")
+# --- Example Usage (for testing this file) ---
+if __name__ == '__main__':
+    # Setup basic logging for standalone testing
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+        handlers=[logging.StreamHandler(sys.stdout)]
+    )
 
-    def __len__(self):
-        return self.num_clients
+    print("--- Testing Iris ---")
+    train_ds_iris, test_ds_iris, n_feat_iris, n_class_iris = load_and_preprocess_data(
+        dataset_name="iris", n_features_pca=3, scaling_strategy="minmax", tensor_dtype=torch.float32
+    )
+    print(f"Iris: Train: {len(train_ds_iris)}, Test: {len(test_ds_iris)}, Feat: {n_feat_iris}, Class: {n_class_iris}\n")
 
-    def __getitem__(self, client_id: int):
-        return self.get_client_dataset(client_id)
+    print("--- Testing Digits ---")
+    train_ds_digits, test_ds_digits, n_feat_digits, n_class_digits = load_and_preprocess_data(
+        dataset_name="digits", n_features_pca=16, scaling_strategy="standard", tensor_dtype=torch.float64
+    )
+    print(f"Digits: Train: {len(train_ds_digits)}, Test: {len(test_ds_digits)}, Feat: {n_feat_digits}, Class: {n_class_digits}\n")
+
+    print("--- Testing Breast Cancer (PCA, subset, float32) ---")
+    train_ds_bc, test_ds_bc, n_feat_bc, n_class_bc = load_and_preprocess_data(
+        dataset_name="breast_cancer", n_features_pca=10, scaling_strategy="standard",
+        data_subset_size=300, tensor_dtype=torch.float32
+    )
+    print(f"Breast Cancer: Train: {len(train_ds_bc)}, Test: {len(test_ds_bc)}, Feat: {n_feat_bc}, Class: {n_class_bc}\n")
+
+    print("--- Testing Breast Cancer (No PCA, full, float64) ---")
+    train_ds_bc_full, test_ds_bc_full, n_feat_bc_full, n_class_bc_full = load_and_preprocess_data(
+        dataset_name="breast_cancer", n_features_pca=None, scaling_strategy="standard", tensor_dtype=torch.float64
+    )
+    print(f"Breast Cancer (Full): Train: {len(train_ds_bc_full)}, Test: {len(test_ds_bc_full)}, Feat: {n_feat_bc_full}, Class: {n_class_bc_full}\n")
+
+    # Test config loading (assuming a dummy config exists)
+    # Create a dummy configs/test_cfg.yaml if it doesn't exist for this test
+    # dummy_config_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'configs')
+    # os.makedirs(dummy_config_dir, exist_ok=True)
+    # with open(os.path.join(dummy_config_dir, 'test_cfg.yaml'), 'w') as f:
+    # f.write('key: value\n')
+    # try:
+    # cfg = load_config_from_utils("test_cfg.yaml")
+    # print(f"Loaded test config: {cfg}")
+    # except Exception as e:
+    # print(f"Could not test load_config_from_utils: {e}")
