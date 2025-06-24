@@ -1,0 +1,5057 @@
+[
+    {
+        "experiment_name": "Digits_NonIID_alpha0.3_FEDAVG",
+        "agg_strategy": "fedavg",
+        "dataset": "digits",
+        "partition": "dirichlet",
+        "alpha": 0.01,
+        "num_clients": 10,
+        "rounds": 50,
+        "local_epochs": 5,
+        "final_accuracy": 0.9277777777777778,
+        "final_loss": 0.34348922703001233,
+        "config_details": {
+            "model": {
+                "type": "mlp"
+            },
+            "data": {
+                "name": "digits",
+                "partition": "dirichlet",
+                "alpha": 0.01
+            },
+            "federated": {
+                "num_clients": 10,
+                "rounds": 50,
+                "local_epochs": 5,
+                "lr": 0.01
+            },
+            "name": "Digits_NonIID_alpha0.3_FEDAVG",
+            "aggregation": {
+                "type": "fedavg"
+            }
+        },
+        "round_history": [
+            {
+                "round": 1,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_4",
+                    "client_6",
+                    "client_7",
+                    "client_0",
+                    "client_5",
+                    "client_9",
+                    "client_2"
+                ],
+                "client_samples": [
+                    1395,
+                    680,
+                    1440,
+                    2110,
+                    105,
+                    680,
+                    715,
+                    60
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5604462623596191,
+                "evaluation_metrics": {
+                    "loss": 2.32013341055976,
+                    "accuracy": 0.3527777777777778
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 2,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_9",
+                    "client_2",
+                    "client_5",
+                    "client_6",
+                    "client_7",
+                    "client_4",
+                    "client_0"
+                ],
+                "client_samples": [
+                    1395,
+                    715,
+                    60,
+                    680,
+                    1440,
+                    2110,
+                    680,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.47129058837890625,
+                "evaluation_metrics": {
+                    "loss": 1.178636482026842,
+                    "accuracy": 0.6777777777777778
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 3,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_0",
+                    "client_6",
+                    "client_9",
+                    "client_1",
+                    "client_4",
+                    "client_2",
+                    "client_5"
+                ],
+                "client_samples": [
+                    2110,
+                    105,
+                    1440,
+                    715,
+                    1395,
+                    680,
+                    60,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5068764686584473,
+                "evaluation_metrics": {
+                    "loss": 4.40864159266154,
+                    "accuracy": 0.3333333333333333
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 4,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_2",
+                    "client_4",
+                    "client_6",
+                    "client_5",
+                    "client_9",
+                    "client_0",
+                    "client_1"
+                ],
+                "client_samples": [
+                    2110,
+                    60,
+                    680,
+                    1440,
+                    680,
+                    715,
+                    105,
+                    1395
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5096485614776611,
+                "evaluation_metrics": {
+                    "loss": 2.3410161972045898,
+                    "accuracy": 0.4027777777777778
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 5,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_2",
+                    "client_6",
+                    "client_9",
+                    "client_5",
+                    "client_0",
+                    "client_1",
+                    "client_4"
+                ],
+                "client_samples": [
+                    2110,
+                    60,
+                    1440,
+                    715,
+                    680,
+                    105,
+                    1395,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.506742000579834,
+                "evaluation_metrics": {
+                    "loss": 3.2386727544996474,
+                    "accuracy": 0.4305555555555556
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 6,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_7",
+                    "client_0",
+                    "client_6",
+                    "client_4",
+                    "client_5",
+                    "client_9",
+                    "client_2"
+                ],
+                "client_samples": [
+                    1395,
+                    2110,
+                    105,
+                    1440,
+                    680,
+                    680,
+                    715,
+                    60
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.4959259033203125,
+                "evaluation_metrics": {
+                    "loss": 1.3526047203275893,
+                    "accuracy": 0.4888888888888889
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 7,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_5",
+                    "client_7",
+                    "client_6",
+                    "client_2",
+                    "client_4",
+                    "client_9",
+                    "client_1"
+                ],
+                "client_samples": [
+                    105,
+                    680,
+                    2110,
+                    1440,
+                    60,
+                    680,
+                    715,
+                    1395
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5081799030303955,
+                "evaluation_metrics": {
+                    "loss": 1.8129417896270752,
+                    "accuracy": 0.6305555555555555
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 8,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_7",
+                    "client_9",
+                    "client_4",
+                    "client_0",
+                    "client_1",
+                    "client_2",
+                    "client_5"
+                ],
+                "client_samples": [
+                    1440,
+                    2110,
+                    715,
+                    680,
+                    105,
+                    1395,
+                    60,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5050628185272217,
+                "evaluation_metrics": {
+                    "loss": 1.3637905094358656,
+                    "accuracy": 0.5972222222222222
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 9,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_5",
+                    "client_7",
+                    "client_9",
+                    "client_6",
+                    "client_2",
+                    "client_4",
+                    "client_0"
+                ],
+                "client_samples": [
+                    1395,
+                    680,
+                    2110,
+                    715,
+                    1440,
+                    60,
+                    680,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5202760696411133,
+                "evaluation_metrics": {
+                    "loss": 1.3331859880023533,
+                    "accuracy": 0.6055555555555555
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 10,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_2",
+                    "client_5",
+                    "client_7",
+                    "client_0",
+                    "client_9",
+                    "client_4",
+                    "client_6"
+                ],
+                "client_samples": [
+                    1395,
+                    60,
+                    680,
+                    2110,
+                    105,
+                    715,
+                    680,
+                    1440
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5081608295440674,
+                "evaluation_metrics": {
+                    "loss": 0.9417809433407254,
+                    "accuracy": 0.6611111111111111
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 11,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_5",
+                    "client_6",
+                    "client_2",
+                    "client_9",
+                    "client_4",
+                    "client_1",
+                    "client_7"
+                ],
+                "client_samples": [
+                    105,
+                    680,
+                    1440,
+                    60,
+                    715,
+                    680,
+                    1395,
+                    2110
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5119895935058594,
+                "evaluation_metrics": {
+                    "loss": 0.6325642267862955,
+                    "accuracy": 0.7777777777777778
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 12,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_2",
+                    "client_0",
+                    "client_1",
+                    "client_5",
+                    "client_7",
+                    "client_4",
+                    "client_9"
+                ],
+                "client_samples": [
+                    1440,
+                    60,
+                    105,
+                    1395,
+                    680,
+                    2110,
+                    680,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5169899463653564,
+                "evaluation_metrics": {
+                    "loss": 0.4871400078137716,
+                    "accuracy": 0.8805555555555555
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 13,
+                "status": "success",
+                "participating_clients": [
+                    "client_2",
+                    "client_6",
+                    "client_7",
+                    "client_0",
+                    "client_5",
+                    "client_9",
+                    "client_4",
+                    "client_1"
+                ],
+                "client_samples": [
+                    60,
+                    1440,
+                    2110,
+                    105,
+                    680,
+                    715,
+                    680,
+                    1395
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5023746490478516,
+                "evaluation_metrics": {
+                    "loss": 0.5879724250899421,
+                    "accuracy": 0.8222222222222222
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 14,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_4",
+                    "client_2",
+                    "client_1",
+                    "client_6",
+                    "client_5",
+                    "client_9",
+                    "client_0"
+                ],
+                "client_samples": [
+                    2110,
+                    680,
+                    60,
+                    1395,
+                    1440,
+                    680,
+                    715,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5170371532440186,
+                "evaluation_metrics": {
+                    "loss": 0.8450543125470479,
+                    "accuracy": 0.7611111111111111
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 15,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_1",
+                    "client_7",
+                    "client_5",
+                    "client_9",
+                    "client_2",
+                    "client_4",
+                    "client_6"
+                ],
+                "client_samples": [
+                    105,
+                    1395,
+                    2110,
+                    680,
+                    715,
+                    60,
+                    680,
+                    1440
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5012607574462891,
+                "evaluation_metrics": {
+                    "loss": 1.7905612839592828,
+                    "accuracy": 0.7555555555555555
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 16,
+                "status": "success",
+                "participating_clients": [
+                    "client_9",
+                    "client_6",
+                    "client_4",
+                    "client_7",
+                    "client_5",
+                    "client_1",
+                    "client_2",
+                    "client_0"
+                ],
+                "client_samples": [
+                    715,
+                    1440,
+                    680,
+                    2110,
+                    680,
+                    1395,
+                    60,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5040040016174316,
+                "evaluation_metrics": {
+                    "loss": 0.5926917314529419,
+                    "accuracy": 0.8111111111111111
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 17,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_2",
+                    "client_4",
+                    "client_0",
+                    "client_7",
+                    "client_6",
+                    "client_9",
+                    "client_5"
+                ],
+                "client_samples": [
+                    1395,
+                    60,
+                    680,
+                    105,
+                    2110,
+                    1440,
+                    715,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5220050811767578,
+                "evaluation_metrics": {
+                    "loss": 1.5232832272847494,
+                    "accuracy": 0.675
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 18,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_1",
+                    "client_4",
+                    "client_5",
+                    "client_9",
+                    "client_6",
+                    "client_2",
+                    "client_7"
+                ],
+                "client_samples": [
+                    105,
+                    1395,
+                    680,
+                    680,
+                    715,
+                    1440,
+                    60,
+                    2110
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.50437331199646,
+                "evaluation_metrics": {
+                    "loss": 1.0964940653906927,
+                    "accuracy": 0.7777777777777778
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 19,
+                "status": "success",
+                "participating_clients": [
+                    "client_4",
+                    "client_7",
+                    "client_1",
+                    "client_2",
+                    "client_5",
+                    "client_6",
+                    "client_0",
+                    "client_9"
+                ],
+                "client_samples": [
+                    680,
+                    2110,
+                    1395,
+                    60,
+                    680,
+                    1440,
+                    105,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5084822177886963,
+                "evaluation_metrics": {
+                    "loss": 2.5109727329678004,
+                    "accuracy": 0.49722222222222223
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 20,
+                "status": "success",
+                "participating_clients": [
+                    "client_9",
+                    "client_6",
+                    "client_4",
+                    "client_1",
+                    "client_5",
+                    "client_7",
+                    "client_0",
+                    "client_2"
+                ],
+                "client_samples": [
+                    715,
+                    1440,
+                    680,
+                    1395,
+                    680,
+                    2110,
+                    105,
+                    60
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5038366317749023,
+                "evaluation_metrics": {
+                    "loss": 2.219401248296102,
+                    "accuracy": 0.6611111111111111
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 21,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_4",
+                    "client_6",
+                    "client_0",
+                    "client_7",
+                    "client_5",
+                    "client_9",
+                    "client_2"
+                ],
+                "client_samples": [
+                    1395,
+                    680,
+                    1440,
+                    105,
+                    2110,
+                    680,
+                    715,
+                    60
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5398297309875488,
+                "evaluation_metrics": {
+                    "loss": 2.154129049513075,
+                    "accuracy": 0.5972222222222222
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 22,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_5",
+                    "client_4",
+                    "client_7",
+                    "client_9",
+                    "client_2",
+                    "client_1",
+                    "client_0"
+                ],
+                "client_samples": [
+                    1440,
+                    680,
+                    680,
+                    2110,
+                    715,
+                    60,
+                    1395,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5139038562774658,
+                "evaluation_metrics": {
+                    "loss": 0.9916927880711026,
+                    "accuracy": 0.7972222222222223
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 23,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_4",
+                    "client_0",
+                    "client_2",
+                    "client_9",
+                    "client_5",
+                    "client_7",
+                    "client_6"
+                ],
+                "client_samples": [
+                    1395,
+                    680,
+                    105,
+                    60,
+                    715,
+                    680,
+                    2110,
+                    1440
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5233511924743652,
+                "evaluation_metrics": {
+                    "loss": 0.9719840632544623,
+                    "accuracy": 0.7833333333333333
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 24,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_4",
+                    "client_0",
+                    "client_9",
+                    "client_7",
+                    "client_2",
+                    "client_5",
+                    "client_6"
+                ],
+                "client_samples": [
+                    1395,
+                    680,
+                    105,
+                    715,
+                    2110,
+                    60,
+                    680,
+                    1440
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5186920166015625,
+                "evaluation_metrics": {
+                    "loss": 0.490244679318534,
+                    "accuracy": 0.9222222222222223
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 25,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_9",
+                    "client_2",
+                    "client_6",
+                    "client_1",
+                    "client_4",
+                    "client_0",
+                    "client_5"
+                ],
+                "client_samples": [
+                    2110,
+                    715,
+                    60,
+                    1440,
+                    1395,
+                    680,
+                    105,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5397560596466064,
+                "evaluation_metrics": {
+                    "loss": 0.9337296022309197,
+                    "accuracy": 0.85
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 26,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_5",
+                    "client_7",
+                    "client_9",
+                    "client_2",
+                    "client_6",
+                    "client_0",
+                    "client_4"
+                ],
+                "client_samples": [
+                    1395,
+                    680,
+                    2110,
+                    715,
+                    60,
+                    1440,
+                    105,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5306329727172852,
+                "evaluation_metrics": {
+                    "loss": 0.4907243526644177,
+                    "accuracy": 0.9388888888888889
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 27,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_9",
+                    "client_2",
+                    "client_7",
+                    "client_5",
+                    "client_6",
+                    "client_0",
+                    "client_4"
+                ],
+                "client_samples": [
+                    1395,
+                    715,
+                    60,
+                    2110,
+                    680,
+                    1440,
+                    105,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5311148166656494,
+                "evaluation_metrics": {
+                    "loss": 0.5027759071853426,
+                    "accuracy": 0.9305555555555556
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 28,
+                "status": "success",
+                "participating_clients": [
+                    "client_2",
+                    "client_7",
+                    "client_6",
+                    "client_4",
+                    "client_5",
+                    "client_9",
+                    "client_1",
+                    "client_0"
+                ],
+                "client_samples": [
+                    60,
+                    2110,
+                    1440,
+                    680,
+                    680,
+                    715,
+                    1395,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5278337001800537,
+                "evaluation_metrics": {
+                    "loss": 0.5266625596417321,
+                    "accuracy": 0.9361111111111111
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 29,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_1",
+                    "client_4",
+                    "client_0",
+                    "client_9",
+                    "client_7",
+                    "client_2",
+                    "client_5"
+                ],
+                "client_samples": [
+                    1440,
+                    1395,
+                    680,
+                    105,
+                    715,
+                    2110,
+                    60,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5533990859985352,
+                "evaluation_metrics": {
+                    "loss": 0.4661310189300113,
+                    "accuracy": 0.95
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 30,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_2",
+                    "client_5",
+                    "client_9",
+                    "client_7",
+                    "client_1",
+                    "client_4",
+                    "client_6"
+                ],
+                "client_samples": [
+                    105,
+                    60,
+                    680,
+                    715,
+                    2110,
+                    1395,
+                    680,
+                    1440
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5529642105102539,
+                "evaluation_metrics": {
+                    "loss": 0.4856062051322725,
+                    "accuracy": 0.9444444444444444
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 31,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_2",
+                    "client_7",
+                    "client_9",
+                    "client_5",
+                    "client_6",
+                    "client_1",
+                    "client_4"
+                ],
+                "client_samples": [
+                    105,
+                    60,
+                    2110,
+                    715,
+                    680,
+                    1440,
+                    1395,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5558803081512451,
+                "evaluation_metrics": {
+                    "loss": 0.46132723175817064,
+                    "accuracy": 0.9583333333333334
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 32,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_4",
+                    "client_5",
+                    "client_1",
+                    "client_2",
+                    "client_7",
+                    "client_6",
+                    "client_9"
+                ],
+                "client_samples": [
+                    105,
+                    680,
+                    680,
+                    1395,
+                    60,
+                    2110,
+                    1440,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.540877103805542,
+                "evaluation_metrics": {
+                    "loss": 0.48710575501124065,
+                    "accuracy": 0.9444444444444444
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 33,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_4",
+                    "client_9",
+                    "client_2",
+                    "client_6",
+                    "client_5",
+                    "client_7",
+                    "client_1"
+                ],
+                "client_samples": [
+                    105,
+                    680,
+                    715,
+                    60,
+                    1440,
+                    680,
+                    2110,
+                    1395
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5583856105804443,
+                "evaluation_metrics": {
+                    "loss": 0.4465600644548734,
+                    "accuracy": 0.9611111111111111
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 34,
+                "status": "success",
+                "participating_clients": [
+                    "client_4",
+                    "client_6",
+                    "client_9",
+                    "client_7",
+                    "client_1",
+                    "client_5",
+                    "client_2",
+                    "client_0"
+                ],
+                "client_samples": [
+                    680,
+                    1440,
+                    715,
+                    2110,
+                    1395,
+                    680,
+                    60,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5347723960876465,
+                "evaluation_metrics": {
+                    "loss": 0.4669125947687361,
+                    "accuracy": 0.9472222222222222
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 35,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_4",
+                    "client_2",
+                    "client_5",
+                    "client_0",
+                    "client_6",
+                    "client_1",
+                    "client_9"
+                ],
+                "client_samples": [
+                    2110,
+                    680,
+                    60,
+                    680,
+                    105,
+                    1440,
+                    1395,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5527122020721436,
+                "evaluation_metrics": {
+                    "loss": 0.3712417537967364,
+                    "accuracy": 0.9611111111111111
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 36,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_0",
+                    "client_5",
+                    "client_4",
+                    "client_2",
+                    "client_1",
+                    "client_7",
+                    "client_9"
+                ],
+                "client_samples": [
+                    1440,
+                    105,
+                    680,
+                    680,
+                    60,
+                    1395,
+                    2110,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5397188663482666,
+                "evaluation_metrics": {
+                    "loss": 0.46098650495211285,
+                    "accuracy": 0.9416666666666667
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 37,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_5",
+                    "client_6",
+                    "client_9",
+                    "client_2",
+                    "client_7",
+                    "client_4",
+                    "client_0"
+                ],
+                "client_samples": [
+                    1395,
+                    680,
+                    1440,
+                    715,
+                    60,
+                    2110,
+                    680,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5526666641235352,
+                "evaluation_metrics": {
+                    "loss": 0.34030914223856396,
+                    "accuracy": 0.9638888888888889
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 38,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_2",
+                    "client_5",
+                    "client_4",
+                    "client_7",
+                    "client_0",
+                    "client_6",
+                    "client_9"
+                ],
+                "client_samples": [
+                    1395,
+                    60,
+                    680,
+                    680,
+                    2110,
+                    105,
+                    1440,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5435764789581299,
+                "evaluation_metrics": {
+                    "loss": 0.5694928871260749,
+                    "accuracy": 0.9027777777777778
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 39,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_0",
+                    "client_2",
+                    "client_9",
+                    "client_1",
+                    "client_7",
+                    "client_4",
+                    "client_5"
+                ],
+                "client_samples": [
+                    1440,
+                    105,
+                    60,
+                    715,
+                    1395,
+                    2110,
+                    680,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5384194850921631,
+                "evaluation_metrics": {
+                    "loss": 0.3209398401280244,
+                    "accuracy": 0.9611111111111111
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 40,
+                "status": "success",
+                "participating_clients": [
+                    "client_4",
+                    "client_1",
+                    "client_7",
+                    "client_6",
+                    "client_0",
+                    "client_5",
+                    "client_9",
+                    "client_2"
+                ],
+                "client_samples": [
+                    680,
+                    1395,
+                    2110,
+                    1440,
+                    105,
+                    680,
+                    715,
+                    60
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5435492992401123,
+                "evaluation_metrics": {
+                    "loss": 1.5193200482262506,
+                    "accuracy": 0.8
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 41,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_7",
+                    "client_5",
+                    "client_1",
+                    "client_4",
+                    "client_0",
+                    "client_2",
+                    "client_9"
+                ],
+                "client_samples": [
+                    1440,
+                    2110,
+                    680,
+                    1395,
+                    680,
+                    105,
+                    60,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5543313026428223,
+                "evaluation_metrics": {
+                    "loss": 1.988872644636366,
+                    "accuracy": 0.7916666666666666
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 42,
+                "status": "success",
+                "participating_clients": [
+                    "client_2",
+                    "client_6",
+                    "client_4",
+                    "client_0",
+                    "client_7",
+                    "client_1",
+                    "client_5",
+                    "client_9"
+                ],
+                "client_samples": [
+                    60,
+                    1440,
+                    680,
+                    105,
+                    2110,
+                    1395,
+                    680,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5392277240753174,
+                "evaluation_metrics": {
+                    "loss": 1.3498203860388862,
+                    "accuracy": 0.7416666666666667
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 43,
+                "status": "success",
+                "participating_clients": [
+                    "client_5",
+                    "client_7",
+                    "client_6",
+                    "client_4",
+                    "client_1",
+                    "client_2",
+                    "client_0",
+                    "client_9"
+                ],
+                "client_samples": [
+                    680,
+                    2110,
+                    1440,
+                    680,
+                    1395,
+                    60,
+                    105,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5257456302642822,
+                "evaluation_metrics": {
+                    "loss": 3.6358965343899197,
+                    "accuracy": 0.6777777777777778
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 44,
+                "status": "success",
+                "participating_clients": [
+                    "client_9",
+                    "client_7",
+                    "client_1",
+                    "client_2",
+                    "client_4",
+                    "client_6",
+                    "client_5",
+                    "client_0"
+                ],
+                "client_samples": [
+                    715,
+                    2110,
+                    1395,
+                    60,
+                    680,
+                    1440,
+                    680,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5524604320526123,
+                "evaluation_metrics": {
+                    "loss": 7.09036430782742,
+                    "accuracy": 0.49166666666666664
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 45,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_1",
+                    "client_9",
+                    "client_5",
+                    "client_6",
+                    "client_4",
+                    "client_0",
+                    "client_2"
+                ],
+                "client_samples": [
+                    2110,
+                    1395,
+                    715,
+                    680,
+                    1440,
+                    680,
+                    105,
+                    60
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.565772294998169,
+                "evaluation_metrics": {
+                    "loss": 3.7865616586473254,
+                    "accuracy": 0.6027777777777777
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 46,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_5",
+                    "client_0",
+                    "client_7",
+                    "client_9",
+                    "client_1",
+                    "client_4",
+                    "client_2"
+                ],
+                "client_samples": [
+                    1440,
+                    680,
+                    105,
+                    2110,
+                    715,
+                    1395,
+                    680,
+                    60
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.564781665802002,
+                "evaluation_metrics": {
+                    "loss": 1.187115556663937,
+                    "accuracy": 0.6916666666666667
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 47,
+                "status": "success",
+                "participating_clients": [
+                    "client_5",
+                    "client_4",
+                    "client_9",
+                    "client_1",
+                    "client_7",
+                    "client_0",
+                    "client_2",
+                    "client_6"
+                ],
+                "client_samples": [
+                    680,
+                    680,
+                    715,
+                    1395,
+                    2110,
+                    105,
+                    60,
+                    1440
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5433738231658936,
+                "evaluation_metrics": {
+                    "loss": 0.8641232305102878,
+                    "accuracy": 0.7861111111111111
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 48,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_0",
+                    "client_4",
+                    "client_7",
+                    "client_9",
+                    "client_2",
+                    "client_1",
+                    "client_5"
+                ],
+                "client_samples": [
+                    1440,
+                    105,
+                    680,
+                    2110,
+                    715,
+                    60,
+                    1395,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.558997631072998,
+                "evaluation_metrics": {
+                    "loss": 0.8653480331103007,
+                    "accuracy": 0.8083333333333333
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 49,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_0",
+                    "client_2",
+                    "client_1",
+                    "client_9",
+                    "client_5",
+                    "client_4",
+                    "client_6"
+                ],
+                "client_samples": [
+                    2110,
+                    105,
+                    60,
+                    1395,
+                    715,
+                    680,
+                    680,
+                    1440
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5432436466217041,
+                "evaluation_metrics": {
+                    "loss": 0.4805409848690033,
+                    "accuracy": 0.8833333333333333
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 50,
+                "status": "success",
+                "participating_clients": [
+                    "client_2",
+                    "client_1",
+                    "client_0",
+                    "client_9",
+                    "client_4",
+                    "client_5",
+                    "client_6",
+                    "client_7"
+                ],
+                "client_samples": [
+                    60,
+                    1395,
+                    105,
+                    715,
+                    680,
+                    680,
+                    1440,
+                    2110
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.5408616065979004,
+                "evaluation_metrics": {
+                    "loss": 0.34348922703001233,
+                    "accuracy": 0.9277777777777778
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            }
+        ]
+    },
+    {
+        "experiment_name": "Digits_NonIID_alpha0.3_FEDPROX",
+        "agg_strategy": "fedprox",
+        "dataset": "digits",
+        "partition": "dirichlet",
+        "alpha": 0.01,
+        "num_clients": 10,
+        "rounds": 50,
+        "local_epochs": 5,
+        "final_accuracy": 0.95,
+        "final_loss": 0.19436512771579956,
+        "config_details": {
+            "model": {
+                "type": "mlp"
+            },
+            "data": {
+                "name": "digits",
+                "partition": "dirichlet",
+                "alpha": 0.01
+            },
+            "federated": {
+                "num_clients": 10,
+                "rounds": 50,
+                "local_epochs": 5,
+                "lr": 0.01
+            },
+            "name": "Digits_NonIID_alpha0.3_FEDPROX",
+            "aggregation": {
+                "type": "fedprox",
+                "mu": 0.01
+            }
+        },
+        "round_history": [
+            {
+                "round": 1,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_4",
+                    "client_6",
+                    "client_7",
+                    "client_0",
+                    "client_5",
+                    "client_9",
+                    "client_2"
+                ],
+                "client_samples": [
+                    1395,
+                    680,
+                    1440,
+                    2110,
+                    105,
+                    680,
+                    715,
+                    60
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.9621031284332275,
+                "evaluation_metrics": {
+                    "loss": 1.9273450162675645,
+                    "accuracy": 0.23333333333333334
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 2,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_9",
+                    "client_2",
+                    "client_5",
+                    "client_6",
+                    "client_7",
+                    "client_4",
+                    "client_0"
+                ],
+                "client_samples": [
+                    1395,
+                    715,
+                    60,
+                    680,
+                    1440,
+                    2110,
+                    680,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.9506189823150635,
+                "evaluation_metrics": {
+                    "loss": 1.3802042113410102,
+                    "accuracy": 0.575
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 3,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_0",
+                    "client_6",
+                    "client_9",
+                    "client_1",
+                    "client_4",
+                    "client_2",
+                    "client_5"
+                ],
+                "client_samples": [
+                    2110,
+                    105,
+                    1440,
+                    715,
+                    1395,
+                    680,
+                    60,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.9201819896697998,
+                "evaluation_metrics": {
+                    "loss": 0.9041120992766486,
+                    "accuracy": 0.7694444444444445
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 4,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_2",
+                    "client_4",
+                    "client_6",
+                    "client_5",
+                    "client_9",
+                    "client_0",
+                    "client_1"
+                ],
+                "client_samples": [
+                    2110,
+                    60,
+                    680,
+                    1440,
+                    680,
+                    715,
+                    105,
+                    1395
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.8769702911376953,
+                "evaluation_metrics": {
+                    "loss": 0.7983524190054999,
+                    "accuracy": 0.7916666666666666
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 5,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_2",
+                    "client_6",
+                    "client_9",
+                    "client_5",
+                    "client_0",
+                    "client_1",
+                    "client_4"
+                ],
+                "client_samples": [
+                    2110,
+                    60,
+                    1440,
+                    715,
+                    680,
+                    105,
+                    1395,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.9228823184967041,
+                "evaluation_metrics": {
+                    "loss": 0.6265870147281223,
+                    "accuracy": 0.775
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 6,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_7",
+                    "client_0",
+                    "client_6",
+                    "client_4",
+                    "client_5",
+                    "client_9",
+                    "client_2"
+                ],
+                "client_samples": [
+                    1395,
+                    2110,
+                    105,
+                    1440,
+                    680,
+                    680,
+                    715,
+                    60
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 3.8774282932281494,
+                "evaluation_metrics": {
+                    "loss": 0.7273840241962009,
+                    "accuracy": 0.7694444444444445
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 7,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_5",
+                    "client_7",
+                    "client_6",
+                    "client_2",
+                    "client_4",
+                    "client_9",
+                    "client_1"
+                ],
+                "client_samples": [
+                    105,
+                    680,
+                    2110,
+                    1440,
+                    60,
+                    680,
+                    715,
+                    1395
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.8934664726257324,
+                "evaluation_metrics": {
+                    "loss": 1.0922140571806165,
+                    "accuracy": 0.675
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 8,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_7",
+                    "client_9",
+                    "client_4",
+                    "client_0",
+                    "client_1",
+                    "client_2",
+                    "client_5"
+                ],
+                "client_samples": [
+                    1440,
+                    2110,
+                    715,
+                    680,
+                    105,
+                    1395,
+                    60,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.9611077308654785,
+                "evaluation_metrics": {
+                    "loss": 0.8785115175777012,
+                    "accuracy": 0.7277777777777777
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 9,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_5",
+                    "client_7",
+                    "client_9",
+                    "client_6",
+                    "client_2",
+                    "client_4",
+                    "client_0"
+                ],
+                "client_samples": [
+                    1395,
+                    680,
+                    2110,
+                    715,
+                    1440,
+                    60,
+                    680,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.9550309181213379,
+                "evaluation_metrics": {
+                    "loss": 1.1914626916249593,
+                    "accuracy": 0.6972222222222222
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 10,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_2",
+                    "client_5",
+                    "client_7",
+                    "client_0",
+                    "client_9",
+                    "client_4",
+                    "client_6"
+                ],
+                "client_samples": [
+                    1395,
+                    60,
+                    680,
+                    2110,
+                    105,
+                    715,
+                    680,
+                    1440
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.9405410289764404,
+                "evaluation_metrics": {
+                    "loss": 0.777933206823137,
+                    "accuracy": 0.7805555555555556
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 11,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_5",
+                    "client_6",
+                    "client_2",
+                    "client_9",
+                    "client_4",
+                    "client_1",
+                    "client_7"
+                ],
+                "client_samples": [
+                    105,
+                    680,
+                    1440,
+                    60,
+                    715,
+                    680,
+                    1395,
+                    2110
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.9362564086914062,
+                "evaluation_metrics": {
+                    "loss": 0.5804483440187242,
+                    "accuracy": 0.8111111111111111
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 12,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_2",
+                    "client_0",
+                    "client_1",
+                    "client_5",
+                    "client_7",
+                    "client_4",
+                    "client_9"
+                ],
+                "client_samples": [
+                    1440,
+                    60,
+                    105,
+                    1395,
+                    680,
+                    2110,
+                    680,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.969243049621582,
+                "evaluation_metrics": {
+                    "loss": 0.33162106408013237,
+                    "accuracy": 0.8972222222222223
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 13,
+                "status": "success",
+                "participating_clients": [
+                    "client_2",
+                    "client_6",
+                    "client_7",
+                    "client_0",
+                    "client_5",
+                    "client_9",
+                    "client_4",
+                    "client_1"
+                ],
+                "client_samples": [
+                    60,
+                    1440,
+                    2110,
+                    105,
+                    680,
+                    715,
+                    680,
+                    1395
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.262035608291626,
+                "evaluation_metrics": {
+                    "loss": 0.26766025291548834,
+                    "accuracy": 0.9305555555555556
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 14,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_4",
+                    "client_2",
+                    "client_1",
+                    "client_6",
+                    "client_5",
+                    "client_9",
+                    "client_0"
+                ],
+                "client_samples": [
+                    2110,
+                    680,
+                    60,
+                    1395,
+                    1440,
+                    680,
+                    715,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.2668201923370361,
+                "evaluation_metrics": {
+                    "loss": 0.23100579645898606,
+                    "accuracy": 0.9416666666666667
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 15,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_1",
+                    "client_7",
+                    "client_5",
+                    "client_9",
+                    "client_2",
+                    "client_4",
+                    "client_6"
+                ],
+                "client_samples": [
+                    105,
+                    1395,
+                    2110,
+                    680,
+                    715,
+                    60,
+                    680,
+                    1440
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.2400319576263428,
+                "evaluation_metrics": {
+                    "loss": 0.1975912872287962,
+                    "accuracy": 0.9388888888888889
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 16,
+                "status": "success",
+                "participating_clients": [
+                    "client_9",
+                    "client_6",
+                    "client_4",
+                    "client_7",
+                    "client_5",
+                    "client_1",
+                    "client_2",
+                    "client_0"
+                ],
+                "client_samples": [
+                    715,
+                    1440,
+                    680,
+                    2110,
+                    680,
+                    1395,
+                    60,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.1914515495300293,
+                "evaluation_metrics": {
+                    "loss": 0.21673519280221726,
+                    "accuracy": 0.9333333333333333
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 17,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_2",
+                    "client_4",
+                    "client_0",
+                    "client_7",
+                    "client_6",
+                    "client_9",
+                    "client_5"
+                ],
+                "client_samples": [
+                    1395,
+                    60,
+                    680,
+                    105,
+                    2110,
+                    1440,
+                    715,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.1810662746429443,
+                "evaluation_metrics": {
+                    "loss": 0.21254662838247088,
+                    "accuracy": 0.9333333333333333
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 18,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_1",
+                    "client_4",
+                    "client_5",
+                    "client_9",
+                    "client_6",
+                    "client_2",
+                    "client_7"
+                ],
+                "client_samples": [
+                    105,
+                    1395,
+                    680,
+                    680,
+                    715,
+                    1440,
+                    60,
+                    2110
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.1497135162353516,
+                "evaluation_metrics": {
+                    "loss": 0.2073665032784144,
+                    "accuracy": 0.95
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 19,
+                "status": "success",
+                "participating_clients": [
+                    "client_4",
+                    "client_7",
+                    "client_1",
+                    "client_2",
+                    "client_5",
+                    "client_6",
+                    "client_0",
+                    "client_9"
+                ],
+                "client_samples": [
+                    680,
+                    2110,
+                    1395,
+                    60,
+                    680,
+                    1440,
+                    105,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.1886224746704102,
+                "evaluation_metrics": {
+                    "loss": 0.4563642190562354,
+                    "accuracy": 0.8388888888888889
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 20,
+                "status": "success",
+                "participating_clients": [
+                    "client_9",
+                    "client_6",
+                    "client_4",
+                    "client_1",
+                    "client_5",
+                    "client_7",
+                    "client_0",
+                    "client_2"
+                ],
+                "client_samples": [
+                    715,
+                    1440,
+                    680,
+                    1395,
+                    680,
+                    2110,
+                    105,
+                    60
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.127638816833496,
+                "evaluation_metrics": {
+                    "loss": 0.31431982583469814,
+                    "accuracy": 0.8944444444444445
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 21,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_4",
+                    "client_6",
+                    "client_0",
+                    "client_7",
+                    "client_5",
+                    "client_9",
+                    "client_2"
+                ],
+                "client_samples": [
+                    1395,
+                    680,
+                    1440,
+                    105,
+                    2110,
+                    680,
+                    715,
+                    60
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.29349946975708,
+                "evaluation_metrics": {
+                    "loss": 0.782819128036499,
+                    "accuracy": 0.7638888888888888
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 22,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_5",
+                    "client_4",
+                    "client_7",
+                    "client_9",
+                    "client_2",
+                    "client_1",
+                    "client_0"
+                ],
+                "client_samples": [
+                    1440,
+                    680,
+                    680,
+                    2110,
+                    715,
+                    60,
+                    1395,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.2253808975219727,
+                "evaluation_metrics": {
+                    "loss": 0.3856161574522654,
+                    "accuracy": 0.9
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 23,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_4",
+                    "client_0",
+                    "client_2",
+                    "client_9",
+                    "client_5",
+                    "client_7",
+                    "client_6"
+                ],
+                "client_samples": [
+                    1395,
+                    680,
+                    105,
+                    60,
+                    715,
+                    680,
+                    2110,
+                    1440
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.2699429988861084,
+                "evaluation_metrics": {
+                    "loss": 1.3091588735580444,
+                    "accuracy": 0.6722222222222223
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 24,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_4",
+                    "client_0",
+                    "client_9",
+                    "client_7",
+                    "client_2",
+                    "client_5",
+                    "client_6"
+                ],
+                "client_samples": [
+                    1395,
+                    680,
+                    105,
+                    715,
+                    2110,
+                    60,
+                    680,
+                    1440
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.2390451431274414,
+                "evaluation_metrics": {
+                    "loss": 0.6940182659361097,
+                    "accuracy": 0.7722222222222223
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 25,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_9",
+                    "client_2",
+                    "client_6",
+                    "client_1",
+                    "client_4",
+                    "client_0",
+                    "client_5"
+                ],
+                "client_samples": [
+                    2110,
+                    715,
+                    60,
+                    1440,
+                    1395,
+                    680,
+                    105,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.2283217906951904,
+                "evaluation_metrics": {
+                    "loss": 1.2282530042860242,
+                    "accuracy": 0.6944444444444444
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 26,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_5",
+                    "client_7",
+                    "client_9",
+                    "client_2",
+                    "client_6",
+                    "client_0",
+                    "client_4"
+                ],
+                "client_samples": [
+                    1395,
+                    680,
+                    2110,
+                    715,
+                    60,
+                    1440,
+                    105,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.3039443492889404,
+                "evaluation_metrics": {
+                    "loss": 0.26666444506910114,
+                    "accuracy": 0.925
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 27,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_9",
+                    "client_2",
+                    "client_7",
+                    "client_5",
+                    "client_6",
+                    "client_0",
+                    "client_4"
+                ],
+                "client_samples": [
+                    1395,
+                    715,
+                    60,
+                    2110,
+                    680,
+                    1440,
+                    105,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.210799217224121,
+                "evaluation_metrics": {
+                    "loss": 0.3571566144625346,
+                    "accuracy": 0.9
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 28,
+                "status": "success",
+                "participating_clients": [
+                    "client_2",
+                    "client_7",
+                    "client_6",
+                    "client_4",
+                    "client_5",
+                    "client_9",
+                    "client_1",
+                    "client_0"
+                ],
+                "client_samples": [
+                    60,
+                    2110,
+                    1440,
+                    680,
+                    680,
+                    715,
+                    1395,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.1286487579345703,
+                "evaluation_metrics": {
+                    "loss": 0.19195491638448503,
+                    "accuracy": 0.9555555555555556
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 29,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_1",
+                    "client_4",
+                    "client_0",
+                    "client_9",
+                    "client_7",
+                    "client_2",
+                    "client_5"
+                ],
+                "client_samples": [
+                    1440,
+                    1395,
+                    680,
+                    105,
+                    715,
+                    2110,
+                    60,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.0504014492034912,
+                "evaluation_metrics": {
+                    "loss": 0.22255063586764864,
+                    "accuracy": 0.9305555555555556
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 30,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_2",
+                    "client_5",
+                    "client_9",
+                    "client_7",
+                    "client_1",
+                    "client_4",
+                    "client_6"
+                ],
+                "client_samples": [
+                    105,
+                    60,
+                    680,
+                    715,
+                    2110,
+                    1395,
+                    680,
+                    1440
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.0788390636444092,
+                "evaluation_metrics": {
+                    "loss": 0.14925643371211159,
+                    "accuracy": 0.9611111111111111
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 31,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_2",
+                    "client_7",
+                    "client_9",
+                    "client_5",
+                    "client_6",
+                    "client_1",
+                    "client_4"
+                ],
+                "client_samples": [
+                    105,
+                    60,
+                    2110,
+                    715,
+                    680,
+                    1440,
+                    1395,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.0249946117401123,
+                "evaluation_metrics": {
+                    "loss": 0.1903313414918052,
+                    "accuracy": 0.9527777777777777
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 32,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_4",
+                    "client_5",
+                    "client_1",
+                    "client_2",
+                    "client_7",
+                    "client_6",
+                    "client_9"
+                ],
+                "client_samples": [
+                    105,
+                    680,
+                    680,
+                    1395,
+                    60,
+                    2110,
+                    1440,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.0958900451660156,
+                "evaluation_metrics": {
+                    "loss": 0.16113775620857876,
+                    "accuracy": 0.9555555555555556
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 33,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_4",
+                    "client_9",
+                    "client_2",
+                    "client_6",
+                    "client_5",
+                    "client_7",
+                    "client_1"
+                ],
+                "client_samples": [
+                    105,
+                    680,
+                    715,
+                    60,
+                    1440,
+                    680,
+                    2110,
+                    1395
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.0292706489562988,
+                "evaluation_metrics": {
+                    "loss": 0.43530851006507876,
+                    "accuracy": 0.8638888888888889
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 34,
+                "status": "success",
+                "participating_clients": [
+                    "client_4",
+                    "client_6",
+                    "client_9",
+                    "client_7",
+                    "client_1",
+                    "client_5",
+                    "client_2",
+                    "client_0"
+                ],
+                "client_samples": [
+                    680,
+                    1440,
+                    715,
+                    2110,
+                    1395,
+                    680,
+                    60,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.0958166122436523,
+                "evaluation_metrics": {
+                    "loss": 0.17994575475653013,
+                    "accuracy": 0.9583333333333334
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 35,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_4",
+                    "client_2",
+                    "client_5",
+                    "client_0",
+                    "client_6",
+                    "client_1",
+                    "client_9"
+                ],
+                "client_samples": [
+                    2110,
+                    680,
+                    60,
+                    680,
+                    105,
+                    1440,
+                    1395,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 3.9809205532073975,
+                "evaluation_metrics": {
+                    "loss": 0.32847418387730914,
+                    "accuracy": 0.8805555555555555
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 36,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_0",
+                    "client_5",
+                    "client_4",
+                    "client_2",
+                    "client_1",
+                    "client_7",
+                    "client_9"
+                ],
+                "client_samples": [
+                    1440,
+                    105,
+                    680,
+                    680,
+                    60,
+                    1395,
+                    2110,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.1422381401062012,
+                "evaluation_metrics": {
+                    "loss": 0.19782528910371994,
+                    "accuracy": 0.9527777777777777
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 37,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_5",
+                    "client_6",
+                    "client_9",
+                    "client_2",
+                    "client_7",
+                    "client_4",
+                    "client_0"
+                ],
+                "client_samples": [
+                    1395,
+                    680,
+                    1440,
+                    715,
+                    60,
+                    2110,
+                    680,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.1893765926361084,
+                "evaluation_metrics": {
+                    "loss": 0.2563607692718506,
+                    "accuracy": 0.925
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 38,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_2",
+                    "client_5",
+                    "client_4",
+                    "client_7",
+                    "client_0",
+                    "client_6",
+                    "client_9"
+                ],
+                "client_samples": [
+                    1395,
+                    60,
+                    680,
+                    680,
+                    2110,
+                    105,
+                    1440,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.2344951629638672,
+                "evaluation_metrics": {
+                    "loss": 0.13516543292336994,
+                    "accuracy": 0.9638888888888889
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 39,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_0",
+                    "client_2",
+                    "client_9",
+                    "client_1",
+                    "client_7",
+                    "client_4",
+                    "client_5"
+                ],
+                "client_samples": [
+                    1440,
+                    105,
+                    60,
+                    715,
+                    1395,
+                    2110,
+                    680,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.1460161209106445,
+                "evaluation_metrics": {
+                    "loss": 0.33157575660281713,
+                    "accuracy": 0.8833333333333333
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 40,
+                "status": "success",
+                "participating_clients": [
+                    "client_4",
+                    "client_1",
+                    "client_7",
+                    "client_6",
+                    "client_0",
+                    "client_5",
+                    "client_9",
+                    "client_2"
+                ],
+                "client_samples": [
+                    680,
+                    1395,
+                    2110,
+                    1440,
+                    105,
+                    680,
+                    715,
+                    60
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.1601355075836182,
+                "evaluation_metrics": {
+                    "loss": 0.34237419731087154,
+                    "accuracy": 0.9055555555555556
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 41,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_7",
+                    "client_5",
+                    "client_1",
+                    "client_4",
+                    "client_0",
+                    "client_2",
+                    "client_9"
+                ],
+                "client_samples": [
+                    1440,
+                    2110,
+                    680,
+                    1395,
+                    680,
+                    105,
+                    60,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.1870856285095215,
+                "evaluation_metrics": {
+                    "loss": 1.354172764884101,
+                    "accuracy": 0.825
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 42,
+                "status": "success",
+                "participating_clients": [
+                    "client_2",
+                    "client_6",
+                    "client_4",
+                    "client_0",
+                    "client_7",
+                    "client_1",
+                    "client_5",
+                    "client_9"
+                ],
+                "client_samples": [
+                    60,
+                    1440,
+                    680,
+                    105,
+                    2110,
+                    1395,
+                    680,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.1430094242095947,
+                "evaluation_metrics": {
+                    "loss": 0.46951589385668435,
+                    "accuracy": 0.8694444444444445
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 43,
+                "status": "success",
+                "participating_clients": [
+                    "client_5",
+                    "client_7",
+                    "client_6",
+                    "client_4",
+                    "client_1",
+                    "client_2",
+                    "client_0",
+                    "client_9"
+                ],
+                "client_samples": [
+                    680,
+                    2110,
+                    1440,
+                    680,
+                    1395,
+                    60,
+                    105,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.1409659385681152,
+                "evaluation_metrics": {
+                    "loss": 0.6231801046265496,
+                    "accuracy": 0.8138888888888889
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 44,
+                "status": "success",
+                "participating_clients": [
+                    "client_9",
+                    "client_7",
+                    "client_1",
+                    "client_2",
+                    "client_4",
+                    "client_6",
+                    "client_5",
+                    "client_0"
+                ],
+                "client_samples": [
+                    715,
+                    2110,
+                    1395,
+                    60,
+                    680,
+                    1440,
+                    680,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.112062931060791,
+                "evaluation_metrics": {
+                    "loss": 0.5453932444254558,
+                    "accuracy": 0.8694444444444445
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 45,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_1",
+                    "client_9",
+                    "client_5",
+                    "client_6",
+                    "client_4",
+                    "client_0",
+                    "client_2"
+                ],
+                "client_samples": [
+                    2110,
+                    1395,
+                    715,
+                    680,
+                    1440,
+                    680,
+                    105,
+                    60
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.1222805976867676,
+                "evaluation_metrics": {
+                    "loss": 1.8366481039259168,
+                    "accuracy": 0.7222222222222222
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 46,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_5",
+                    "client_0",
+                    "client_7",
+                    "client_9",
+                    "client_1",
+                    "client_4",
+                    "client_2"
+                ],
+                "client_samples": [
+                    1440,
+                    680,
+                    105,
+                    2110,
+                    715,
+                    1395,
+                    680,
+                    60
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.101635217666626,
+                "evaluation_metrics": {
+                    "loss": 0.6606610245174832,
+                    "accuracy": 0.8694444444444445
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 47,
+                "status": "success",
+                "participating_clients": [
+                    "client_5",
+                    "client_4",
+                    "client_9",
+                    "client_1",
+                    "client_7",
+                    "client_0",
+                    "client_2",
+                    "client_6"
+                ],
+                "client_samples": [
+                    680,
+                    680,
+                    715,
+                    1395,
+                    2110,
+                    105,
+                    60,
+                    1440
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.15151047706604,
+                "evaluation_metrics": {
+                    "loss": 0.42745542724927266,
+                    "accuracy": 0.8777777777777778
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 48,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_0",
+                    "client_4",
+                    "client_7",
+                    "client_9",
+                    "client_2",
+                    "client_1",
+                    "client_5"
+                ],
+                "client_samples": [
+                    1440,
+                    105,
+                    680,
+                    2110,
+                    715,
+                    60,
+                    1395,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.141516923904419,
+                "evaluation_metrics": {
+                    "loss": 0.19331213351753024,
+                    "accuracy": 0.9527777777777777
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 49,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_0",
+                    "client_2",
+                    "client_1",
+                    "client_9",
+                    "client_5",
+                    "client_4",
+                    "client_6"
+                ],
+                "client_samples": [
+                    2110,
+                    105,
+                    60,
+                    1395,
+                    715,
+                    680,
+                    680,
+                    1440
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.1003456115722656,
+                "evaluation_metrics": {
+                    "loss": 0.21579751835929023,
+                    "accuracy": 0.9388888888888889
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 50,
+                "status": "success",
+                "participating_clients": [
+                    "client_2",
+                    "client_1",
+                    "client_0",
+                    "client_9",
+                    "client_4",
+                    "client_5",
+                    "client_6",
+                    "client_7"
+                ],
+                "client_samples": [
+                    60,
+                    1395,
+                    105,
+                    715,
+                    680,
+                    680,
+                    1440,
+                    2110
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 1.1447105407714844,
+                "evaluation_metrics": {
+                    "loss": 0.19436512771579956,
+                    "accuracy": 0.95
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            }
+        ]
+    },
+    {
+        "experiment_name": "Digits_NonIID_alpha0.3_FEDDIVE",
+        "agg_strategy": "feddive",
+        "dataset": "digits",
+        "partition": "dirichlet",
+        "alpha": 0.01,
+        "num_clients": 10,
+        "rounds": 50,
+        "local_epochs": 5,
+        "final_accuracy": 0.7277777777777777,
+        "final_loss": 1.0719863878356086,
+        "config_details": {
+            "model": {
+                "type": "mlp"
+            },
+            "data": {
+                "name": "digits",
+                "partition": "dirichlet",
+                "alpha": 0.01
+            },
+            "federated": {
+                "num_clients": 10,
+                "rounds": 50,
+                "local_epochs": 5,
+                "lr": 0.01
+            },
+            "name": "Digits_NonIID_alpha0.3_FEDDIVE",
+            "aggregation": {
+                "type": "feddive",
+                "momentum": 0.9,
+                "temperature": 0.5
+            }
+        },
+        "round_history": [
+            {
+                "round": 1,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_4",
+                    "client_6",
+                    "client_7",
+                    "client_0",
+                    "client_5",
+                    "client_9",
+                    "client_2"
+                ],
+                "client_samples": [
+                    1395,
+                    680,
+                    1440,
+                    2110,
+                    105,
+                    680,
+                    715,
+                    60
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6824431419372559,
+                "evaluation_metrics": {
+                    "loss": 9.737678739759657,
+                    "accuracy": 0.29444444444444445
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 2,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_9",
+                    "client_2",
+                    "client_5",
+                    "client_6",
+                    "client_7",
+                    "client_4",
+                    "client_0"
+                ],
+                "client_samples": [
+                    1395,
+                    715,
+                    60,
+                    680,
+                    1440,
+                    2110,
+                    680,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.7448902130126953,
+                "evaluation_metrics": {
+                    "loss": 8.315287801954481,
+                    "accuracy": 0.12777777777777777
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 3,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_0",
+                    "client_6",
+                    "client_9",
+                    "client_1",
+                    "client_4",
+                    "client_2",
+                    "client_5"
+                ],
+                "client_samples": [
+                    2110,
+                    105,
+                    1440,
+                    715,
+                    1395,
+                    680,
+                    60,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.7125155925750732,
+                "evaluation_metrics": {
+                    "loss": 23.62480460272895,
+                    "accuracy": 0.2972222222222222
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 4,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_2",
+                    "client_4",
+                    "client_6",
+                    "client_5",
+                    "client_9",
+                    "client_0",
+                    "client_1"
+                ],
+                "client_samples": [
+                    2110,
+                    60,
+                    680,
+                    1440,
+                    680,
+                    715,
+                    105,
+                    1395
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6894245147705078,
+                "evaluation_metrics": {
+                    "loss": 5.240132617950439,
+                    "accuracy": 0.1
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 5,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_2",
+                    "client_6",
+                    "client_9",
+                    "client_5",
+                    "client_0",
+                    "client_1",
+                    "client_4"
+                ],
+                "client_samples": [
+                    2110,
+                    60,
+                    1440,
+                    715,
+                    680,
+                    105,
+                    1395,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6618177890777588,
+                "evaluation_metrics": {
+                    "loss": 11.11538978152805,
+                    "accuracy": 0.2972222222222222
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 6,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_7",
+                    "client_0",
+                    "client_6",
+                    "client_4",
+                    "client_5",
+                    "client_9",
+                    "client_2"
+                ],
+                "client_samples": [
+                    1395,
+                    2110,
+                    105,
+                    1440,
+                    680,
+                    680,
+                    715,
+                    60
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.7129838466644287,
+                "evaluation_metrics": {
+                    "loss": 2.5210251596238877,
+                    "accuracy": 0.3972222222222222
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 7,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_5",
+                    "client_7",
+                    "client_6",
+                    "client_2",
+                    "client_4",
+                    "client_9",
+                    "client_1"
+                ],
+                "client_samples": [
+                    105,
+                    680,
+                    2110,
+                    1440,
+                    60,
+                    680,
+                    715,
+                    1395
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6776788234710693,
+                "evaluation_metrics": {
+                    "loss": 8.813350868225097,
+                    "accuracy": 0.29444444444444445
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 8,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_7",
+                    "client_9",
+                    "client_4",
+                    "client_0",
+                    "client_1",
+                    "client_2",
+                    "client_5"
+                ],
+                "client_samples": [
+                    1440,
+                    2110,
+                    715,
+                    680,
+                    105,
+                    1395,
+                    60,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6615684032440186,
+                "evaluation_metrics": {
+                    "loss": 2.5567685974968803,
+                    "accuracy": 0.3527777777777778
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 9,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_5",
+                    "client_7",
+                    "client_9",
+                    "client_6",
+                    "client_2",
+                    "client_4",
+                    "client_0"
+                ],
+                "client_samples": [
+                    1395,
+                    680,
+                    2110,
+                    715,
+                    1440,
+                    60,
+                    680,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.7008342742919922,
+                "evaluation_metrics": {
+                    "loss": 2.291388103697035,
+                    "accuracy": 0.3861111111111111
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 10,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_2",
+                    "client_5",
+                    "client_7",
+                    "client_0",
+                    "client_9",
+                    "client_4",
+                    "client_6"
+                ],
+                "client_samples": [
+                    1395,
+                    60,
+                    680,
+                    2110,
+                    105,
+                    715,
+                    680,
+                    1440
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.677649736404419,
+                "evaluation_metrics": {
+                    "loss": 5.738651731279162,
+                    "accuracy": 0.36944444444444446
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 11,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_5",
+                    "client_6",
+                    "client_2",
+                    "client_9",
+                    "client_4",
+                    "client_1",
+                    "client_7"
+                ],
+                "client_samples": [
+                    105,
+                    680,
+                    1440,
+                    60,
+                    715,
+                    680,
+                    1395,
+                    2110
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.7031040191650391,
+                "evaluation_metrics": {
+                    "loss": 1.83552581999037,
+                    "accuracy": 0.4527777777777778
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 12,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_2",
+                    "client_0",
+                    "client_1",
+                    "client_5",
+                    "client_7",
+                    "client_4",
+                    "client_9"
+                ],
+                "client_samples": [
+                    1440,
+                    60,
+                    105,
+                    1395,
+                    680,
+                    2110,
+                    680,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.7182826995849609,
+                "evaluation_metrics": {
+                    "loss": 5.402625317043729,
+                    "accuracy": 0.4388888888888889
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 13,
+                "status": "success",
+                "participating_clients": [
+                    "client_2",
+                    "client_6",
+                    "client_7",
+                    "client_0",
+                    "client_5",
+                    "client_9",
+                    "client_4",
+                    "client_1"
+                ],
+                "client_samples": [
+                    60,
+                    1440,
+                    2110,
+                    105,
+                    680,
+                    715,
+                    680,
+                    1395
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6759605407714844,
+                "evaluation_metrics": {
+                    "loss": 1.600487560696072,
+                    "accuracy": 0.5055555555555555
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 14,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_4",
+                    "client_2",
+                    "client_1",
+                    "client_6",
+                    "client_5",
+                    "client_9",
+                    "client_0"
+                ],
+                "client_samples": [
+                    2110,
+                    680,
+                    60,
+                    1395,
+                    1440,
+                    680,
+                    715,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6732864379882812,
+                "evaluation_metrics": {
+                    "loss": 1.6940602567460803,
+                    "accuracy": 0.5555555555555556
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 15,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_1",
+                    "client_7",
+                    "client_5",
+                    "client_9",
+                    "client_2",
+                    "client_4",
+                    "client_6"
+                ],
+                "client_samples": [
+                    105,
+                    1395,
+                    2110,
+                    680,
+                    715,
+                    60,
+                    680,
+                    1440
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.7424657344818115,
+                "evaluation_metrics": {
+                    "loss": 4.582493252224392,
+                    "accuracy": 0.4777777777777778
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 16,
+                "status": "success",
+                "participating_clients": [
+                    "client_9",
+                    "client_6",
+                    "client_4",
+                    "client_7",
+                    "client_5",
+                    "client_1",
+                    "client_2",
+                    "client_0"
+                ],
+                "client_samples": [
+                    715,
+                    1440,
+                    680,
+                    2110,
+                    680,
+                    1395,
+                    60,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6850178241729736,
+                "evaluation_metrics": {
+                    "loss": 2.7483338250054254,
+                    "accuracy": 0.49722222222222223
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 17,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_2",
+                    "client_4",
+                    "client_0",
+                    "client_7",
+                    "client_6",
+                    "client_9",
+                    "client_5"
+                ],
+                "client_samples": [
+                    1395,
+                    60,
+                    680,
+                    105,
+                    2110,
+                    1440,
+                    715,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.7215750217437744,
+                "evaluation_metrics": {
+                    "loss": 5.562672657436795,
+                    "accuracy": 0.45
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 18,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_1",
+                    "client_4",
+                    "client_5",
+                    "client_9",
+                    "client_6",
+                    "client_2",
+                    "client_7"
+                ],
+                "client_samples": [
+                    105,
+                    1395,
+                    680,
+                    680,
+                    715,
+                    1440,
+                    60,
+                    2110
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.7333333492279053,
+                "evaluation_metrics": {
+                    "loss": 6.367141151428223,
+                    "accuracy": 0.4388888888888889
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 19,
+                "status": "success",
+                "participating_clients": [
+                    "client_4",
+                    "client_7",
+                    "client_1",
+                    "client_2",
+                    "client_5",
+                    "client_6",
+                    "client_0",
+                    "client_9"
+                ],
+                "client_samples": [
+                    680,
+                    2110,
+                    1395,
+                    60,
+                    680,
+                    1440,
+                    105,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6765997409820557,
+                "evaluation_metrics": {
+                    "loss": 1.9272977458106146,
+                    "accuracy": 0.5111111111111111
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 20,
+                "status": "success",
+                "participating_clients": [
+                    "client_9",
+                    "client_6",
+                    "client_4",
+                    "client_1",
+                    "client_5",
+                    "client_7",
+                    "client_0",
+                    "client_2"
+                ],
+                "client_samples": [
+                    715,
+                    1440,
+                    680,
+                    1395,
+                    680,
+                    2110,
+                    105,
+                    60
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6910686492919922,
+                "evaluation_metrics": {
+                    "loss": 8.451300599839952,
+                    "accuracy": 0.3527777777777778
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 21,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_4",
+                    "client_6",
+                    "client_0",
+                    "client_7",
+                    "client_5",
+                    "client_9",
+                    "client_2"
+                ],
+                "client_samples": [
+                    1395,
+                    680,
+                    1440,
+                    105,
+                    2110,
+                    680,
+                    715,
+                    60
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 3.6654434204101562,
+                "evaluation_metrics": {
+                    "loss": 22.377276696099177,
+                    "accuracy": 0.37222222222222223
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 22,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_5",
+                    "client_4",
+                    "client_7",
+                    "client_9",
+                    "client_2",
+                    "client_1",
+                    "client_0"
+                ],
+                "client_samples": [
+                    1440,
+                    680,
+                    680,
+                    2110,
+                    715,
+                    60,
+                    1395,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6783194541931152,
+                "evaluation_metrics": {
+                    "loss": 2.7677023781670465,
+                    "accuracy": 0.2722222222222222
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 23,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_4",
+                    "client_0",
+                    "client_2",
+                    "client_9",
+                    "client_5",
+                    "client_7",
+                    "client_6"
+                ],
+                "client_samples": [
+                    1395,
+                    680,
+                    105,
+                    60,
+                    715,
+                    680,
+                    2110,
+                    1440
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6671617031097412,
+                "evaluation_metrics": {
+                    "loss": 12.258742184109158,
+                    "accuracy": 0.3388888888888889
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 24,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_4",
+                    "client_0",
+                    "client_9",
+                    "client_7",
+                    "client_2",
+                    "client_5",
+                    "client_6"
+                ],
+                "client_samples": [
+                    1395,
+                    680,
+                    105,
+                    715,
+                    2110,
+                    60,
+                    680,
+                    1440
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.7047498226165771,
+                "evaluation_metrics": {
+                    "loss": 3.2414244916703967,
+                    "accuracy": 0.4722222222222222
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 25,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_9",
+                    "client_2",
+                    "client_6",
+                    "client_1",
+                    "client_4",
+                    "client_0",
+                    "client_5"
+                ],
+                "client_samples": [
+                    2110,
+                    715,
+                    60,
+                    1440,
+                    1395,
+                    680,
+                    105,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6683320999145508,
+                "evaluation_metrics": {
+                    "loss": 7.4224734412299265,
+                    "accuracy": 0.43333333333333335
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 26,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_5",
+                    "client_7",
+                    "client_9",
+                    "client_2",
+                    "client_6",
+                    "client_0",
+                    "client_4"
+                ],
+                "client_samples": [
+                    1395,
+                    680,
+                    2110,
+                    715,
+                    60,
+                    1440,
+                    105,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6770777702331543,
+                "evaluation_metrics": {
+                    "loss": 2.9007538424597845,
+                    "accuracy": 0.5472222222222223
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 27,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_9",
+                    "client_2",
+                    "client_7",
+                    "client_5",
+                    "client_6",
+                    "client_0",
+                    "client_4"
+                ],
+                "client_samples": [
+                    1395,
+                    715,
+                    60,
+                    2110,
+                    680,
+                    1440,
+                    105,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.7275235652923584,
+                "evaluation_metrics": {
+                    "loss": 2.1791441281636557,
+                    "accuracy": 0.5333333333333333
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 28,
+                "status": "success",
+                "participating_clients": [
+                    "client_2",
+                    "client_7",
+                    "client_6",
+                    "client_4",
+                    "client_5",
+                    "client_9",
+                    "client_1",
+                    "client_0"
+                ],
+                "client_samples": [
+                    60,
+                    2110,
+                    1440,
+                    680,
+                    680,
+                    715,
+                    1395,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6974000930786133,
+                "evaluation_metrics": {
+                    "loss": 10.220542187160916,
+                    "accuracy": 0.4222222222222222
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 29,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_1",
+                    "client_4",
+                    "client_0",
+                    "client_9",
+                    "client_7",
+                    "client_2",
+                    "client_5"
+                ],
+                "client_samples": [
+                    1440,
+                    1395,
+                    680,
+                    105,
+                    715,
+                    2110,
+                    60,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6736116409301758,
+                "evaluation_metrics": {
+                    "loss": 8.235312896304661,
+                    "accuracy": 0.44722222222222224
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 30,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_2",
+                    "client_5",
+                    "client_9",
+                    "client_7",
+                    "client_1",
+                    "client_4",
+                    "client_6"
+                ],
+                "client_samples": [
+                    105,
+                    60,
+                    680,
+                    715,
+                    2110,
+                    1395,
+                    680,
+                    1440
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.7731056213378906,
+                "evaluation_metrics": {
+                    "loss": 2.5384336630503337,
+                    "accuracy": 0.4666666666666667
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 31,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_2",
+                    "client_7",
+                    "client_9",
+                    "client_5",
+                    "client_6",
+                    "client_1",
+                    "client_4"
+                ],
+                "client_samples": [
+                    105,
+                    60,
+                    2110,
+                    715,
+                    680,
+                    1440,
+                    1395,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6606020927429199,
+                "evaluation_metrics": {
+                    "loss": 2.1407039006551107,
+                    "accuracy": 0.5111111111111111
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 32,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_4",
+                    "client_5",
+                    "client_1",
+                    "client_2",
+                    "client_7",
+                    "client_6",
+                    "client_9"
+                ],
+                "client_samples": [
+                    105,
+                    680,
+                    680,
+                    1395,
+                    60,
+                    2110,
+                    1440,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6743214130401611,
+                "evaluation_metrics": {
+                    "loss": 2.888880173365275,
+                    "accuracy": 0.6555555555555556
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 33,
+                "status": "success",
+                "participating_clients": [
+                    "client_0",
+                    "client_4",
+                    "client_9",
+                    "client_2",
+                    "client_6",
+                    "client_5",
+                    "client_7",
+                    "client_1"
+                ],
+                "client_samples": [
+                    105,
+                    680,
+                    715,
+                    60,
+                    1440,
+                    680,
+                    2110,
+                    1395
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.7050285339355469,
+                "evaluation_metrics": {
+                    "loss": 1.5022319263882107,
+                    "accuracy": 0.5694444444444444
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 34,
+                "status": "success",
+                "participating_clients": [
+                    "client_4",
+                    "client_6",
+                    "client_9",
+                    "client_7",
+                    "client_1",
+                    "client_5",
+                    "client_2",
+                    "client_0"
+                ],
+                "client_samples": [
+                    680,
+                    1440,
+                    715,
+                    2110,
+                    1395,
+                    680,
+                    60,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6625757217407227,
+                "evaluation_metrics": {
+                    "loss": 23.45693473815918,
+                    "accuracy": 0.3416666666666667
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 35,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_4",
+                    "client_2",
+                    "client_5",
+                    "client_0",
+                    "client_6",
+                    "client_1",
+                    "client_9"
+                ],
+                "client_samples": [
+                    2110,
+                    680,
+                    60,
+                    680,
+                    105,
+                    1440,
+                    1395,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6828014850616455,
+                "evaluation_metrics": {
+                    "loss": 12.563499323527019,
+                    "accuracy": 0.5166666666666667
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 36,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_0",
+                    "client_5",
+                    "client_4",
+                    "client_2",
+                    "client_1",
+                    "client_7",
+                    "client_9"
+                ],
+                "client_samples": [
+                    1440,
+                    105,
+                    680,
+                    680,
+                    60,
+                    1395,
+                    2110,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6973800659179688,
+                "evaluation_metrics": {
+                    "loss": 2.1508905516730414,
+                    "accuracy": 0.6388888888888888
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 37,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_5",
+                    "client_6",
+                    "client_9",
+                    "client_2",
+                    "client_7",
+                    "client_4",
+                    "client_0"
+                ],
+                "client_samples": [
+                    1395,
+                    680,
+                    1440,
+                    715,
+                    60,
+                    2110,
+                    680,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.662233829498291,
+                "evaluation_metrics": {
+                    "loss": 6.474359978569878,
+                    "accuracy": 0.5083333333333333
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 38,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_2",
+                    "client_5",
+                    "client_4",
+                    "client_7",
+                    "client_0",
+                    "client_6",
+                    "client_9"
+                ],
+                "client_samples": [
+                    1395,
+                    60,
+                    680,
+                    680,
+                    2110,
+                    105,
+                    1440,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6604859828948975,
+                "evaluation_metrics": {
+                    "loss": 3.379774406221178,
+                    "accuracy": 0.5666666666666667
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 39,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_0",
+                    "client_2",
+                    "client_9",
+                    "client_1",
+                    "client_7",
+                    "client_4",
+                    "client_5"
+                ],
+                "client_samples": [
+                    1440,
+                    105,
+                    60,
+                    715,
+                    1395,
+                    2110,
+                    680,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.7157180309295654,
+                "evaluation_metrics": {
+                    "loss": 5.78422278298272,
+                    "accuracy": 0.6305555555555555
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 40,
+                "status": "success",
+                "participating_clients": [
+                    "client_4",
+                    "client_1",
+                    "client_7",
+                    "client_6",
+                    "client_0",
+                    "client_5",
+                    "client_9",
+                    "client_2"
+                ],
+                "client_samples": [
+                    680,
+                    1395,
+                    2110,
+                    1440,
+                    105,
+                    680,
+                    715,
+                    60
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6572277545928955,
+                "evaluation_metrics": {
+                    "loss": 2.81075242890252,
+                    "accuracy": 0.625
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 41,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_7",
+                    "client_5",
+                    "client_1",
+                    "client_4",
+                    "client_0",
+                    "client_2",
+                    "client_9"
+                ],
+                "client_samples": [
+                    1440,
+                    2110,
+                    680,
+                    1395,
+                    680,
+                    105,
+                    60,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6511170864105225,
+                "evaluation_metrics": {
+                    "loss": 1.5934126032723321,
+                    "accuracy": 0.6666666666666666
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 42,
+                "status": "success",
+                "participating_clients": [
+                    "client_2",
+                    "client_6",
+                    "client_4",
+                    "client_0",
+                    "client_7",
+                    "client_1",
+                    "client_5",
+                    "client_9"
+                ],
+                "client_samples": [
+                    60,
+                    1440,
+                    680,
+                    105,
+                    2110,
+                    1395,
+                    680,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.7155282497406006,
+                "evaluation_metrics": {
+                    "loss": 1.5843662765291002,
+                    "accuracy": 0.65
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 43,
+                "status": "success",
+                "participating_clients": [
+                    "client_5",
+                    "client_7",
+                    "client_6",
+                    "client_4",
+                    "client_1",
+                    "client_2",
+                    "client_0",
+                    "client_9"
+                ],
+                "client_samples": [
+                    680,
+                    2110,
+                    1440,
+                    680,
+                    1395,
+                    60,
+                    105,
+                    715
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6712567806243896,
+                "evaluation_metrics": {
+                    "loss": 1.3534868478775024,
+                    "accuracy": 0.7333333333333333
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 44,
+                "status": "success",
+                "participating_clients": [
+                    "client_9",
+                    "client_7",
+                    "client_1",
+                    "client_2",
+                    "client_4",
+                    "client_6",
+                    "client_5",
+                    "client_0"
+                ],
+                "client_samples": [
+                    715,
+                    2110,
+                    1395,
+                    60,
+                    680,
+                    1440,
+                    680,
+                    105
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6620986461639404,
+                "evaluation_metrics": {
+                    "loss": 1.4159790436426798,
+                    "accuracy": 0.7416666666666667
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 45,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_1",
+                    "client_9",
+                    "client_5",
+                    "client_6",
+                    "client_4",
+                    "client_0",
+                    "client_2"
+                ],
+                "client_samples": [
+                    2110,
+                    1395,
+                    715,
+                    680,
+                    1440,
+                    680,
+                    105,
+                    60
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6912579536437988,
+                "evaluation_metrics": {
+                    "loss": 1.3963365448845757,
+                    "accuracy": 0.7472222222222222
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 46,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_5",
+                    "client_0",
+                    "client_7",
+                    "client_9",
+                    "client_1",
+                    "client_4",
+                    "client_2"
+                ],
+                "client_samples": [
+                    1440,
+                    680,
+                    105,
+                    2110,
+                    715,
+                    1395,
+                    680,
+                    60
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.702164888381958,
+                "evaluation_metrics": {
+                    "loss": 1.1843765523698595,
+                    "accuracy": 0.7305555555555555
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 47,
+                "status": "success",
+                "participating_clients": [
+                    "client_5",
+                    "client_4",
+                    "client_9",
+                    "client_1",
+                    "client_7",
+                    "client_0",
+                    "client_2",
+                    "client_6"
+                ],
+                "client_samples": [
+                    680,
+                    680,
+                    715,
+                    1395,
+                    2110,
+                    105,
+                    60,
+                    1440
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6821517944335938,
+                "evaluation_metrics": {
+                    "loss": 1.1365404473410712,
+                    "accuracy": 0.725
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 48,
+                "status": "success",
+                "participating_clients": [
+                    "client_6",
+                    "client_0",
+                    "client_4",
+                    "client_7",
+                    "client_9",
+                    "client_2",
+                    "client_1",
+                    "client_5"
+                ],
+                "client_samples": [
+                    1440,
+                    105,
+                    680,
+                    2110,
+                    715,
+                    60,
+                    1395,
+                    680
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6964483261108398,
+                "evaluation_metrics": {
+                    "loss": 1.1354433589511448,
+                    "accuracy": 0.7333333333333333
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 49,
+                "status": "success",
+                "participating_clients": [
+                    "client_7",
+                    "client_0",
+                    "client_2",
+                    "client_1",
+                    "client_9",
+                    "client_5",
+                    "client_4",
+                    "client_6"
+                ],
+                "client_samples": [
+                    2110,
+                    105,
+                    60,
+                    1395,
+                    715,
+                    680,
+                    680,
+                    1440
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6932363510131836,
+                "evaluation_metrics": {
+                    "loss": 1.1120707988739014,
+                    "accuracy": 0.7277777777777777
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            },
+            {
+                "round": 50,
+                "status": "success",
+                "participating_clients": [
+                    "client_2",
+                    "client_1",
+                    "client_0",
+                    "client_9",
+                    "client_4",
+                    "client_5",
+                    "client_6",
+                    "client_7"
+                ],
+                "client_samples": [
+                    60,
+                    1395,
+                    105,
+                    715,
+                    680,
+                    680,
+                    1440,
+                    2110
+                ],
+                "total_samples": 7185,
+                "duration_seconds": 0.6658363342285156,
+                "evaluation_metrics": {
+                    "loss": 1.0719863878356086,
+                    "accuracy": 0.7277777777777777
+                },
+                "comm_download_bytes_per_client": 68904,
+                "comm_total_upload_bytes": 551232,
+                "comm_avg_upload_bytes_per_client": 68904.0
+            }
+        ]
+    }
+]

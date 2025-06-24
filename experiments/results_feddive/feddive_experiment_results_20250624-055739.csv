@@ -1,0 +1,4 @@
+experiment_name,final_accuracy,final_loss,error,agg_type,data_set,data_iid,data_alpha,feddive_momentum,feddive_temp
+Synthetic_MultiModal_FedAvg,1.0,0.00041772621741984037,,fedavg,synthetic_multi_modal,,,,
+Synthetic_MultiModal_FedProx,1.0,0.0006599523185286671,,fedprox,synthetic_multi_modal,,,,
+Synthetic_MultiModal_FedDive,1.0,0.0008047533234639559,,feddive,synthetic_multi_modal,,,0.5,0.5

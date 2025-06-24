@@ -1,0 +1,94 @@
+2025-06-24 05:45:46,710 [INFO] FedDive_ExperimentRunner: Starting 3 experiments...
+2025-06-24 05:45:46,710 [INFO] FedDive_ExperimentRunner: ========== Starting: Synthetic_MultiModal_FedAvg ==========
+2025-06-24 05:45:46,711 [INFO] FedDive_ExperimentRunner: --- Setting up experiment: Synthetic_MultiModal_FedAvg ---
+2025-06-24 05:45:48,530 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-24 05:45:48,530 [INFO] src.utils.data_utils: Generating multi-modal synthetic dataset...
+2025-06-24 05:45:48,531 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-24 05:45:48,542 [INFO] src.utils.data_utils: Loading dataset: synthetic_multi_modal, PCA features=None, Scaling=standard, Subset size=None
+2025-06-24 05:45:48,543 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-24 05:45:48,543 [INFO] src.utils.data_utils: Generating multi-modal synthetic dataset...
+2025-06-24 05:45:48,544 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-24 05:45:48,569 [INFO] FedDive_ExperimentRunner: Loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/client_config.yaml
+2025-06-24 05:45:48,577 [INFO] FedDive_ExperimentRunner: Loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/server_config.yaml
+2025-06-24 05:45:48,584 [INFO] FedDive_ExperimentRunner: Loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/default_aggregation.yaml
+2025-06-24 05:45:48,584 [ERROR] FedDive_ExperimentRunner: ========== Experiment Synthetic_MultiModal_FedAvg failed: cannot access local variable 'num_clients' where it is not associated with a value ==========
+Traceback (most recent call last):
+  File "/home/dhanraj/quantum_federated_simulator/run_synthetic.py", line 208, in run_experiments
+    server, server_runtime_cfg = setup_federated_scenario(exp_config)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dhanraj/quantum_federated_simulator/run_synthetic.py", line 148, in setup_federated_scenario
+    client_datasets = pathological_synthetic_partition(train_data, num_clients)
+                                                                   ^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'num_clients' where it is not associated with a value
+2025-06-24 05:45:48,585 [INFO] FedDive_ExperimentRunner: ========== Starting: Synthetic_MultiModal_FedProx ==========
+2025-06-24 05:45:48,585 [INFO] FedDive_ExperimentRunner: --- Setting up experiment: Synthetic_MultiModal_FedProx ---
+2025-06-24 05:45:48,587 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-24 05:45:48,587 [INFO] src.utils.data_utils: Generating multi-modal synthetic dataset...
+2025-06-24 05:45:48,588 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-24 05:45:48,598 [INFO] src.utils.data_utils: Loading dataset: synthetic_multi_modal, PCA features=None, Scaling=standard, Subset size=None
+2025-06-24 05:45:48,600 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-24 05:45:48,600 [INFO] src.utils.data_utils: Generating multi-modal synthetic dataset...
+2025-06-24 05:45:48,601 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-24 05:45:48,620 [INFO] FedDive_ExperimentRunner: Loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/client_config.yaml
+2025-06-24 05:45:48,627 [INFO] FedDive_ExperimentRunner: Loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/server_config.yaml
+2025-06-24 05:45:48,632 [INFO] FedDive_ExperimentRunner: Loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/default_aggregation.yaml
+2025-06-24 05:45:48,633 [ERROR] FedDive_ExperimentRunner: ========== Experiment Synthetic_MultiModal_FedProx failed: cannot access local variable 'num_clients' where it is not associated with a value ==========
+Traceback (most recent call last):
+  File "/home/dhanraj/quantum_federated_simulator/run_synthetic.py", line 208, in run_experiments
+    server, server_runtime_cfg = setup_federated_scenario(exp_config)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dhanraj/quantum_federated_simulator/run_synthetic.py", line 148, in setup_federated_scenario
+    client_datasets = pathological_synthetic_partition(train_data, num_clients)
+                                                                   ^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'num_clients' where it is not associated with a value
+2025-06-24 05:45:48,634 [INFO] FedDive_ExperimentRunner: ========== Starting: Synthetic_MultiModal_FedDive ==========
+2025-06-24 05:45:48,635 [INFO] FedDive_ExperimentRunner: --- Setting up experiment: Synthetic_MultiModal_FedDive ---
+2025-06-24 05:45:48,638 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-24 05:45:48,638 [INFO] src.utils.data_utils: Generating multi-modal synthetic dataset...
+2025-06-24 05:45:48,639 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-24 05:45:48,652 [INFO] src.utils.data_utils: Loading dataset: synthetic_multi_modal, PCA features=None, Scaling=standard, Subset size=None
+2025-06-24 05:45:48,654 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-24 05:45:48,654 [INFO] src.utils.data_utils: Generating multi-modal synthetic dataset...
+2025-06-24 05:45:48,655 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-24 05:45:48,670 [INFO] FedDive_ExperimentRunner: Loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/client_config.yaml
+2025-06-24 05:45:48,677 [INFO] FedDive_ExperimentRunner: Loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/server_config.yaml
+2025-06-24 05:45:48,683 [INFO] FedDive_ExperimentRunner: Loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/default_aggregation.yaml
+2025-06-24 05:45:48,683 [ERROR] FedDive_ExperimentRunner: ========== Experiment Synthetic_MultiModal_FedDive failed: cannot access local variable 'num_clients' where it is not associated with a value ==========
+Traceback (most recent call last):
+  File "/home/dhanraj/quantum_federated_simulator/run_synthetic.py", line 208, in run_experiments
+    server, server_runtime_cfg = setup_federated_scenario(exp_config)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dhanraj/quantum_federated_simulator/run_synthetic.py", line 148, in setup_federated_scenario
+    client_datasets = pathological_synthetic_partition(train_data, num_clients)
+                                                                   ^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'num_clients' where it is not associated with a value
+2025-06-24 05:45:48,684 [ERROR] FedDive_ExperimentRunner: Failed to save results: 'final_accuracy'
+2025-06-24 05:45:48,684 [INFO] FedDive_ExperimentRunner: All selected experiments finished.
+2025-06-24 05:45:48,684 [INFO] FedDive_ExperimentRunner: Generating visualization plots...
+2025-06-24 05:45:48,685 [INFO] VisualizationIntegration: Generating advanced visualizations for BC experiments...
+2025-06-24 05:45:48,686 [INFO] AdvancedVisualization: Advanced visualization initialized with output directory: /home/dhanraj/quantum_federated_simulator/experiments/advanced_vis_bc
+2025-06-24 05:45:48,686 [INFO] AdvancedVisualization: Generating all visualizations...
+2025-06-24 05:45:48,687 [INFO] AdvancedVisualization: Generating advanced accuracy curves...
+2025-06-24 05:45:48,687 [INFO] AdvancedVisualization: Preparing round-by-round data for visualization...
+2025-06-24 05:45:48,687 [WARNING] AdvancedVisualization: Skipping failed experiment: Synthetic_MultiModal_FedAvg
+2025-06-24 05:45:48,687 [WARNING] AdvancedVisualization: Skipping failed experiment: Synthetic_MultiModal_FedProx
+2025-06-24 05:45:48,687 [WARNING] AdvancedVisualization: Skipping failed experiment: Synthetic_MultiModal_FedDive
+2025-06-24 05:45:48,690 [WARNING] AdvancedVisualization: No round data available for plotting accuracy curves
+2025-06-24 05:45:48,691 [INFO] AdvancedVisualization: Generating advanced loss curves...
+2025-06-24 05:45:48,691 [INFO] AdvancedVisualization: Preparing round-by-round data for visualization...
+2025-06-24 05:45:48,691 [WARNING] AdvancedVisualization: Skipping failed experiment: Synthetic_MultiModal_FedAvg
+2025-06-24 05:45:48,691 [WARNING] AdvancedVisualization: Skipping failed experiment: Synthetic_MultiModal_FedProx
+2025-06-24 05:45:48,692 [WARNING] AdvancedVisualization: Skipping failed experiment: Synthetic_MultiModal_FedDive
+2025-06-24 05:45:48,693 [WARNING] AdvancedVisualization: No round data available for plotting loss curves
+2025-06-24 05:45:48,693 [INFO] AdvancedVisualization: Generating accuracy vs resources plots...
+2025-06-24 05:45:48,694 [INFO] AdvancedVisualization: Preparing round-by-round data for visualization...
+2025-06-24 05:45:48,694 [WARNING] AdvancedVisualization: Skipping failed experiment: Synthetic_MultiModal_FedAvg
+2025-06-24 05:45:48,695 [WARNING] AdvancedVisualization: Skipping failed experiment: Synthetic_MultiModal_FedProx
+2025-06-24 05:45:48,695 [WARNING] AdvancedVisualization: Skipping failed experiment: Synthetic_MultiModal_FedDive
+2025-06-24 05:45:48,696 [WARNING] AdvancedVisualization: No round data available for plotting accuracy vs resources
+2025-06-24 05:45:48,696 [INFO] AdvancedVisualization: Generating comparative bar plots...
+2025-06-24 05:45:48,696 [INFO] AdvancedVisualization: Preparing experiment metadata for visualization...
+2025-06-24 05:45:48,730 [ERROR] VisualizationIntegration: Error generating advanced visualizations: unsupported operand type(s) for +: 'int' and 'NoneType'
+2025-06-24 05:45:48,730 [INFO] VisualizationIntegration: Falling back to basic visualizations...
+2025-06-24 05:45:48,730 [ERROR] VisualizationIntegration: Could not find original plot_bc_results function for fallback
+2025-06-24 05:45:48,730 [INFO] FedDive_ExperimentRunner: Script finished.

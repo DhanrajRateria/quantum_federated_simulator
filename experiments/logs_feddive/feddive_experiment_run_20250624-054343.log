@@ -1,0 +1,85 @@
+2025-06-24 05:43:43,052 [INFO] FedDive_ExperimentRunner: Starting 3 experiments...
+2025-06-24 05:43:43,052 [INFO] FedDive_ExperimentRunner: ========== Starting: Synthetic_MultiModal_FedAvg ==========
+2025-06-24 05:43:43,052 [INFO] FedDive_ExperimentRunner: --- Setting up experiment: Synthetic_MultiModal_FedAvg ---
+2025-06-24 05:43:45,739 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-24 05:43:45,740 [INFO] src.utils.data_utils: Generating multi-modal synthetic dataset...
+2025-06-24 05:43:45,740 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-24 05:43:45,759 [INFO] src.utils.data_utils: Loading dataset: synthetic_multi_modal, PCA features=None, Scaling=standard, Subset size=None
+2025-06-24 05:43:45,761 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-24 05:43:45,761 [ERROR] FedDive_ExperimentRunner: ========== Experiment Synthetic_MultiModal_FedAvg failed: Unsupported dataset_name: synthetic_multi_modal ==========
+Traceback (most recent call last):
+  File "/home/dhanraj/quantum_federated_simulator/run_synthetic.py", line 208, in run_experiments
+    server, server_runtime_cfg = setup_federated_scenario(exp_config)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dhanraj/quantum_federated_simulator/run_synthetic.py", line 125, in setup_federated_scenario
+    train_data, test_data, n_features, n_classes = load_and_preprocess_data(
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dhanraj/quantum_federated_simulator/src/utils/data_utils.py", line 158, in load_and_preprocess_data
+    raise ValueError(f"Unsupported dataset_name: {dataset_name}")
+ValueError: Unsupported dataset_name: synthetic_multi_modal
+2025-06-24 05:43:45,762 [INFO] FedDive_ExperimentRunner: ========== Starting: Synthetic_MultiModal_FedProx ==========
+2025-06-24 05:43:45,762 [INFO] FedDive_ExperimentRunner: --- Setting up experiment: Synthetic_MultiModal_FedProx ---
+2025-06-24 05:43:45,763 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-24 05:43:45,763 [INFO] src.utils.data_utils: Generating multi-modal synthetic dataset...
+2025-06-24 05:43:45,764 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-24 05:43:45,772 [INFO] src.utils.data_utils: Loading dataset: synthetic_multi_modal, PCA features=None, Scaling=standard, Subset size=None
+2025-06-24 05:43:45,774 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-24 05:43:45,774 [ERROR] FedDive_ExperimentRunner: ========== Experiment Synthetic_MultiModal_FedProx failed: Unsupported dataset_name: synthetic_multi_modal ==========
+Traceback (most recent call last):
+  File "/home/dhanraj/quantum_federated_simulator/run_synthetic.py", line 208, in run_experiments
+    server, server_runtime_cfg = setup_federated_scenario(exp_config)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dhanraj/quantum_federated_simulator/run_synthetic.py", line 125, in setup_federated_scenario
+    train_data, test_data, n_features, n_classes = load_and_preprocess_data(
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dhanraj/quantum_federated_simulator/src/utils/data_utils.py", line 158, in load_and_preprocess_data
+    raise ValueError(f"Unsupported dataset_name: {dataset_name}")
+ValueError: Unsupported dataset_name: synthetic_multi_modal
+2025-06-24 05:43:45,775 [INFO] FedDive_ExperimentRunner: ========== Starting: Synthetic_MultiModal_FedDive ==========
+2025-06-24 05:43:45,775 [INFO] FedDive_ExperimentRunner: --- Setting up experiment: Synthetic_MultiModal_FedDive ---
+2025-06-24 05:43:45,776 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-24 05:43:45,776 [INFO] src.utils.data_utils: Generating multi-modal synthetic dataset...
+2025-06-24 05:43:45,777 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-24 05:43:45,786 [INFO] src.utils.data_utils: Loading dataset: synthetic_multi_modal, PCA features=None, Scaling=standard, Subset size=None
+2025-06-24 05:43:45,787 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-24 05:43:45,788 [ERROR] FedDive_ExperimentRunner: ========== Experiment Synthetic_MultiModal_FedDive failed: Unsupported dataset_name: synthetic_multi_modal ==========
+Traceback (most recent call last):
+  File "/home/dhanraj/quantum_federated_simulator/run_synthetic.py", line 208, in run_experiments
+    server, server_runtime_cfg = setup_federated_scenario(exp_config)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dhanraj/quantum_federated_simulator/run_synthetic.py", line 125, in setup_federated_scenario
+    train_data, test_data, n_features, n_classes = load_and_preprocess_data(
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dhanraj/quantum_federated_simulator/src/utils/data_utils.py", line 158, in load_and_preprocess_data
+    raise ValueError(f"Unsupported dataset_name: {dataset_name}")
+ValueError: Unsupported dataset_name: synthetic_multi_modal
+2025-06-24 05:43:45,789 [ERROR] FedDive_ExperimentRunner: Failed to save results: 'final_accuracy'
+2025-06-24 05:43:45,790 [INFO] FedDive_ExperimentRunner: All selected experiments finished.
+2025-06-24 05:43:45,790 [INFO] FedDive_ExperimentRunner: Generating visualization plots...
+2025-06-24 05:43:45,790 [INFO] VisualizationIntegration: Generating advanced visualizations for BC experiments...
+2025-06-24 05:43:45,792 [INFO] AdvancedVisualization: Advanced visualization initialized with output directory: /home/dhanraj/quantum_federated_simulator/experiments/advanced_vis_bc
+2025-06-24 05:43:45,793 [INFO] AdvancedVisualization: Generating all visualizations...
+2025-06-24 05:43:45,793 [INFO] AdvancedVisualization: Generating advanced accuracy curves...
+2025-06-24 05:43:45,793 [INFO] AdvancedVisualization: Preparing round-by-round data for visualization...
+2025-06-24 05:43:45,794 [WARNING] AdvancedVisualization: Skipping failed experiment: Synthetic_MultiModal_FedAvg
+2025-06-24 05:43:45,794 [WARNING] AdvancedVisualization: Skipping failed experiment: Synthetic_MultiModal_FedProx
+2025-06-24 05:43:45,794 [WARNING] AdvancedVisualization: Skipping failed experiment: Synthetic_MultiModal_FedDive
+2025-06-24 05:43:45,801 [WARNING] AdvancedVisualization: No round data available for plotting accuracy curves
+2025-06-24 05:43:45,801 [INFO] AdvancedVisualization: Generating advanced loss curves...
+2025-06-24 05:43:45,802 [INFO] AdvancedVisualization: Preparing round-by-round data for visualization...
+2025-06-24 05:43:45,802 [WARNING] AdvancedVisualization: Skipping failed experiment: Synthetic_MultiModal_FedAvg
+2025-06-24 05:43:45,802 [WARNING] AdvancedVisualization: Skipping failed experiment: Synthetic_MultiModal_FedProx
+2025-06-24 05:43:45,802 [WARNING] AdvancedVisualization: Skipping failed experiment: Synthetic_MultiModal_FedDive
+2025-06-24 05:43:45,803 [WARNING] AdvancedVisualization: No round data available for plotting loss curves
+2025-06-24 05:43:45,804 [INFO] AdvancedVisualization: Generating accuracy vs resources plots...
+2025-06-24 05:43:45,804 [INFO] AdvancedVisualization: Preparing round-by-round data for visualization...
+2025-06-24 05:43:45,804 [WARNING] AdvancedVisualization: Skipping failed experiment: Synthetic_MultiModal_FedAvg
+2025-06-24 05:43:45,804 [WARNING] AdvancedVisualization: Skipping failed experiment: Synthetic_MultiModal_FedProx
+2025-06-24 05:43:45,804 [WARNING] AdvancedVisualization: Skipping failed experiment: Synthetic_MultiModal_FedDive
+2025-06-24 05:43:45,805 [WARNING] AdvancedVisualization: No round data available for plotting accuracy vs resources
+2025-06-24 05:43:45,806 [INFO] AdvancedVisualization: Generating comparative bar plots...
+2025-06-24 05:43:45,806 [INFO] AdvancedVisualization: Preparing experiment metadata for visualization...
+2025-06-24 05:43:45,874 [ERROR] VisualizationIntegration: Error generating advanced visualizations: unsupported operand type(s) for +: 'int' and 'NoneType'
+2025-06-24 05:43:45,875 [INFO] VisualizationIntegration: Falling back to basic visualizations...
+2025-06-24 05:43:45,875 [ERROR] VisualizationIntegration: Could not find original plot_bc_results function for fallback
+2025-06-24 05:43:45,876 [INFO] FedDive_ExperimentRunner: Script finished.

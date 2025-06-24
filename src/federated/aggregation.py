@@ -48,6 +48,15 @@ class AggregationStrategy(ABC):
                         f"temperature={temperature}, normalize_distances={normalize_distances}")
             return FedDive(momentum=momentum, epsilon=epsilon, temperature=temperature,
                            normalize_distances=normalize_distances)
+        elif strategy_type == 'feddiver':
+            momentum = config.get('momentum', 0.9)
+            epsilon = config.get('epsilon', 1e-8)
+            temperature = config.get('temperature', 1.0)
+            normalize_distances = config.get('normalize_distances', True)
+            logger.info(f"FedDive-R parameters: momentum={momentum}, epsilon={epsilon}, "
+                        f"temperature={temperature}, normalize_distances={normalize_distances}")
+            return FedDiveR(momentum=momentum, epsilon=epsilon, temperature=temperature,
+                            normalize_distances=normalize_distances)
         else:
             raise ValueError(f"Unsupported aggregation strategy: {strategy_type}")
 
@@ -406,4 +415,93 @@ class FedDive(AggregationStrategy):
         self.previous_global_params = {name: tensor.clone() for name, tensor in aggregated_params.items()}
 
         logger.info("FedDive: Aggregation complete.")
+        return aggregated_params
+    
+class FedDiveR(FedDive):
+    """
+    Robust Federated Diversity Averaging (FedDive-R) aggregation strategy.
+
+    This version enhances FedDive's robustness to outliers by using a
+    robust aggregator (Median) to calculate the parameter delta for updating
+    the velocity vector. This prevents a single noisy client from poisoning
+    the momentum-based consensus direction.
+    """
+    def __init__(self,
+                 momentum: float = 0.9,
+                 epsilon: float = 1e-8,
+                 temperature: float = 1.0,
+                 normalize_distances: bool = True):
+        """Initialize FedDive-R aggregator."""
+        super().__init__(momentum, epsilon, temperature, normalize_distances)
+        self.robust_aggregator = Median()
+        logger.info("FedDive-R (Robust) strategy initialized.")
+
+    def aggregate(self, client_updates: List[Tuple[Dict[str, torch.Tensor], float]]) -> Dict[str, torch.Tensor]:
+        """
+        Aggregate client parameters using FedDive-R.
+        """
+        num_clients = len(client_updates)
+        if num_clients == 0:
+            return {}
+
+        logger.info(f"FedDive-R: Aggregating updates from {num_clients} clients.")
+        parameters_list = [params for params, _ in client_updates]
+        first_client_params = parameters_list[0]
+
+        # --- Step 1: Calculate Robust Average for Velocity Update ---
+        # This is the key change: use a robust aggregator to find the "true" center
+        # to prevent outliers from poisoning the velocity calculation.
+        logger.info("FedDive-R: Using Median to calculate robust center for velocity update.")
+        robust_avg_params = self.robust_aggregator.aggregate(client_updates)
+
+        # --- Step 2: Update Velocity (Momentum) based on ROBUST DELTAS ---
+        if not self.velocity or not self.previous_global_params:
+            # Initialize velocity and previous params on the first run
+            logger.info("FedDive-R: Initializing velocity and previous parameters.")
+            self.velocity = {name: torch.zeros_like(tensor) for name, tensor in first_client_params.items()}
+            self.previous_global_params = {name: tensor.clone() for name, tensor in robust_avg_params.items()}
+
+        # Calculate deltas from previous global parameters to the current ROBUST average
+        deltas = {name: robust_avg_params[name] - self.previous_global_params[name] for name in robust_avg_params}
+        
+        # Update velocity using the standard momentum formula on the robust delta
+        with torch.no_grad():
+            for name in self.velocity:
+                if name in deltas:
+                    self.velocity[name] = self.momentum * self.velocity[name] + \
+                                         (1.0 - self.momentum) * deltas[name]
+
+        logger.debug("FedDive-R: Robust velocity updated.")
+
+        # --- Step 3: Calculate Diversity Weights (using original params and robust velocity) ---
+        # The rest of the algorithm proceeds as in standard FedDive. We measure the
+        # distance of each original update from the now-robust velocity.
+        distances = np.array([
+            self._calculate_update_distance(params, self.velocity) for params in parameters_list
+        ])
+        
+        if self.normalize_distances and len(distances) > 1:
+            mean_dist = np.mean(distances)
+            std_dist = np.std(distances) if np.std(distances) > self.epsilon else 1.0
+            distances = (distances - mean_dist) / std_dist
+        
+        scaled_distances = distances / self.temperature
+        exp_distances = np.exp(scaled_distances + self.epsilon)
+        diversity_weights = exp_distances / np.sum(exp_distances)
+        
+        logger.debug(f"FedDive-R: Diversity weights: {diversity_weights}")
+
+        # --- Step 4: Weighted Aggregation using Diversity Weights on original params ---
+        aggregated_params = {name: torch.zeros_like(tensor) for name, tensor in first_client_params.items()}
+
+        for client_idx, client_params in enumerate(parameters_list):
+            client_weight = diversity_weights[client_idx]
+            for name, param_tensor in client_params.items():
+                if name in aggregated_params:
+                    aggregated_params[name] += client_weight * param_tensor
+
+        # Store current aggregated parameters as the previous for the next round
+        self.previous_global_params = {name: tensor.clone() for name, tensor in aggregated_params.items()}
+
+        logger.info("FedDive-R: Aggregation complete.")
         return aggregated_params

@@ -1,0 +1,4 @@
+experiment_name,agg_strategy,dataset,partition,alpha,num_clients,rounds,local_epochs,final_accuracy,final_loss
+Digits_NonIID_alpha0.3_FEDAVG,fedavg,digits,dirichlet,0.01,10,50,5,0.9277777777777778,0.34348922703001233
+Digits_NonIID_alpha0.3_FEDPROX,fedprox,digits,dirichlet,0.01,10,50,5,0.95,0.19436512771579956
+Digits_NonIID_alpha0.3_FEDDIVE,feddive,digits,dirichlet,0.01,10,50,5,0.7277777777777777,1.0719863878356086

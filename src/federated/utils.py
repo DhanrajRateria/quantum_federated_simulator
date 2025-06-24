@@ -14,8 +14,11 @@ from typing import Dict, List, Tuple, Optional, Union, Any, Callable
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import Dataset, Subset, random_split
+from torch.utils.data import Dataset, Subset, random_split, TensorDataset
 import yaml
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import make_blobs
+from sklearn.preprocessing import StandardScaler
 
 logger = logging.getLogger(__name__)
 
@@ -173,6 +176,116 @@ class FederatedDataset:
                 
         # Create subsets
         return [Subset(dataset, indices) for indices in client_indices]
+    
+    @staticmethod
+    def pathological_non_iid_partition(
+        dataset: Dataset, 
+        num_clients: int,
+        classes_per_client: int = 2
+    ) -> List[Subset]:
+        """
+        Creates a pathological non-IID partition where each client has data
+        from only a small, distinct number of classes.
+
+        Args:
+            dataset: The dataset to partition.
+            num_clients: Number of clients.
+            classes_per_client: The number of unique classes each client will receive.
+
+        Returns:
+            List of dataset subsets for each client.
+        """
+        # Get the targets from the dataset
+        if hasattr(dataset, 'targets'):
+            targets = np.array(dataset.targets)
+        elif hasattr(dataset, 'train_labels'):
+            targets = np.array(dataset.train_labels)
+        else:
+            # Fallback for datasets without a standard targets attribute
+            loader = torch.utils.data.DataLoader(dataset, batch_size=len(dataset))
+            _, targets_tensor = next(iter(loader))
+            targets = targets_tensor.numpy()
+
+        num_classes = len(np.unique(targets))
+        
+        # Create a dict of {class_id: [indices]}
+        class_indices = {i: np.where(targets == i)[0] for i in range(num_classes)}
+        
+        # Create a list of all class IDs and shuffle them
+        all_class_ids = list(range(num_classes))
+        np.random.shuffle(all_class_ids)
+        
+        # Assign classes to clients
+        client_data_indices = [[] for _ in range(num_clients)]
+        class_idx_pointer = 0
+        for i in range(num_clients):
+            for _ in range(classes_per_client):
+                # Assign a class to the client
+                target_class = all_class_ids[class_idx_pointer]
+                indices_for_class = class_indices[target_class]
+                
+                # Add all indices for that class to the current client
+                client_data_indices[i].extend(indices_for_class)
+                
+                # Move to the next class, looping back if necessary
+                class_idx_pointer = (class_idx_pointer + 1) % num_classes
+        
+        # Create subsets from the indices
+        client_subsets = [Subset(dataset, indices) for indices in client_data_indices]
+        return client_subsets
+    
+    def pathological_synthetic_partition(full_dataset: TensorDataset, num_clients: int) -> List[Subset]:
+        """
+        Splits the synthetic multi-modal dataset pathologically.
+        Even clients get Class 0 + top-left Class 1.
+        Odd clients get Class 0 + bottom-right Class 1.
+        """
+        logger.info("Partitioning synthetic data pathologically...")
+        X, y = full_dataset.tensors
+        
+        # Identify the indices for each cluster
+        class0_indices = np.where(y == 0)[0]
+        # Identify Class 1 modes by their original location (before scaling)
+        # This is a simplification; we can also do it by a simple split
+        class1_indices = np.where(y == 1)[0]
+        # Simple split: first half of class 1 indices go to one mode, second to other
+        class1_mode_a_indices = class1_indices[:len(class1_indices)//2]
+        class1_mode_b_indices = class1_indices[len(class1_indices)//2:]
+        
+        client_indices = [[] for _ in range(num_clients)]
+        for i in range(num_clients):
+            # All clients get a share of Class 0
+            client_indices[i].extend(np.array_split(class0_indices, num_clients)[i])
+            
+            # Distribute the two modes of Class 1
+            if i % 2 == 0: # Even clients get mode A
+                client_indices[i].extend(np.array_split(class1_mode_a_indices, (num_clients + 1) // 2)[i // 2])
+            else: # Odd clients get mode B
+                client_indices[i].extend(np.array_split(class1_mode_b_indices, num_clients // 2)[i // 2])
+                
+        return [Subset(full_dataset, indices) for indices in client_indices]
+    
+    @staticmethod
+    def partition(
+        dataset: Dataset,
+        partition_type: str,
+        num_clients: int,
+        **kwargs
+    ) -> List[Subset]:
+        """A centralized dispatcher for partitioning."""
+        if partition_type == "iid":
+            return FederatedDataset.iid_partition(dataset, num_clients)
+        elif partition_type == "dirichlet":
+            return FederatedDataset.dirichlet_partition(dataset, num_clients, **kwargs)
+        elif partition_type == "pathological_synthetic":
+            # Ensure it's a TensorDataset before calling
+            if isinstance(dataset, TensorDataset):
+                 return FederatedDataset.pathological_synthetic_partition(dataset, num_clients)
+            else:
+                 raise ValueError("Pathological synthetic partition only works on the synthetic TensorDataset.")
+        # Add other partition types here
+        else:
+            raise ValueError(f"Unknown partition type: {partition_type}")
 
 
 class ModelUtils:

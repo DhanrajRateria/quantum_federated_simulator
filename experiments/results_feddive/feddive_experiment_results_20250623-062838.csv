@@ -1,0 +1,12 @@
+experiment_name,final_accuracy,final_loss,error,agg_type,data_set,data_iid,data_alpha,feddive_momentum,feddive_temp
+BC_IID_FedAvg,0.9649122807017544,0.08698900043964386,,fedavg,breast_cancer,True,,,
+BC_IID_FedDive,0.9649122807017544,0.08310604095458984,,feddive,breast_cancer,True,,0.9,1.0
+Digits_NonIID_FedAvg,0.975,0.10272367348273595,,fedavg,digits,False,0.1,,
+Digits_NonIID_FedProx,0.9777777777777777,0.07319816441999541,,fedprox,digits,False,0.1,,
+Digits_NonIID_FedDive,0.9638888888888889,0.12537389778428606,,feddive,digits,False,0.1,0.9,0.5
+BC_NoisyClient_FedAvg,0.9649122807017544,0.0985012799501419,,fedavg,breast_cancer,True,,,
+BC_NoisyClient_Median,0.9649122807017544,0.08840927481651306,,median,breast_cancer,True,,,
+BC_NoisyClient_FedDive_Aggressive,0.868421052631579,49.01922607421875,,feddive,breast_cancer,True,,0.9,0.1
+BC_NoisyClient_FedDive_Cautious,0.956140350877193,0.11595425754785538,,feddive,breast_cancer,True,,0.9,10.0
+Digits_NonIID_FedDive_LowMomentum,0.9555555555555556,0.20674664494064118,,feddive,digits,False,0.1,0.1,0.5
+Digits_NonIID_FedDive_HighTemp,0.9805555555555555,0.07595097281866603,,feddive,digits,False,0.1,0.9,10.0

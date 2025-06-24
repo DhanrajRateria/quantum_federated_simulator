@@ -1,0 +1,97 @@
+2025-06-23 15:52:54,114 [INFO] FedDive_ExperimentRunner: Starting 3 experiments...
+2025-06-23 15:52:54,114 [INFO] FedDive_ExperimentRunner: ========== Starting: FMNIST_Pathological_FedAvg ==========
+2025-06-23 15:52:54,114 [INFO] FedDive_ExperimentRunner: --- Setting up experiment: FMNIST_Pathological_FedAvg ---
+2025-06-23 15:52:55,342 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-23 15:52:55,342 [INFO] src.utils.data_utils: Loading dataset: fashion-mnist, PCA features=None, Scaling=standard, Subset size=None
+2025-06-23 15:52:55,343 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-23 15:52:55,343 [INFO] src.utils.data_utils: Loading and preprocessing fashion-mnist for model type: mlp
+2025-06-23 15:53:04,046 [INFO] src.utils.data_utils: Data preparation complete. Train size: 50000, Test size: 10000, Features/Channels: 3072, Classes: 10
+2025-06-23 15:53:04,061 [INFO] FedDive_ExperimentRunner: Loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/client_config.yaml
+2025-06-23 15:53:04,066 [INFO] FedDive_ExperimentRunner: Loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/server_config.yaml
+2025-06-23 15:53:04,070 [INFO] FedDive_ExperimentRunner: Loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/default_aggregation.yaml
+2025-06-23 15:53:04,076 [INFO] FedDive_ExperimentRunner: Creating model of type: mlp with n_features=3072, n_classes=10
+2025-06-23 15:53:04,077 [ERROR] FedDive_ExperimentRunner: ========== Experiment FMNIST_Pathological_FedAvg failed: Unknown model type in config: mlp ==========
+Traceback (most recent call last):
+  File "/home/dhanraj/quantum_federated_simulator/run_mnist_experiment.py", line 208, in run_experiments
+    server, server_runtime_cfg = setup_federated_scenario(exp_config)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dhanraj/quantum_federated_simulator/run_mnist_experiment.py", line 161, in setup_federated_scenario
+    global_model = create_model(model_cfg, n_features, n_classes)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dhanraj/quantum_federated_simulator/run_mnist_experiment.py", line 88, in create_model
+    raise ValueError(f"Unknown model type in config: {model_type}")
+ValueError: Unknown model type in config: mlp
+2025-06-23 15:53:04,085 [INFO] FedDive_ExperimentRunner: ========== Starting: FMNIST_Pathological_FedProx ==========
+2025-06-23 15:53:04,085 [INFO] FedDive_ExperimentRunner: --- Setting up experiment: FMNIST_Pathological_FedProx ---
+2025-06-23 15:53:04,086 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-23 15:53:04,086 [INFO] src.utils.data_utils: Loading dataset: fashion-mnist, PCA features=None, Scaling=standard, Subset size=None
+2025-06-23 15:53:04,086 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-23 15:53:04,087 [INFO] src.utils.data_utils: Loading and preprocessing fashion-mnist for model type: mlp
+2025-06-23 15:53:08,242 [INFO] src.utils.data_utils: Data preparation complete. Train size: 50000, Test size: 10000, Features/Channels: 3072, Classes: 10
+2025-06-23 15:53:08,250 [INFO] FedDive_ExperimentRunner: Loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/client_config.yaml
+2025-06-23 15:53:08,254 [INFO] FedDive_ExperimentRunner: Loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/server_config.yaml
+2025-06-23 15:53:08,257 [INFO] FedDive_ExperimentRunner: Loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/default_aggregation.yaml
+2025-06-23 15:53:08,261 [INFO] FedDive_ExperimentRunner: Creating model of type: mlp with n_features=3072, n_classes=10
+2025-06-23 15:53:08,262 [ERROR] FedDive_ExperimentRunner: ========== Experiment FMNIST_Pathological_FedProx failed: Unknown model type in config: mlp ==========
+Traceback (most recent call last):
+  File "/home/dhanraj/quantum_federated_simulator/run_mnist_experiment.py", line 208, in run_experiments
+    server, server_runtime_cfg = setup_federated_scenario(exp_config)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dhanraj/quantum_federated_simulator/run_mnist_experiment.py", line 161, in setup_federated_scenario
+    global_model = create_model(model_cfg, n_features, n_classes)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dhanraj/quantum_federated_simulator/run_mnist_experiment.py", line 88, in create_model
+    raise ValueError(f"Unknown model type in config: {model_type}")
+ValueError: Unknown model type in config: mlp
+2025-06-23 15:53:08,265 [INFO] FedDive_ExperimentRunner: ========== Starting: FMNIST_Pathological_FedDive ==========
+2025-06-23 15:53:08,266 [INFO] FedDive_ExperimentRunner: --- Setting up experiment: FMNIST_Pathological_FedDive ---
+2025-06-23 15:53:08,266 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-23 15:53:08,266 [INFO] src.utils.data_utils: Loading dataset: fashion-mnist, PCA features=None, Scaling=standard, Subset size=None
+2025-06-23 15:53:08,267 [INFO] src.utils.data_utils: Set all random seeds to 42
+2025-06-23 15:53:08,267 [INFO] src.utils.data_utils: Loading and preprocessing fashion-mnist for model type: mlp
+2025-06-23 15:53:12,613 [INFO] src.utils.data_utils: Data preparation complete. Train size: 50000, Test size: 10000, Features/Channels: 3072, Classes: 10
+2025-06-23 15:53:12,622 [INFO] FedDive_ExperimentRunner: Loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/client_config.yaml
+2025-06-23 15:53:12,627 [INFO] FedDive_ExperimentRunner: Loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/server_config.yaml
+2025-06-23 15:53:12,630 [INFO] FedDive_ExperimentRunner: Loaded configuration from /home/dhanraj/quantum_federated_simulator/configs/federated/default_aggregation.yaml
+2025-06-23 15:53:12,634 [INFO] FedDive_ExperimentRunner: Creating model of type: mlp with n_features=3072, n_classes=10
+2025-06-23 15:53:12,635 [ERROR] FedDive_ExperimentRunner: ========== Experiment FMNIST_Pathological_FedDive failed: Unknown model type in config: mlp ==========
+Traceback (most recent call last):
+  File "/home/dhanraj/quantum_federated_simulator/run_mnist_experiment.py", line 208, in run_experiments
+    server, server_runtime_cfg = setup_federated_scenario(exp_config)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dhanraj/quantum_federated_simulator/run_mnist_experiment.py", line 161, in setup_federated_scenario
+    global_model = create_model(model_cfg, n_features, n_classes)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dhanraj/quantum_federated_simulator/run_mnist_experiment.py", line 88, in create_model
+    raise ValueError(f"Unknown model type in config: {model_type}")
+ValueError: Unknown model type in config: mlp
+2025-06-23 15:53:12,638 [ERROR] FedDive_ExperimentRunner: Failed to save results: 'final_accuracy'
+2025-06-23 15:53:12,638 [INFO] FedDive_ExperimentRunner: All selected experiments finished.
+2025-06-23 15:53:12,639 [INFO] FedDive_ExperimentRunner: Generating visualization plots...
+2025-06-23 15:53:12,639 [INFO] VisualizationIntegration: Generating advanced visualizations for BC experiments...
+2025-06-23 15:53:12,640 [INFO] AdvancedVisualization: Advanced visualization initialized with output directory: /home/dhanraj/quantum_federated_simulator/experiments/advanced_vis_bc
+2025-06-23 15:53:12,640 [INFO] AdvancedVisualization: Generating all visualizations...
+2025-06-23 15:53:12,640 [INFO] AdvancedVisualization: Generating advanced accuracy curves...
+2025-06-23 15:53:12,640 [INFO] AdvancedVisualization: Preparing round-by-round data for visualization...
+2025-06-23 15:53:12,641 [WARNING] AdvancedVisualization: Skipping failed experiment: FMNIST_Pathological_FedAvg
+2025-06-23 15:53:12,641 [WARNING] AdvancedVisualization: Skipping failed experiment: FMNIST_Pathological_FedProx
+2025-06-23 15:53:12,641 [WARNING] AdvancedVisualization: Skipping failed experiment: FMNIST_Pathological_FedDive
+2025-06-23 15:53:12,646 [WARNING] AdvancedVisualization: No round data available for plotting accuracy curves
+2025-06-23 15:53:12,646 [INFO] AdvancedVisualization: Generating advanced loss curves...
+2025-06-23 15:53:12,646 [INFO] AdvancedVisualization: Preparing round-by-round data for visualization...
+2025-06-23 15:53:12,646 [WARNING] AdvancedVisualization: Skipping failed experiment: FMNIST_Pathological_FedAvg
+2025-06-23 15:53:12,646 [WARNING] AdvancedVisualization: Skipping failed experiment: FMNIST_Pathological_FedProx
+2025-06-23 15:53:12,646 [WARNING] AdvancedVisualization: Skipping failed experiment: FMNIST_Pathological_FedDive
+2025-06-23 15:53:12,647 [WARNING] AdvancedVisualization: No round data available for plotting loss curves
+2025-06-23 15:53:12,647 [INFO] AdvancedVisualization: Generating accuracy vs resources plots...
+2025-06-23 15:53:12,647 [INFO] AdvancedVisualization: Preparing round-by-round data for visualization...
+2025-06-23 15:53:12,647 [WARNING] AdvancedVisualization: Skipping failed experiment: FMNIST_Pathological_FedAvg
+2025-06-23 15:53:12,647 [WARNING] AdvancedVisualization: Skipping failed experiment: FMNIST_Pathological_FedProx
+2025-06-23 15:53:12,648 [WARNING] AdvancedVisualization: Skipping failed experiment: FMNIST_Pathological_FedDive
+2025-06-23 15:53:12,648 [WARNING] AdvancedVisualization: No round data available for plotting accuracy vs resources
+2025-06-23 15:53:12,648 [INFO] AdvancedVisualization: Generating comparative bar plots...
+2025-06-23 15:53:12,648 [INFO] AdvancedVisualization: Preparing experiment metadata for visualization...
+2025-06-23 15:53:12,712 [ERROR] VisualizationIntegration: Error generating advanced visualizations: unsupported operand type(s) for +: 'int' and 'NoneType'
+2025-06-23 15:53:12,712 [INFO] VisualizationIntegration: Falling back to basic visualizations...
+2025-06-23 15:53:12,712 [ERROR] VisualizationIntegration: Could not find original plot_bc_results function for fallback
+2025-06-23 15:53:12,713 [INFO] FedDive_ExperimentRunner: Script finished.

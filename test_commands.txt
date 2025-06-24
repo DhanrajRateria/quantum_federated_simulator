@@ -1,3 +1,5 @@
 python mnist_federated.py --num-clients 10 --rounds 5 --iid
 python mnist_federated.py --num-clients 10 --rounds 10 --iid --save-model
 python mnist_federated.py --num-clients 20 --classes-per-client 3 --rounds 15 --save-model
+
+python visualize_bc_results.py --results /home/dhanraj/quantum_federated_simulator/experiments/results_bc/bc_experiment_results_20250520-091014.csv

@@ -1339,7 +1339,7 @@ class AdvancedVisualization:
         
         logger.info(f"Statistical test results saved to {stats_file_path}")
     
-        def create_combined_dashboard(self, results: List[Dict]) -> None:
+    def create_combined_dashboard(self, results: List[Dict]) -> None:
             """
             Create a comprehensive dashboard combining key visualizations.
             
@@ -1606,7 +1606,7 @@ class AdvancedVisualization:
             # Save the dashboard
             self.save_figure(fig, "experiment_dashboard", "dashboard")
             
-        def generate_all_visualizations(self, results: List[Dict]) -> None:
+    def generate_all_visualizations(self, results: List[Dict]) -> None:
             """
             Generate all visualizations in one go.
             

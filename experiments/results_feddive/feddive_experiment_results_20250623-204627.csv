@@ -1,0 +1,4 @@
+experiment_name,final_accuracy,final_loss,error,agg_type,data_set,data_iid,data_alpha,feddive_momentum,feddive_temp
+FMNIST_Pathological_FedAvg,0.1077,2.318542505645752,,fedavg,fashion-mnist,,,,
+FMNIST_Pathological_FedProx,0.1676,2.755169008255005,,fedprox,fashion-mnist,,,,
+FMNIST_Pathological_FedDive,0.1322,6.5221059555053715,,feddive,fashion-mnist,,,0.9,1.0

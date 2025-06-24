@@ -470,6 +470,15 @@ EXPERIMENTS_BREAST_CANCER = [
         "client_overrides": {"client": {"local_epochs": 3}, "optimization": {"learning_rate": 0.001, "optimizer": {"name": "Adam"}, "loss_function": "CrossEntropyLoss"}},
         "server_overrides": {"server": {"num_rounds": 5}, "client_management": {"num_clients": 5}}
     },
+    {
+        "name": "BC_MLP_FedDive_NonIID_a0.3_FullFeat",
+        "model": {"type": "classical_mlp", "hidden_dim": 64},
+        "data_config": {"name": "breast_cancer", "pca_features": None, "scaling": "standard"},
+        "data_partition": {"iid": False, "alpha": 0.3},
+        "aggregation_overrides": {"type": "feddive", "momentum": 0.9, "temperature": 1.0, "normalize_distances": True},
+        "client_overrides": {"client": {"local_epochs": 3}, "optimization": {"learning_rate": 0.001, "optimizer": {"name": "Adam"}, "loss_function": "CrossEntropyLoss"}},
+        "server_overrides": {"server": {"num_rounds": 5}, "client_management": {"num_clients": 5}}
+    },
 
     # === VQC Experiments (Updated) ===
     {
@@ -530,7 +539,44 @@ EXPERIMENTS_BREAST_CANCER = [
         },
         "server_overrides": {"server": {"num_rounds": 5}, "client_management": {"num_clients": 3}}
     },
-
+    {
+        "name": "BC_VQC_FedDive_IID_PCA4_L2_Basic",
+        "model": {
+            "type": "vqc", "n_qubits": 4, "n_layers": 2, "circuit_type": "basic",
+            "device": "lightning.qubit" # USE FAST SIMULATOR
+        },
+        "data_config": {"name": "breast_cancer", "pca_features": 4, "scaling": "minmax"}, # minmax for angle encoding often good
+        "data_partition": {"iid": True},
+        "aggregation_overrides": {"type": "feddive", "momentum": 0.9, "temperature": 1.0, "normalize_distances": True},
+        "client_overrides": {
+            "client": {"local_epochs": 3}, # Can increase if training is faster
+            "optimization": {
+                "learning_rate": 0.005, # Start with a moderate LR for Adam + quantum
+                "optimizer": {"name": "Adam"},
+                "loss_function": "CrossEntropyLoss" # VQC head now outputs 2 logits
+            }
+        },
+        "server_overrides": {"server": {"num_rounds": 5}, "client_management": {"num_clients": 3}}
+    },
+    {
+        "name": "BC_VQC_FedDive_NonIID_a0.5_PCA4_L2_Complex",
+        "model": {
+            "type": "vqc", "n_qubits": 4, "n_layers": 2, "circuit_type": "complex",
+            "device": "lightning.qubit"
+        },
+        "data_config": {"name": "breast_cancer", "pca_features": 4, "scaling": "minmax"},
+        "data_partition": {"iid": False, "alpha": 0.5},
+        "aggregation_overrides": {"type": "feddive", "momentum": 0.9, "temperature": 1.0, "normalize_distances": True},
+        "client_overrides": {
+            "client": {"local_epochs": 3},
+            "optimization": {
+                "learning_rate": 0.005,
+                "optimizer": {"name": "Adam"},
+                "loss_function": "CrossEntropyLoss"
+            }
+        },
+        "server_overrides": {"server": {"num_rounds": 5}, "client_management": {"num_clients": 3}}
+    },
     # === Hybrid Model Experiments (Updated) ===
     {
         "name": "BC_Hybrid_FedAvg_IID_PCA8_Q4L2_Basic",
@@ -583,7 +629,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     logger.info("Starting All Breast Cancer Experiments...")
-    results = run_all_bc_experiments(EXPERIMENTS_BREAST_CANCER)
+    # results = run_all_bc_experiments(EXPERIMENTS_BREAST_CANCER)
+    results = run_all_bc_experiments(EXPERIMENTS_BREAST_CANCER) # Uncomment to run all experimentsy
     logger.info("All Breast Cancer Experiments Finished.")
 
     try:
