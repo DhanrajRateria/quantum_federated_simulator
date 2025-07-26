@@ -1,3 +1,0 @@
-experiment_name,agg_strategy,dataset,partition,alpha,num_clients,rounds,local_epochs,final_accuracy,final_loss
-Synthetic_Pathological_FEDAVG,fedavg,synthetic_multi_modal,pathological_synthetic,,10,40,3,1.0,6.518921318726e-05
-Synthetic_Pathological_FEDDIVE,feddive,synthetic_multi_modal,pathological_synthetic,,10,40,3,1.0,8.099211702301546e-06

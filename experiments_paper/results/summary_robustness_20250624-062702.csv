@@ -1,5 +1,0 @@
-experiment_name,agg_strategy,dataset,partition,alpha,num_clients,rounds,local_epochs,final_accuracy,final_loss
-Digits_Noisy_FedAvg,fedavg,digits,dirichlet,0.5,10,40,5,0.1,
-Digits_Noisy_Median,median,digits,dirichlet,0.5,10,40,5,0.9666666666666667,0.14201370229323704
-Digits_Noisy_FedDive_Aggressive,feddive,digits,dirichlet,0.5,10,40,5,0.1,
-Digits_Noisy_FedDive_Cautious,feddive,digits,dirichlet,0.5,10,40,5,0.1,

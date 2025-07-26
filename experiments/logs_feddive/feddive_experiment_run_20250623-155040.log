@@ -1,7 +1,0 @@
-2025-06-23 15:50:40,477 [INFO] FedDive_ExperimentRunner: Starting 3 experiments...
-2025-06-23 15:50:40,477 [INFO] FedDive_ExperimentRunner: ========== Starting: FMNIST_Pathological_FedAvg ==========
-2025-06-23 15:50:40,477 [INFO] FedDive_ExperimentRunner: --- Setting up experiment: FMNIST_Pathological_FedAvg ---
-2025-06-23 15:50:40,765 [INFO] src.utils.data_utils: Set all random seeds to 42
-2025-06-23 15:50:40,766 [INFO] src.utils.data_utils: Loading dataset: fashion-mnist, PCA features=None, Scaling=standard, Subset size=None
-2025-06-23 15:50:40,766 [INFO] src.utils.data_utils: Set all random seeds to 42
-2025-06-23 15:50:40,766 [INFO] src.utils.data_utils: Loading and preprocessing fashion-mnist for model type: mlp
