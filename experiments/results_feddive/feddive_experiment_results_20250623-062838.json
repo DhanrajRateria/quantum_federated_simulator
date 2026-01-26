@@ -1,0 +1,70 @@
+[
+    {
+        "experiment_name": "BC_IID_FedAvg",
+        "config": {
+            "name": "BC_IID_FedAvg",
+            "model": {
+                "type": "classical_mlp",
+                "hidden_dim": 64
+            },
+            "data_config": {
+                "name": "breast_cancer"
+            },
+            "data_partition": {
+                "iid": true
+            },
+            "aggregation_overrides": {
+                "type": "fedavg"
+            },
+            "client_overrides": {
+                "client": {
+                    "local_epochs": 5
+                },
+                "optimization": {
+                    "learning_rate": 0.001
+                }
+            },
+            "server_overrides": {
+                "server": {
+                    "num_rounds": 20
+                },
+                "client_management": {
+                    "num_clients": 10
+                }
+            }
+        },
+        "round_history": [
+            {
+                "round": 1,
+                "status": "success",
+                "participating_clients": [
+                    "client_1",
+                    "client_0",
+                    "client_4",
+                    "client_9",
+                    "client_6",
+                    "client_5",
+                    "client_8",
+                    "client_2",
+                    "client_3",
+                    "client_7"
+                ],
+                "client_samples": [
+                    225,
+                    225,
+                    225,
+                    250,
+                    225,
+                    225,
+                    225,
+                    225,
+                    225,
+                    225
+                ],
+                "total_samples": 2275,
+                "duration_seconds": 0.36934781074523926,
+                "evaluation_metrics": {
+                    "loss": 0.5913040041923523,
+                    "accuracy": 0.8771929824561403
+                },
+                "comm_download_bytes_per_client": 

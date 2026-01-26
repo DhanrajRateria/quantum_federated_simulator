@@ -1,0 +1,4 @@
+experiment_name,final_accuracy,final_loss,error,agg_type,data_set,data_iid,data_alpha,feddive_momentum,feddive_temp
+CIFAR10_NonIID_FedAvg,0.468,2.0916876125335695,,fedavg,cifar10,False,0.3,,
+CIFAR10_NonIID_FedProx,0.4662,2.0368526081085205,,fedprox,cifar10,False,0.3,,
+CIFAR10_NonIID_FedDive_Tuned,0.3448,2.612104964065552,,feddive,cifar10,False,0.3,0.9,1.0
